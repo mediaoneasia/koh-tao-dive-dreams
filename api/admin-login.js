@@ -1,6 +1,6 @@
 // Vercel Serverless Function: Basic Admin Login
 
-const ADMIN_EMAIL = process.env.ADMIN_EMAILS || 'peter@p.com';
+const ADMIN_EMAIL = process.env.ADMIN_EMAILS || 'p@p.com';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || ',.,.,.,.';
 
 export default async function handler(req, res) {
