@@ -29,12 +29,11 @@ const ProLevelCourses: React.FC = () => {
     { title: 'Underwater Navigator' },
     { title: 'Wreck Instructor' },
     { title: 'MSDT Instructor Specialty courses Koh Tao - Sidemount' },
-  ];
-
-  const slugify = (s: string) =>
-    s
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
+    {
+      title: 'PADI MSDT Program',
+      path: '/courses/msdt-program',
+      description: 'Become a Master Scuba Diver Trainer (MSDT) and boost your career with the ability to teach a range of PADI specialty courses. Includes hands-on training, team teaching, and guidance to help you reach the required certifications.'
+    },
       .replace(/(^-|-$)/g, '');
 
   return (

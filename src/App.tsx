@@ -1,3 +1,4 @@
+import MSDTProgram from './pages/MSDTProgram';
 import { useEffect, useState } from 'react';
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -174,6 +175,7 @@ const App = () => (
             <Route path="/courses/rescue" element={<Rescue />} />
             <Route path="/courses/divemaster" element={<Divemaster />} />
             <Route path="/courses/instructor" element={<Instructor />} />
+            <Route path="/courses/msdt-program" element={<MSDTProgram />} />
             <Route path="/courses/scuba-review" element={<ScubaReview />} />
             <Route path="/courses/scuba-diver" element={<ScubaDiver />} />
             <Route path="/courses/pro-level" element={<ProLevelCourses />} />

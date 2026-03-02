@@ -129,6 +129,7 @@ const Navigation = () => {
         { name: t('courses.instructor.title'), to: '/courses/instructor' },
         { name: 'Divemaster Internship', to: '/internship/divemaster' },
         { name: isDutch ? 'Instructeur Internship' : 'Instructor Internship', to: '/internship/instructor' },
+        { name: 'PADI MSDT Program', to: '/courses/msdt-program' },
       ],
     },
     
