@@ -40,7 +40,7 @@ export default async function handler(req, res) {
 
     await transporter.sendMail({
       from: smtpUser || 'bookings@prodiving.asia',
-      to: 'bookings@prodiving.asia',
+      to: 'bookings@prodiving.asiaru',
       subject: `New Booking Inquiry: ${item_title}`,
       text: body,
     });

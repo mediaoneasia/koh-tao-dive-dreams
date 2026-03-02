@@ -12,8 +12,6 @@ import Courses from './components/Courses';
 
 import Index from './pages/Index';
 import NotFound from './pages/NotFound';
-import Admin from './pages/Admin';
-import AdminLogin from './pages/AdminLogin';
 import AffiliateStats from './pages/AffiliateStats';
 import TripAffiliateStats from './pages/TripAffiliateStats';
 import BookingAffiliate from './pages/BookingAffiliate';
@@ -164,8 +162,7 @@ const App = () => (
             <Route path="/admin/trip-affilate-stats" element={<Navigate to="/admin/trip-affiliate-stats" replace />} />
 
             <Route path="/booking" element={<BookingPage />} />
-            <Route path="/admin" element={<RequireAdmin><Admin /></RequireAdmin>} />
-            <Route path="/admin/login" element={<AdminLogin />} />
+            {/* Admin routes removed */}
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/account" element={<Account />} />

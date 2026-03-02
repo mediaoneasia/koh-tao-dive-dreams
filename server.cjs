@@ -145,25 +145,31 @@ app.post('/api/bookings', async (req, res) => {
     name,
     email,
     phone,
-    item_type,
-    });
+    item_type
+  } = req.body;
+
+  // Compose fields for Airtable
+  const fields = { id, name, email, phone, item_type };
+  try {
+    let response, payload;
+    // Attempt to create booking, retry if unknown field error
+    for (let attempts = 0; attempts < 3; attempts++) {
       response = await fetch(airtableUrl(BOOKINGS_TABLE), {
         method: 'POST',
         headers: airtableHeaders(),
         body: JSON.stringify({ fields }),
       });
-
       payload = await response.json();
       if (response.ok) {
         return res.status(201).json(mapBooking(payload));
       }
-
       const unknownField = parseUnknownFieldName(payload?.error?.message || '');
       const nextFields = mutateFieldsForUnknown(fields, unknownField);
-      if (!nextFields) break;
-      fields = nextFields;
+      if (!nextFields) {
+        return res.status(response?.status || 500).json({ error: payload?.error?.message || 'Failed to create booking' });
+      }
+      Object.assign(fields, nextFields);
     }
-
     return res.status(response?.status || 500).json({ error: payload?.error?.message || 'Failed to create booking' });
   } catch (err) {
     return res.status(500).json({ error: err.message });
