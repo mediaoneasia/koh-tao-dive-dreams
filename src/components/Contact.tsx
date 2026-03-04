@@ -28,18 +28,21 @@ const Contact = () => {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      const response = await fetch("/api/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: `${formData.firstName} ${formData.lastName}`,
-          email: formData.email,
-          subject: formData.subject,
-          message: formData.message
-        })
+      const payload = {
+        access_key: '4ca93aa5-cd42-4902-af87-a08e1ae7c832',
+        to: 'contact@prodiving.asia',
+        subject: formData.subject || 'Contact Form Submission',
+        name: `${formData.firstName} ${formData.lastName}`,
+        email: formData.email,
+        message: formData.message
+      };
+      const response = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
       });
-      const data = await response.json();
-      if (data.success) {
+      const data = await response.json().catch(() => ({}));
+      if (response.ok && data.success) {
         toast.success("Message sent successfully! We'll get back to you soon.");
         setFormData({
           firstName: '',
@@ -49,7 +52,9 @@ const Contact = () => {
           message: ''
         });
       } else {
-        toast.error(data.error || "Send failed. Please try again.");
+        const errMsg = data?.error || `HTTP ${response.status}`;
+        console.error('Web3Forms error:', errMsg, data);
+        toast.error(`Send failed: ${errMsg}. Please try again.`);
       }
     } catch (error) {
       console.error('Contact form submission failed:', error);
