@@ -34,7 +34,19 @@ const ProLevelCourses: React.FC = () => {
       path: '/courses/msdt-program',
       description: 'Become a Master Scuba Diver Trainer (MSDT) and boost your career with the ability to teach a range of PADI specialty courses. Includes hands-on training, team teaching, and guidance to help you reach the required certifications.'
     },
-      .replace(/(^-|-$)/g, '');
+  ];
+
+  // Utility to create URL-friendly slugs from course titles
+  function slugify(text: string): string {
+    return text
+      .toString()
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, '-')           // Replace spaces with -
+      .replace(/[^\w\-]+/g, '')      // Remove all non-word chars
+      .replace(/--+/g, '-')            // Replace multiple - with single -
+      .replace(/(^-|-$)/g, '');        // Trim - from start/end
+  }
 
   return (
     <div className="min-h-screen bg-background">
