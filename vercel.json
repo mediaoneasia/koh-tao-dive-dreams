@@ -18,11 +18,6 @@
       }
     }
   ],
-  "functions": {
-    "api/*.js": {
-      "runtime": "nodejs18.x"
-    }
-  },
   "routes": [
     { "src": "/api/bookings/([^/]+)/status", "dest": "/api/bookings/[id]/status.js?id=$1" },
     { "src": "/api/bookings/([^/]+)", "dest": "/api/bookings/[id]/index.js?id=$1" },
