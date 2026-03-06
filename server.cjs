@@ -191,64 +191,17 @@ app.post('/api/bookings', async (req, res) => {
 });
 
 app.get('/api/affiliate-clicks', async (req, res) => {
-  try {
-    const affiliateId = req.query?.affiliate_id;
-    const limit = Number(req.query?.limit || 500);
-    const safeLimit = Number.isFinite(limit) ? Math.max(1, Math.min(limit, 1000)) : 500;
-
-    let query = supabase
-      .from('affiliate_clicks')
-      .select('*')
-      .order('clicked_at', { ascending: false })
-      .limit(safeLimit);
-
-    if (affiliateId) {
-      query = query.eq('affiliate_id', affiliateId);
-    }
-
-    const { data, error } = await query;
-    if (error) {
-      return res.status(500).json({ error: error.message });
-    }
-    return res.json((data || []).map((r) => ({
-      id: r.id,
-      hotel_name: r.hotel_name || '',
-      hotel_url: r.hotel_url || '',
-      affiliate_id: r.affiliate_id || null,
-      clicked_at: r.clicked_at || null,
-      referrer: r.referrer || null,
-      user_agent: r.user_agent || null,
-    })));
-  } catch (err) {
-    return res.status(500).json({ error: err.message });
-  }
+  return res.status(200).json({
+    disabled: true,
+    message: 'Affiliate click tracking has been disabled on this server.',
+  });
 });
 
 app.post('/api/affiliate-clicks', async (req, res) => {
-  try {
-    const { id, hotel_name, hotel_url, affiliate_id, referrer, user_agent, clicked_at } = req.body || {};
-    if (!hotel_name || !hotel_url) {
-      return res.status(400).json({ error: 'Missing required fields: hotel_name and hotel_url' });
-    }
-
-    const row = {
-      id: id || (globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`),
-      hotel_name,
-      hotel_url,
-      affiliate_id: affiliate_id || null,
-      referrer: referrer || null,
-      user_agent: user_agent || null,
-      clicked_at: clicked_at || new Date().toISOString(),
-    };
-
-    const { data, error } = await supabase.from('affiliate_clicks').insert([row]).select();
-    if (error) {
-      return res.status(500).json({ error: error.message });
-    }
-    return res.status(201).json((data || [])[0]);
-  } catch (err) {
-    return res.status(500).json({ error: err.message });
-  }
+  return res.status(200).json({
+    disabled: true,
+    message: 'Affiliate click tracking has been disabled on this server and no data is being stored.',
+  });
 });
 
 // Catch-all handler: send back index.html for client-side routing
