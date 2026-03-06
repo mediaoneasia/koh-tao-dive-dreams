@@ -94,129 +94,64 @@ const fetchClicksWithTableFallback = async (queryString) => {
   let lastFailure = { status: 500, payload: { error: { message: 'Failed to fetch affiliate clicks' } } };
 
   for (const tableName of TABLE_CANDIDATES) {
-    const response = await fetch(airtableUrl(tableName, queryString), {
-      method: 'GET',
-      headers: getHeaders(),
-    });
-    const payload = await response.json().catch(() => ({}));
+    import { createClient } from '@supabase/supabase-js';
 
-    if (response.ok) {
-      return { ok: true, response, payload, tableName };
-    }
+    const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+    const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
 
-    const message = payload?.error?.message || '';
-    const tableNotFound = message.toLowerCase().includes('could not find table') || response.status === 404;
-    if (tableNotFound) {
-      lastFailure = { status: response.status, payload };
-      continue;
-    }
-
-    return { ok: false, response, payload, tableName };
-  }
-
-  return { ok: false, response: { status: lastFailure.status }, payload: lastFailure.payload, tableName: null };
-};
-
-export default async function handler(req, res) {
-  if (handleOptions(req, res)) return;
-  applyCors(res);
-
-  if (!AIRTABLE_TOKEN || !AIRTABLE_BASE_ID) {
-    return res.status(500).json({ error: 'Airtable is not configured. Set AIRTABLE_PERSONAL_ACCESS_TOKEN and AIRTABLE_BASE_ID.' });
-  }
-
-  try {
-    if (req.method === 'GET') {
-      const { affiliate_id } = req.query || {};
-      const debug = String(req.query?.debug || '') === '1';
-      const limit = Number(req.query?.limit || 500);
-
-      const paramsWithSort = new URLSearchParams();
-      paramsWithSort.set('maxRecords', String(Number.isFinite(limit) ? Math.max(1, Math.min(limit, 1000)) : 500));
-      paramsWithSort.set('sort[0][field]', 'clicked_at');
-      paramsWithSort.set('sort[0][direction]', 'desc');
-
-      if (affiliate_id) {
-        const escapedAffiliateId = escapeFormulaValue(affiliate_id);
-        const affiliateIdAsNumber = Number(affiliate_id);
-        const isNumericAffiliateId = Number.isFinite(affiliateIdAsNumber);
-        const filterFormula = isNumericAffiliateId
-          ? `OR({affiliate_id}='${escapedAffiliateId}', {affiliate_id}=${affiliateIdAsNumber})`
-          : `{affiliate_id}='${escapedAffiliateId}'`;
-        paramsWithSort.set('filterByFormula', filterFormula);
+    export default async function handler(req, res) {
+      if (req.method === 'OPTIONS') {
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+        res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+        res.status(204).end();
+        return;
       }
+      res.setHeader('Access-Control-Allow-Origin', '*');
 
-      let result = await fetchClicksWithTableFallback(paramsWithSort.toString());
-      let response = result.response;
-      let payload = result.payload;
-
-      if (!response.ok && payload?.error?.message?.includes('Unknown field name: "clicked_at"')) {
-        const paramsNoSort = new URLSearchParams();
-        paramsNoSort.set('maxRecords', String(Number.isFinite(limit) ? Math.max(1, Math.min(limit, 1000)) : 500));
-        if (affiliate_id) {
-          const escapedAffiliateId = escapeFormulaValue(affiliate_id);
-          const affiliateIdAsNumber = Number(affiliate_id);
-          const isNumericAffiliateId = Number.isFinite(affiliateIdAsNumber);
-          const filterFormula = isNumericAffiliateId
-            ? `OR({affiliate_id}='${escapedAffiliateId}', {affiliate_id}=${affiliateIdAsNumber})`
-            : `{affiliate_id}='${escapedAffiliateId}'`;
-          paramsNoSort.set('filterByFormula', filterFormula);
+      try {
+        if (req.method === 'GET') {
+          const { affiliate_id, limit = 500 } = req.query || {};
+          let query = supabase
+            .from('affiliate_clicks')
+            .select('*')
+            .order('clicked_at', { ascending: false })
+            .limit(Number(limit));
+          if (affiliate_id) {
+            query = query.eq('affiliate_id', affiliate_id);
+          }
+          const { data, error } = await query;
+          if (error) {
+            return res.status(500).json({ error: error.message });
+          }
+          return res.status(200).json(data || []);
         }
 
-        result = await fetchClicksWithTableFallback(paramsNoSort.toString());
-        response = result.response;
-        payload = result.payload;
+        if (req.method === 'POST') {
+          const body = req.body && typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
+          if (!body.hotel_name || !body.hotel_url) {
+            return res.status(400).json({ error: 'Missing required fields: hotel_name and hotel_url' });
+          }
+          const insertData = {
+            hotel_name: body.hotel_name,
+            hotel_url: body.hotel_url,
+            affiliate_id: body.affiliate_id,
+            referrer: body.referrer,
+            user_agent: body.user_agent,
+            clicked_at: body.clicked_at || new Date().toISOString(),
+          };
+          const { data, error } = await supabase.from('affiliate_clicks').insert([insertData]).select();
+          if (error) {
+            return res.status(500).json({ error: error.message });
+          }
+          return res.status(201).json(data && data[0] ? data[0] : insertData);
+        }
+
+        res.setHeader('Allow', 'GET, POST');
+        return res.status(405).json({ error: 'Method not allowed' });
+      } catch (err) {
+        console.error('api/affiliate-clicks error', err);
+        return res.status(500).json({ error: err?.message || 'Internal error' });
       }
-
-      if (!response.ok) {
-        return res.status(response.status).json({ error: payload?.error?.message || 'Failed to fetch affiliate clicks' });
-      }
-
-      const rows = (payload.records || []).map(mapClickRecord);
-
-      if (debug) {
-        return res.status(200).json({
-          rows,
-          meta: {
-            tableUsed: result?.tableName || null,
-            tableCandidates: TABLE_CANDIDATES,
-            rowCount: rows.length,
-            hasAffiliateFilter: Boolean(affiliate_id),
-          },
-        });
-      }
-
-      return res.status(200).json(rows);
     }
-
-    if (req.method === 'POST') {
-      const body = parseBody(req);
-      if (!body.hotel_name || !body.hotel_url) {
-        return res.status(400).json({ error: 'Missing required fields: hotel_name and hotel_url' });
-      }
-
-      const fields = compactFields({
-        hotel_name: body.hotel_name,
-        hotel_url: body.hotel_url,
-        affiliate_id: body.affiliate_id,
-        referrer: body.referrer,
-        user_agent: body.user_agent,
-        clicked_at: body.clicked_at || new Date().toISOString(),
-      });
-
-      const result = await createRecordWithSchemaFallback(fields);
-
-      if (!result.ok) {
-        return res.status(result.status).json({ error: result?.payload?.error?.message || 'Failed to create affiliate click' });
-      }
-
-      return res.status(201).json(mapClickRecord(result.payload));
-    }
-
-    res.setHeader('Allow', 'GET, POST');
-    return res.status(405).json({ error: 'Method not allowed' });
-  } catch (err) {
-    console.error('api/affiliate-clicks error', err);
-    return res.status(500).json({ error: err?.message || 'Internal error' });
-  }
-}
