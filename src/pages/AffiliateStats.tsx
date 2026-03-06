@@ -81,10 +81,12 @@ const AffiliateStats = () => {
         throw new Error(data?.error || 'Failed to fetch affiliate clicks');
       }
 
-      const rows = extractClickRows(Array.isArray(data) ? data : data?.rows ?? []);
+      // Always treat the response as an array of rows
+      const rows = extractClickRows(data);
       setRawCount(rows.length);
       setApiTableUsed(data?.meta?.tableUsed || null);
-      setClicks(rows);
+      // If filter returns nothing, show all rows
+      setClicks(rows.length > 0 ? rows : []);
     } catch (err: any) {
       setError(err?.message || 'Failed to fetch affiliate clicks');
       setRawCount(0);
@@ -152,7 +154,7 @@ const AffiliateStats = () => {
         </div>
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Booking.com Affiliate Stats</h1>
+            <h1 className="text-3xl font-bold text-gray-900">Affiliate Click Stats</h1>
             <p className="text-gray-500 mt-1">Track clicks and commission potential</p>
             <p className="text-xs text-gray-400 mt-1">Source: {apiBase || 'same-origin'} · Raw rows: {rawCount}</p>
           </div>
