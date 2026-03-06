@@ -272,28 +272,7 @@ const TripAffiliate = () => {
           ))}
         </div>
 
-        {/* Also check Booking.com */}
-        <div className="grid md:grid-cols-2 gap-6 mt-16">
-          <div className="text-center p-8 bg-orange-50 rounded-2xl">
-            <h3 className="text-xl font-bold mb-3">Can't find what you're looking for?</h3>
-            <p className="text-gray-600 mb-6">Browse all available accommodations with real-time prices and availability.</p>
-            <Button onClick={handleSearchAll} className="bg-orange-500 hover:bg-orange-600 text-white">
-              <ExternalLink className="w-4 h-4 mr-2" />
-              View All on Trip.com
-            </Button>
-          </div>
-          <div className="text-center p-8 bg-blue-50 rounded-2xl">
-            <h3 className="text-xl font-bold mb-3">Also check Booking.com</h3>
-            <p className="text-gray-600 mb-6">Compare prices across both platforms to find the best deal for your stay.</p>
-            <Button
-              onClick={() => window.open('/accommodation-booking', '_self')}
-              className="bg-blue-600 hover:bg-blue-700 text-white"
-            >
-              <ExternalLink className="w-4 h-4 mr-2" />
-              View on Booking.com
-            </Button>
-          </div>
-        </div>
+        {/* Booking.com section removed */}
 
         <p className="text-xs text-gray-400 text-center mt-8">
           We may earn a commission when you book through our links — at no extra cost to you.
