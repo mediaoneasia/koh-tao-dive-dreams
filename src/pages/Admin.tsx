@@ -52,7 +52,7 @@ const Admin = () => {
     ? (apiBaseRaw.startsWith('http://') || apiBaseRaw.startsWith('https://')
         ? apiBaseRaw
         : `https://${apiBaseRaw}`)
-    : 'https://koh-tao-dive-dreams.vercel.app';
+    : 'https://divinginasia.com';
   const apiBase = apiBaseNormalized.replace(/\/+$/, '');
   const apiUrl = useCallback((path: string) => `${apiBase}${path}`, [apiBase]);
   const [isLoading, setIsLoading] = useState(true);
