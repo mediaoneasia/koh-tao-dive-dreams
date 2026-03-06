@@ -140,7 +140,6 @@ app.get('/api/bookings', async (req, res) => {
 // POST /api/bookings route below (adds a booking into the `bookings` table).
 
 app.put('/api/bookings/:id/status', async (req, res) => {
-  if (!ensureAirtable(res)) return;
   const { id } = req.params;
   const { status } = req.body;
 
@@ -155,17 +154,17 @@ app.put('/api/bookings/:id/status', async (req, res) => {
       return res.status(404).json({ error: 'Booking not found' });
     }
 
-    const response = await fetch(`${airtableUrl(BOOKINGS_TABLE)}/${record.id}`, {
-      method: 'PATCH',
-      headers: airtableHeaders(),
-      body: JSON.stringify({ fields: { status, updated_at: new Date().toISOString() } }),
-    });
-    const payload = await response.json();
-    if (!response.ok) {
-      return res.status(response.status).json({ error: payload?.error?.message || 'Failed to update status' });
+    const { data, error } = await supabase
+      .from('bookings')
+      .update({ status, updated_at: new Date().toISOString() })
+      .eq('id', record.id)
+      .select();
+
+    if (error) {
+      return res.status(500).json({ error: error.message });
     }
 
-    return res.json({ message: 'Status updated', booking: mapBooking(payload) });
+    return res.json({ message: 'Status updated', booking: (data || [])[0] });
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }
