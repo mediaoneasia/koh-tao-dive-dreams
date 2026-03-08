@@ -1,4 +1,3 @@
-
 const affiliateClicksStore = [];
 const MAX_AFFILIATE_CLICK_EVENTS = 2000;
 
@@ -10,11 +9,14 @@ export default async function handler(req, res) {
     res.status(204).end();
     return;
   }
+
   res.setHeader('Access-Control-Allow-Origin', '*');
 
   try {
+    const query = req.query || {};
+
     if (req.method === 'GET') {
-      const providerFilter = typeof req.query.provider === 'string' ? req.query.provider : null;
+      const providerFilter = typeof query.provider === 'string' ? query.provider : null;
       const filtered = providerFilter
         ? affiliateClicksStore.filter((event) => event.provider === providerFilter)
         : affiliateClicksStore;
@@ -63,7 +65,7 @@ export default async function handler(req, res) {
       return res.status(201).json({ ok: true, id: event.id });
     }
 
-    res.setHeader('Allow', 'GET, POST');
+    res.setHeader('Allow', 'GET, POST, OPTIONS');
     return res.status(405).json({ error: 'Method not allowed' });
   } catch (err) {
     console.error('api/affiliate-clicks error', err);

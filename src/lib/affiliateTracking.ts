@@ -9,6 +9,20 @@ type AffiliateClickInput = {
 };
 
 const SESSION_KEY = 'affiliate_click_session_id';
+const RAW_API_BASE = (import.meta.env.VITE_API_BASE_URL as string | undefined)?.trim() || '';
+
+const buildTrackingUrl = () => {
+  const path = '/api/affiliate-clicks';
+
+  // Prefer explicit API base so static-hosted frontend can still reach serverless API.
+  if (RAW_API_BASE) {
+    return `${RAW_API_BASE.replace(/\/$/, '')}${path}`;
+  }
+
+  return path;
+};
+
+const TRACKING_URL = buildTrackingUrl();
 
 const getOrCreateSessionId = () => {
   try {
@@ -44,14 +58,14 @@ export const trackAffiliateClick = (input: AffiliateClickInput) => {
   try {
     if (navigator.sendBeacon) {
       const blob = new Blob([body], { type: 'application/json' });
-      navigator.sendBeacon('/api/affiliate-clicks', blob);
+      navigator.sendBeacon(TRACKING_URL, blob);
       return;
     }
   } catch {
     // Fall back to fetch below.
   }
 
-  fetch('/api/affiliate-clicks', {
+  fetch(TRACKING_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body,
