@@ -1,4 +1,4 @@
-type AffiliateProvider = 'agoda' | 'booking' | 'trip';
+type AffiliateProvider = 'agoda' | 'booking';
 
 type AffiliateClickInput = {
   provider: AffiliateProvider;

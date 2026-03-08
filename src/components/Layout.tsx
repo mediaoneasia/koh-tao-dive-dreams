@@ -62,7 +62,6 @@ const Footer: React.FC = () => {
             <li><Link to="/VisasKohTao" className="hover:text-white transition">Visas</Link></li>
             <li><Link to="/MedicalServices" className="hover:text-white transition">{isDutch ? 'Medisch' : 'Medical'}</Link></li>
             <li><Link to="/accommodation-booking" className="hover:text-white transition">Booking.com</Link></li>
-            <li><Link to="/trip-hotels" className="hover:text-white transition">Trip.com</Link></li>
             <li><Link to="/agoda-hotels" className="hover:text-white transition">Agoda</Link></li>
             <li><Link to="/#contact" className="hover:text-white transition">Contact</Link></li>
           </ul>
