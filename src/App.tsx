@@ -164,6 +164,7 @@ const App = () => (
             <Route path="/booking" element={<BookingPage />} />
             {/* Admin routes removed */}
             <Route path="/login" element={<Login />} />
+            <Route path="/admin/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/account" element={<Account />} />
 
