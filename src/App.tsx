@@ -14,7 +14,7 @@ import Courses from './components/Courses';
 import Index from './pages/Index';
 import NotFound from './pages/NotFound';
 import BookingAffiliate from './pages/BookingAffiliate';
-import TripAffiliate from './pages/TripAffiliate';
+import TripHotels from './pages/TripHotels';
 import BookingPage from './pages/BookingPage';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
@@ -157,7 +157,8 @@ const App = () => (
             <Route path="/" element={<Index />} />
 
             <Route path="/accommodation-booking" element={<BookingAffiliate />} />
-            <Route path="/trip-booking" element={<TripAffiliate />} />
+            <Route path="/trip-hotels" element={<TripHotels />} />
+            <Route path="/trip-booking" element={<Navigate to="/trip-hotels" replace />} />
 
             <Route path="/booking" element={<BookingPage />} />
             {/* Admin routes removed */}

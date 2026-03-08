@@ -4,11 +4,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ExternalLink, Star, MapPin } from 'lucide-react';
 
-// Trip.com affiliate Alliance ID
-const ALLIANCE_ID = '7864578'; // Trip.com account ID for tracking
-const SITE_ID = '295439656'; // Trip.com site ID for outbound links
-//const SID = 'onemediaasia'; // sub-tracking ID (optional)
-
 const hotels = [
   {
     name: "Ban's Diving Resort",
@@ -94,25 +89,19 @@ const getPriceColor = (price: string) => {
   }
 };
 
-const buildTripUrl = () => {
-  // Example Trip.com affiliate link with both account and site ID
-  // Replace with the correct Trip.com URL pattern if needed
-  return `https://www.trip.com/?allianceid=${ALLIANCE_ID}&sid=${SITE_ID}`;
-};
+const TRIP_BASE_URL = 'https://www.trip.com/';
 
-const TripAffiliate = () => {
+const TripHotels = () => {
   const [clicking, setClicking] = useState<string | null>(null);
 
   const handleHotelClick = async (hotel: typeof hotels[0]) => {
     setClicking(hotel.name);
-    const affiliateUrl = buildTripUrl();
-    window.open(affiliateUrl, '_blank', 'noopener,noreferrer');
+    window.open(TRIP_BASE_URL, '_blank', 'noopener,noreferrer');
     setClicking(null);
   };
 
   const handleSearchAll = async () => {
-    const searchUrl = buildTripUrl();
-    window.open(searchUrl, '_blank', 'noopener,noreferrer');
+    window.open(TRIP_BASE_URL, '_blank', 'noopener,noreferrer');
   };
 
   return (
@@ -204,11 +193,11 @@ const TripAffiliate = () => {
         {/* Booking.com section removed */}
 
         <p className="text-xs text-gray-400 text-center mt-8">
-          We may earn a commission when you book through our links — at no extra cost to you.
+          These are independent recommendations and links without tracking parameters.
         </p>
       </div>
     </div>
   );
 };
 
-export default TripAffiliate;
+export default TripHotels;

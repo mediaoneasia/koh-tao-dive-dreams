@@ -209,7 +209,7 @@ const BookingAffiliate = () => {
           <div className="text-center p-8 bg-orange-50 rounded-2xl">
             <h3 className="text-2xl font-bold mb-3">Also check Trip.com</h3>
             <p className="text-gray-600 mb-6">Compare prices across both platforms to find the best deal for your stay.</p>
-            <Button onClick={() => window.open('/trip-booking', '_self')} size="lg" className="bg-orange-500 hover:bg-orange-600 text-white">
+            <Button onClick={() => window.open('/trip-hotels', '_self')} size="lg" className="bg-orange-500 hover:bg-orange-600 text-white">
               <ExternalLink className="w-4 h-4 mr-2" />
               View on Trip.com
             </Button>
