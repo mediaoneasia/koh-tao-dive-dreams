@@ -265,7 +265,7 @@ const FunDiving = () => {
               <h2 className="text-4xl font-bold text-center mb-8">Trips & Programs</h2>
               <div className="grid md:grid-cols-3 gap-6">
                 <Card className="overflow-hidden">
-                  <img src="/images/photo-1682687982423-295485af248a.avif" alt="Fun Dive" className="w-full h-40 object-cover" />
+                  <img src="/images/fun-dsd/fun.png" alt="Fun Dive" className="w-full h-40 object-cover" />
                   <CardHeader>
                     <div className="flex items-center justify-between">
                       <CardTitle>Fun Dive</CardTitle>
@@ -285,7 +285,7 @@ const FunDiving = () => {
                 </Card>
 
                 <Card className="overflow-hidden">
-                  <img src="/images/dsd-pool-training.jpg" alt="Discover Scuba Diving - Pool Training" className="w-full h-40 object-cover" />
+                  <img src="/images/fun-dsd/discover-scuba-dsd.png" alt="Discover Scuba Diving - Pool Training" className="w-full h-40 object-cover" />
                   <CardHeader>
                     <div className="flex items-center justify-between">
                       <CardTitle>Discover Scuba (Try Dive)</CardTitle>
