@@ -7,18 +7,35 @@ import { Badge } from '@/components/ui/badge';
 import { useNavigate } from 'react-router-dom';
 import ImageRow from '@/components/ImageRow';
 import openWaterHero from '../../images/openwater/openwater.jpg';
+import { usePageContent } from '@/hooks/usePageContent';
+import { PageContentEditor } from '@/components/PageContentEditor';
 
 const OpenWater: React.FC = () => {
   const navigate = useNavigate();
   const bookingUrl = '/booking?item=PADI%20Open%20Water%20Course&type=course&price=11000&currency=THB';
+  
+  const { content, isLoading } = usePageContent({
+    pageSlug: 'open-water',
+    locale: 'en',
+    fallbackContent: {
+      hero_title: 'PADI Open Water Course',
+      hero_subtitle: "The PADI Open Water Diver course is the world's most popular scuba course. Learn the fundamentals of scuba diving and get certified to dive independently with a buddy, to 18 metres/60 feet.",
+      course_overview: "The Open Water course combines knowledge development, confined water dives (pool) and open water dives. You'll learn equipment setup, basic underwater skills, buoyancy control and dive planning. Our instructors keep groups small and emphasize safety and fun.",
+    },
+  });
+
+  if (isLoading) {
+    return <div className="min-h-screen bg-background flex items-center justify-center">Loading...</div>;
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <section className="relative h-72 md:h-96 flex items-center overflow-hidden">
         <img src={openWaterHero} alt="Open Water" className="absolute inset-0 w-full h-full object-cover object-[center_70%]" />
         <div className="absolute inset-0 bg-black/35" />
         <div className="container mx-auto px-4 text-white z-10">
-          <h1 className="text-4xl md:text-5xl font-bold">PADI Open Water Course</h1>
-          <p className="mt-4 max-w-2xl">The PADI Open Water Diver course is the world's most popular scuba course. Learn the fundamentals of scuba diving and get certified to dive independently with a buddy, to 18 metres/60 feet.</p>
+          <h1 className="text-4xl md:text-5xl font-bold">{content.hero_title}</h1>
+          <p className="mt-4 max-w-2xl">{content.hero_subtitle}</p>
           <div className="mt-6">
             <Button size="lg" onClick={() => navigate(bookingUrl)}>Book Open Water</Button>
           </div>
@@ -30,7 +47,7 @@ const OpenWater: React.FC = () => {
         <div className="grid md:grid-cols-3 gap-8">
           <div className="md:col-span-2">
             <h2 className="text-2xl font-bold mb-4">Course Overview</h2>
-            <p className="mb-6">The Open Water course combines knowledge development, confined water dives (pool) and open water dives. You'll learn equipment setup, basic underwater skills, buoyancy control and dive planning. Our instructors keep groups small and emphasize safety and fun.</p>
+            <p className="mb-6">{content.course_overview}</p>
 
             <h3 className="text-xl font-semibold mb-3">What you'll learn</h3>
             <ul className="list-disc pl-5 mb-6">
@@ -113,6 +130,8 @@ const OpenWater: React.FC = () => {
           </div>
           <Button onClick={() => navigate(bookingUrl)}>Send Booking Request</Button>
         </section>
+
+        <PageContentEditor pageSlug="open-water" locale="en" />
       </main>
     </div>
   );
