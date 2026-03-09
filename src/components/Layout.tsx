@@ -6,9 +6,14 @@ import { trackAffiliateClick } from '@/lib/affiliateTracking';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
+import { Facebook, Instagram, MessageCircle } from 'lucide-react';
+import CookieConsent from './CookieConsent';
 
 const TRIP_ALLIANCE_ID = import.meta.env.VITE_TRIP_ALLIANCE_ID as string | undefined;
 const TRIP_SITE_ID = import.meta.env.VITE_TRIP_SITE_ID as string | undefined;
+const WHATSAPP_LINK = 'https://wa.me/66612345678';
+const FACEBOOK_LINK = 'https://www.facebook.com/profile.php?id=61553713498498';
+const INSTAGRAM_LINK = 'https://www.instagram.com/pro_diving_asia/';
 
 const buildTripFooterUrl = () => {
   const baseUrl = 'https://www.trip.com/';
@@ -52,6 +57,41 @@ const Footer: React.FC = () => {
           <a href="/#contact" className="inline-block bg-cyan-500 hover:bg-cyan-600 text-white text-xs font-semibold px-4 py-2 rounded-full transition">
             {isDutch ? 'Boek nu' : 'Book now'}
           </a>
+          <div className="mt-4">
+            <div className="text-cyan-400 text-xs font-bold uppercase tracking-wider mb-2">{isDutch ? 'Volg ons' : 'Follow us'}</div>
+            <div className="flex items-center gap-3">
+              <a
+                href={FACEBOOK_LINK}
+                target="_blank"
+                rel="noopener noreferrer"
+                title="Facebook"
+                aria-label="Facebook"
+                className="text-gray-300 hover:text-white transition"
+              >
+                <Facebook className="h-5 w-5" />
+              </a>
+              <a
+                href={INSTAGRAM_LINK}
+                target="_blank"
+                rel="noopener noreferrer"
+                title="Instagram"
+                aria-label="Instagram"
+                className="text-gray-300 hover:text-white transition"
+              >
+                <Instagram className="h-5 w-5" />
+              </a>
+              <a
+                href={WHATSAPP_LINK}
+                target="_blank"
+                rel="noopener noreferrer"
+                title="WhatsApp"
+                aria-label="WhatsApp"
+                className="text-gray-300 hover:text-white transition"
+              >
+                <MessageCircle className="h-5 w-5" />
+              </a>
+            </div>
+          </div>
         </div>
 
         {/* Diving */}
@@ -109,14 +149,11 @@ const Footer: React.FC = () => {
       </div>
 
       {/* Bottom bar */}
-      <div className="border-t border-[#1a3a5c] pt-6 flex flex-col md:flex-row justify-between items-center gap-3 text-xs text-gray-500">
-        <div>© {new Date().getFullYear()} Pro Diving Asia — {isDutch ? 'Alle rechten voorbehouden' : 'All rights reserved'}</div>
-        <div>
-          {isDutch ? 'Mogelijk gemaakt door' : 'Powered by'}{' '}
-          <a href="https://www.onemedia.asia" target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:text-cyan-300 transition font-medium">
-            www.onemedia.asia
-          </a>
-        </div>
+      <div className="border-t border-[#1a3a5c] pt-6 text-center text-xs text-gray-500">
+        © {new Date().getFullYear()} Pro Diving Asia — All rights reserved | Powered By{' '}
+        <a href="https://www.onemedia.asia" target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:text-cyan-300 transition font-medium">
+          One Media Asia
+        </a>
       </div>
     </div>
   </footer>
@@ -145,6 +182,17 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         </div>
       )}
       <main className="flex-1">{children}</main>
+      <CookieConsent />
+      <a
+        href={WHATSAPP_LINK}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={isDutch ? 'Chat via WhatsApp' : 'Chat on WhatsApp'}
+        title={isDutch ? 'Chat via WhatsApp' : 'Chat on WhatsApp'}
+        className="fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-green-500 text-white shadow-lg transition hover:bg-green-600 hover:scale-105"
+      >
+        <MessageCircle className="h-7 w-7" />
+      </a>
       <Footer />
     </div>
   );
