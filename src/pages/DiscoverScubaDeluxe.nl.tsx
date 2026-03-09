@@ -11,7 +11,7 @@ const DiscoverScubaDeluxeNl: React.FC = () => {
   return (
     <div className="min-h-screen bg-background">
       <section className="relative h-72 md:h-96 flex items-center overflow-hidden">
-        <div className="absolute inset-0 bg-[url('/images/discover-scuba-deluxe.jpg')] bg-cover bg-center" />
+        <div className="absolute inset-0 bg-[url('/images/deluxedsd.png')] bg-cover bg-center" />
         <div className="absolute inset-0 bg-black/35" />
         <div className="container mx-auto px-4 text-white z-10">
           <h1 className="text-4xl md:text-5xl font-bold">Discover Scuba Diving Deluxe</h1>
