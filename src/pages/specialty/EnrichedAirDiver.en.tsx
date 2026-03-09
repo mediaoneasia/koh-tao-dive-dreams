@@ -70,7 +70,7 @@ export default function EnrichedAirDiver() {
 
         <Card className="mb-8 p-6 bg-blue-50">
           <h2 className="text-2xl font-bold mb-4">Pricing</h2>
-          <div className="text-3xl font-bold text-blue-600 mb-2">฿2,500</div>
+          <div className="text-3xl font-bold text-blue-600 mb-2">฿8,000</div>
           <p className="text-gray-600 text-sm">Includes training, materials, and 2 training dives</p>
         </Card>
 
