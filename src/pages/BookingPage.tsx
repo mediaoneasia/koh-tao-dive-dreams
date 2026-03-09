@@ -225,7 +225,7 @@ const       BookingPage: React.FC = () => {
 
       // Notify user based on Web3Forms result, but booking is already persisted
       if (res.ok && responseData.success) {
-        toast.success('Inquiry sent! You can now pay your deposit via PayPal below.');
+        toast.success('Inquiry sent! We will contact you to arrange your deposit which ca be paid via Paypal or Stripe or Visa or Bank Transfer.');
         if (data.paymentChoice === 'now' && amountMajor > 0) {
           setShowPaymentLinks(true);
         } else {
