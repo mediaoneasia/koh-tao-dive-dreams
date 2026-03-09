@@ -285,7 +285,7 @@ const FunDiving = () => {
                 </Card>
 
                 <Card className="overflow-hidden">
-                  <img src="/images/photo-1659518893171-b15e20a8e201.avif" alt="Discover Scuba" className="w-full h-40 object-cover" />
+                  <img src="/images/dsd-pool-training.jpg" alt="Discover Scuba Diving - Pool Training" className="w-full h-40 object-cover" />
                   <CardHeader>
                     <div className="flex items-center justify-between">
                       <CardTitle>Discover Scuba (Try Dive)</CardTitle>
