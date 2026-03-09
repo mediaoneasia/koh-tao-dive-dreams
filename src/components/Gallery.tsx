@@ -12,39 +12,14 @@ const Gallery = () => {
 
   const images = isDutch ? [
     {
-      src: "/images/photo-1613853250147-2f73e55c1561.avif",
-      alt: "Onderwaterscène op Koh Tao",
-      category: "Marien leven"
-    },
-    {
       src: "/images/photo-1682687982423-295485af248a.avif",
       alt: "Duikers op een boot, klaar voor de duik",
       category: "Duiken"
     },
     {
-      src: "/images/photo-1647825194145-2d94e259c745.avif",
-      alt: "Kleurrijk koraalrif met tropische vissen",
-      category: "Koraalriffen"
-    },
-    {
-      src: "https://images.unsplash.com/photo-1583212292454-1fe6229603b7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-      alt: "Kleurrijk koraalrif op Koh Tao",
-      category: "Koraalriffen"
-    },
-    {
-      src: "https://images.unsplash.com/photo-1559827260-dc66d52bef19?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-      alt: "School tropische vissen",
-      category: "Marien leven"
-    },
-    {
       src: "https://images.unsplash.com/photo-1582967788606-a171c1080cb0?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
       alt: "Ontmoeting met een walvishaai",
       category: "Grote vissen"
-    },
-    {
-      src: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-      alt: "Duikboot in kristalhelder water",
-      category: "Boten"
     },
     {
       src: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
@@ -53,39 +28,14 @@ const Gallery = () => {
     }
   ] : [
     {
-      src: "/images/photo-1613853250147-2f73e55c1561.avif",
-      alt: "Underwater scene in Koh Tao",
-      category: "Marine life"
-    },
-    {
       src: "/images/photo-1682687982423-295485af248a.avif",
       alt: "Divers on a boat ready to dive",
       category: "Diving"
     },
     {
-      src: "/images/photo-1647825194145-2d94e259c745.avif",
-      alt: "Colorful coral reef with tropical fish",
-      category: "Coral reefs"
-    },
-    {
-      src: "https://images.unsplash.com/photo-1583212292454-1fe6229603b7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-      alt: "Colorful coral reef in Koh Tao",
-      category: "Coral reefs"
-    },
-    {
-      src: "https://images.unsplash.com/photo-1559827260-dc66d52bef19?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-      alt: "School of tropical fish",
-      category: "Marine life"
-    },
-    {
       src: "https://images.unsplash.com/photo-1582967788606-a171c1080cb0?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
       alt: "Whale shark encounter",
       category: "Big fish"
-    },
-    {
-      src: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-      alt: "Dive boat in crystal-clear water",
-      category: "Boats"
     },
     {
       src: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
