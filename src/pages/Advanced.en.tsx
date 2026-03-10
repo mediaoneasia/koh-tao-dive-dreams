@@ -1,98 +1,58 @@
-import Contact from '../components/Contact';
-
 import React from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { useNavigate } from 'react-router-dom';
+import CoursePageTemplate from '@/components/CoursePageTemplate';
 
-const heroImage = '/images/advanved.png';
-
-const Advanced: React.FC = () => {
-  const navigate = useNavigate();
-  const bookingUrl = '/booking?item=Advanced%20Open%20Water&type=course&price=10000&currency=THB';
+const AdvancedEn: React.FC = () => {
   return (
-    <div className="min-h-screen bg-background">
-      <section className="relative h-72 md:h-96 flex items-center overflow-hidden">
-        <img src={heroImage} alt="Advanced Open Water" className="absolute inset-0 w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-black/35" />
-        <div className="container mx-auto px-4 text-white z-10">
-          <h1 className="text-4xl md:text-5xl font-bold">Advanced Open Water</h1>
-          <p className="mt-4 max-w-2xl">Expand your skills with five Adventure Dives including deep and navigation; perfect for divers who want to explore deeper sites and build confidence.</p>
-          <div className="mt-6">
-            <Button size="lg" onClick={() => navigate(bookingUrl)}>Book Advanced</Button>
-          </div>
-        </div>
-      </section>
-
-      <main className="container mx-auto px-4 py-12">
-        <div className="grid md:grid-cols-3 gap-8">
-          <div className="md:col-span-2">
-            <h2 className="text-2xl font-bold mb-4">Course Highlights</h2>
-            <p className="mb-6">The PADI Advanced Open Water course focuses on improving your underwater skills through hands-on dives. Typical Adventure Dives include Deep, Underwater Navigation, Peak Performance Buoyancy, and two electives such as Night Diving or Wreck.</p>
-
-            <h3 className="text-xl font-semibold mb-3">What you'll do</h3>
-            <ul className="list-disc pl-5 mb-6">
-              <li>5 adventure dives (can be done over 2-3 days)</li>
-              <li>Practice deep dive techniques and navigation</li>
-              <li>Improve buoyancy and comfort underwater</li>
-            </ul>
-            <h3 className="text-xl font-semibold mb-3">Prerequisites</h3>
-            <p className="mb-6">Open Water Diver certification (or equivalent) and minimum age of 12.</p>
-
-            <h3 className="text-xl font-semibold mb-3">Inclusions</h3>
-            <ul className="list-disc pl-5 mb-6">
-              <li>Course materials & certification</li>
-              <li>All equipment rental</li>
-              <li>Boat fees where applicable</li>
-            </ul>
-
-            <h3 className="text-xl font-semibold mb-3">FAQ</h3>
-            <div className="space-y-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle>How long does it take?</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  Most students complete the course in 2-3 days depending on chosen electives and sea conditions.
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-
-          <aside>
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle>Course Details</CardTitle>
-                  <Badge>Intermediate</Badge>
-                </div>
-                <CardDescription>2-3 days · 5 dives · Certification</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-2xl font-bold text-sky-600 mb-3">฿10,000</p>
-                <p className="text-sm text-muted-foreground mb-4">Includes materials & equipment</p>
-                <Button onClick={() => navigate(bookingUrl)}>Book Advanced</Button>
-              </CardContent>
-            </Card>
-          </aside>
-        </div>
-
-        <section className="mt-12">
-          <h3 className="text-2xl font-semibold mb-4">Booking</h3>
-          <p className="mb-4">Select preferred dates and we'll confirm availability. Contact us for custom schedules.</p>
-        </section>
-
-        <section className="mt-8">
-          <div className="mb-4">
-            <a href="https://www.divinginasia.com/#contact" target="_blank" rel="noopener noreferrer" className="inline-block bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded font-semibold mb-2">Get in touch to book/enquire</a>
-            <div className="text-muted-foreground text-sm mb-4">Or use the form below to send a booking request directly.</div>
-          </div>
-          <Button onClick={() => navigate(bookingUrl)}>Send Booking Request</Button>
-        </section>
-      </main>
-    </div>
+    <CoursePageTemplate
+      pageSlug="advanced"
+      locale="en"
+      fallbackContent={{
+        hero_title: 'PADI Advanced Open Water Course',
+        hero_subtitle: 'Expand your skills with five Adventure Dives including deep and navigation. Perfect for exploring deeper dive sites.',
+        course_overview: 'The PADI Advanced Open Water course improves your underwater skills through hands-on dives. Includes Deep, Navigation, Peak Performance Buoyancy, and two electives like Night or Wreck diving.',
+        price_thb: '9500',
+        price_usd: '275',
+        price_eur: '250',
+        duration: '2 days',
+      }}
+      heroImage="/images/advanved.png"
+      level="Intermediate"
+      sections={[
+        {
+          title: "What you'll do",
+          content: [
+            '5 adventure dives (can be done over 2-3 days)',
+            'Practice deep dive techniques and navigation',
+            'Improve buoyancy and comfort underwater',
+            'Choose electives: Night, Wreck, Fish ID, Photography, etc.',
+          ],
+        },
+        {
+          title: 'Prerequisites',
+          content: 'Open Water Diver certification (or equivalent) and minimum age of 12.',
+        },
+        {
+          title: 'Inclusions',
+          content: [
+            'Course materials & PADI certification',
+            'All equipment rental',
+            'Boat fees where applicable',
+            'Professional instruction',
+          ],
+        },
+      ]}
+      faqs={[
+        {
+          question: 'Do I need to take a test?',
+          answer: 'No exam required! The Advanced course is all about experience and practice.',
+        },
+        {
+          question: 'Can I choose my Adventure Dives?',
+          answer: 'Deep and Navigation are required. You choose 3 electives from options like Night, Wreck, Peak Performance Buoyancy, Fish ID, and more.',
+        },
+      ]}
+    />
   );
 };
 
-export default Advanced;
+export default AdvancedEn;

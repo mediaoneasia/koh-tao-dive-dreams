@@ -1,0 +1,322 @@
+import React, { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { toast } from 'sonner';
+import { Edit, Globe, Shield, Search, Plus, Eye, Lock, Unlock } from 'lucide-react';
+import { SEOMetaEditor } from './SEOMetaEditor';
+import { SecurityScanner } from './SecurityScanner';
+import { PageContentEditor } from './PageContentEditor';
+
+interface PageInfo {
+  slug: string;
+  title: string;
+  category: 'course' | 'specialty' | 'dive-site' | 'marine-life' | 'info' | 'other';
+  hasEnglish: boolean;
+  hasDutch: boolean;
+  hasSEO: boolean;
+  isSecured: boolean;
+  lastModified?: string;
+}
+
+const PAGE_REGISTRY: PageInfo[] = [
+  // COURSES
+  { slug: 'open-water', title: 'PADI Open Water', category: 'course', hasEnglish: true, hasDutch: true, hasSEO: false, isSecured: false },
+  { slug: 'advanced', title: 'PADI Advanced', category: 'course', hasEnglish: true, hasDutch: true, hasSEO: false, isSecured: false },
+  { slug: 'rescue', title: 'PADI Rescue Diver', category: 'course', hasEnglish: true, hasDutch: true, hasSEO: false, isSecured: false },
+  { slug: 'efr', title: 'Emergency First Response', category: 'course', hasEnglish: true, hasDutch: true, hasSEO: false, isSecured: false },
+  { slug: 'divemaster', title: 'PADI Divemaster', category: 'course', hasEnglish: true, hasDutch: false, hasSEO: false, isSecured: false },
+  { slug: 'instructor', title: 'PADI Instructor (IDC)', category: 'course', hasEnglish: true, hasDutch: false, hasSEO: false, isSecured: false },
+  { slug: 'discover-scuba', title: 'Discover Scuba Diving', category: 'course', hasEnglish: true, hasDutch: true, hasSEO: false, isSecured: false },
+  { slug: 'scuba-diver', title: 'PADI Scuba Diver', category: 'course', hasEnglish: true, hasDutch: true, hasSEO: false, isSecured: false },
+  { slug: 'scuba-review', title: 'Scuba Review/ReActivate', category: 'course', hasEnglish: true, hasDutch: true, hasSEO: false, isSecured: false },
+  { slug: 'discover-scuba-deluxe', title: 'DSD Deluxe', category: 'course', hasEnglish: true, hasDutch: true, hasSEO: false, isSecured: false },
+  { slug: 'msdt-program', title: 'MSDT Program', category: 'course', hasEnglish: true, hasDutch: false, hasSEO: false, isSecured: false },
+  
+  // SPECIALTIES
+  { slug: 'specialty/night-diver', title: 'Night Diver Specialty', category: 'specialty', hasEnglish: true, hasDutch: true, hasSEO: false, isSecured: false },
+  { slug: 'specialty/deep-diver', title: 'Deep Diver Specialty', category: 'specialty', hasEnglish: true, hasDutch: true, hasSEO: false, isSecured: false },
+  { slug: 'specialty/wreck-diver', title: 'Wreck Diver Specialty', category: 'specialty', hasEnglish: true, hasDutch: true, hasSEO: false, isSecured: false },
+  { slug: 'specialty/enriched-air', title: 'Enriched Air (Nitrox)', category: 'specialty', hasEnglish: true, hasDutch: true, hasSEO: false, isSecured: false },
+  { slug: 'specialty/underwater-photography', title: 'Underwater Photography', category: 'specialty', hasEnglish: true, hasDutch: true, hasSEO: false, isSecured: false },
+  { slug: 'specialty/sidemount', title: 'Sidemount Diver', category: 'specialty', hasEnglish: true, hasDutch: true, hasSEO: false, isSecured: false },
+  
+  // DIVE SITES
+  { slug: 'dive-sites/sail-rock', title: 'Sail Rock', category: 'dive-site', hasEnglish: true, hasDutch: false, hasSEO: false, isSecured: false },
+  { slug: 'dive-sites/chumphon-pinnacle', title: 'Chumphon Pinnacle', category: 'dive-site', hasEnglish: true, hasDutch: false, hasSEO: false, isSecured: false },
+  { slug: 'dive-sites/japanese-gardens', title: 'Japanese Gardens', category: 'dive-site', hasEnglish: true, hasDutch: false, hasSEO: false, isSecured: false },
+  { slug: 'dive-sites/htms-sattakut', title: 'HTMS Sattakut Wreck', category: 'dive-site', hasEnglish: true, hasDutch: false, hasSEO: false, isSecured: false },
+  { slug: 'dive-sites/twins', title: 'The Twins', category: 'dive-site', hasEnglish: true, hasDutch: false, hasSEO: false, isSecured: false },
+  { slug: 'dive-sites/shark-island', title: 'Shark Island', category: 'dive-site', hasEnglish: true, hasDutch: false, hasSEO: false, isSecured: false },
+  
+  // MARINE LIFE
+  { slug: 'marine-life/whale-shark', title: 'Whale Shark', category: 'marine-life', hasEnglish: true, hasDutch: false, hasSEO: false, isSecured: false },
+  { slug: 'marine-life/green-sea-turtle', title: 'Green Sea Turtle', category: 'marine-life', hasEnglish: true, hasDutch: false, hasSEO: false, isSecured: false },
+  { slug: 'marine-life/hawksbill-turtle', title: 'Hawksbill Turtle', category: 'marine-life', hasEnglish: true, hasDutch: false, hasSEO: false, isSecured: false },
+  
+  // INFO PAGES
+  { slug: 'accommodation', title: 'Accommodation', category: 'info', hasEnglish: true, hasDutch: false, hasSEO: false, isSecured: false },
+  { slug: 'koh-tao-info', title: 'Koh Tao Information', category: 'info', hasEnglish: true, hasDutch: false, hasSEO: false, isSecured: false },
+  { slug: 'how-to-get-here', title: 'How to Get Here', category: 'info', hasEnglish: true, hasDutch: false, hasSEO: false, isSecured: false },
+  { slug: 'things-to-do', title: 'Things to Do', category: 'info', hasEnglish: true, hasDutch: false, hasSEO: false, isSecured: false },
+  { slug: 'weather', title: 'Weather Information', category: 'info', hasEnglish: true, hasDutch: false, hasSEO: false, isSecured: false },
+  
+  // OTHER
+  { slug: 'fun-diving', title: 'Fun Diving', category: 'other', hasEnglish: true, hasDutch: true, hasSEO: false, isSecured: false },
+];
+
+const CATEGORY_COLORS = {
+  course: 'bg-blue-100 text-blue-800',
+  specialty: 'bg-purple-100 text-purple-800',
+  'dive-site': 'bg-cyan-100 text-cyan-800',
+  'marine-life': 'bg-green-100 text-green-800',
+  info: 'bg-orange-100 text-orange-800',
+  other: 'bg-gray-100 text-gray-800',
+};
+
+export const PageManager: React.FC = () => {
+  const [pages, setPages] = useState<PageInfo[]>(PAGE_REGISTRY);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterCategory, setFilterCategory] = useState<string>('all');
+  const [editingPage, setEditingPage] = useState<{ slug: string; locale: string } | null>(null);
+  const [seoPage, setSeoPage] = useState<string | null>(null);
+  const [securityPage, setSecurityPage] = useState<string | null>(null);
+
+  useEffect(() => {
+    loadPageMetadata();
+  }, []);
+
+  const loadPageMetadata = async () => {
+    try {
+      // @ts-expect-error - page_metadata table will be available after migration
+      const { data, error } = await supabase
+        .from('page_metadata')
+        .select('page_slug, has_seo, is_secured, updated_at');
+
+      if (!error && data) {
+        setPages(prevPages =>
+          prevPages.map(page => {
+            const meta = data.find((d: any) => d.page_slug === page.slug);
+            return meta ? {
+              ...page,
+              hasSEO: meta.has_seo || false,
+              isSecured: meta.is_secured || false,
+              lastModified: meta.updated_at,
+            } : page;
+          })
+        );
+      }
+    } catch (err) {
+      console.error('Failed to load page metadata:', err);
+    }
+  };
+
+  const filteredPages = pages.filter(page => {
+    const matchesSearch = page.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         page.slug.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory = filterCategory === 'all' || page.category === filterCategory;
+    return matchesSearch && matchesCategory;
+  });
+
+  if (editingPage) {
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-semibold">
+            Editing: {pages.find(p => p.slug === editingPage.slug)?.title} ({editingPage.locale.toUpperCase()})
+          </h3>
+          <Button onClick={() => setEditingPage(null)} variant="outline">
+            Back to Page List
+          </Button>
+        </div>
+        <PageContentEditor 
+          pageSlug={editingPage.slug} 
+          locale={editingPage.locale}
+          key={`${editingPage.slug}-${editingPage.locale}`}
+        />
+      </div>
+    );
+  }
+
+  if (seoPage) {
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-semibold">
+            SEO & Meta Tags: {pages.find(p => p.slug === seoPage)?.title}
+          </h3>
+          <Button onClick={() => setSeoPage(null)} variant="outline">
+            Back to Page List
+          </Button>
+        </div>
+        <SEOMetaEditor pageSlug={seoPage} onClose={() => {
+          setSeoPage(null);
+          loadPageMetadata();
+        }} />
+      </div>
+    );
+  }
+
+  if (securityPage) {
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-semibold">
+            Security Settings: {pages.find(p => p.slug === securityPage)?.title}
+          </h3>
+          <Button onClick={() => setSecurityPage(null)} variant="outline">
+            Back to Page List
+          </Button>
+        </div>
+        <SecurityScanner pageSlug={securityPage} onClose={() => {
+          setSecurityPage(null);
+          loadPageMetadata();
+        }} />
+      </div>
+    );
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center justify-between">
+          <span>All Pages Management</span>
+          <div className="flex gap-2">
+            <Badge variant="outline">{filteredPages.length} pages</Badge>
+          </div>
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {/* Filters */}
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="flex-1 relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Input
+              placeholder="Search pages..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+          <select
+            value={filterCategory}
+            onChange={(e) => setFilterCategory(e.target.value)}
+            className="px-3 py-2 border rounded-md bg-white"
+          >
+            <option value="all">All Categories</option>
+            <option value="course">Courses</option>
+            <option value="specialty">Specialties</option>
+            <option value="dive-site">Dive Sites</option>
+            <option value="marine-life">Marine Life</option>
+            <option value="info">Information</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+
+        {/* Pages Table */}
+        <div className="border rounded-lg overflow-hidden">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Page Title</TableHead>
+                <TableHead>Category</TableHead>
+                <TableHead className="text-center">Languages</TableHead>
+                <TableHead className="text-center">SEO</TableHead>
+                <TableHead className="text-center">Security</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredPages.map((page) => (
+                <TableRow key={page.slug}>
+                  <TableCell className="font-medium">
+                    <div>
+                      <div>{page.title}</div>
+                      <div className="text-xs text-muted-foreground">{page.slug}</div>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant="outline" className={CATEGORY_COLORS[page.category]}>
+                      {page.category}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-center">
+                    <div className="flex gap-1 justify-center">
+                      {page.hasEnglish && <Badge variant="outline" className="text-xs">EN</Badge>}
+                      {page.hasDutch && <Badge variant="outline" className="text-xs">NL</Badge>}
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-center">
+                    {page.hasSEO ? (
+                      <Badge className="bg-green-100 text-green-800">✓</Badge>
+                    ) : (
+                      <Badge variant="outline" className="text-gray-400">—</Badge>
+                    )}
+                  </TableCell>
+                  <TableCell className="text-center">
+                    {page.isSecured ? (
+                      <Lock className="h-4 w-4 text-green-600 mx-auto" />
+                    ) : (
+                      <Unlock className="h-4 w-4 text-gray-400 mx-auto" />
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex gap-1 justify-end">
+                      {page.hasEnglish && (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => setEditingPage({ slug: page.slug, locale: 'en' })}
+                          title="Edit English"
+                        >
+                          <Edit className="h-3 w-3 mr-1" />
+                          EN
+                        </Button>
+                      )}
+                      {page.hasDutch && (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => setEditingPage({ slug: page.slug, locale: 'nl' })}
+                          title="Edit Dutch"
+                        >
+                          <Edit className="h-3 w-3 mr-1" />
+                          NL
+                        </Button>
+                      )}
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => setSeoPage(page.slug)}
+                        title="Add SEO & Meta"
+                      >
+                        <Globe className="h-3 w-3" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => setSecurityPage(page.slug)}
+                        title="Security Scan"
+                      >
+                        <Shield className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+
+        {filteredPages.length === 0 && (
+          <div className="text-center py-8 text-muted-foreground">
+            No pages found matching your criteria
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+};

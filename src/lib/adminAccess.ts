@@ -27,10 +27,23 @@ export const hasAdminAccess = (user: SupabaseUserLike | null | undefined) => {
 
   const appRole = user.app_metadata?.app_role;
   const userRole = user.user_metadata?.app_role || user.user_metadata?.role;
+  
+  // Debug logging
+  console.log('[Admin Access Check]', {
+    userEmail: user.email,
+    appRole,
+    userRole,
+    envVar: import.meta.env.VITE_ADMIN_EMAILS,
+    allowedEmails: parseAllowedAdminEmails(),
+  });
+  
   if (appRole === 'admin' || userRole === 'admin') return true;
 
   const allowedEmails = parseAllowedAdminEmails();
   if (!allowedEmails.length) return false;
 
-  return allowedEmails.includes(normalizeEmail(user.email || ''));
+  const hasAccess = allowedEmails.includes(normalizeEmail(user.email || ''));
+  console.log('[Admin Access Result]', hasAccess);
+  
+  return hasAccess;
 };

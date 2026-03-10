@@ -23,11 +23,21 @@ const Navigation = () => {
     const checkAuth = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       setUser(user);
-      if (user && hasAdminAccess(user)) {
-        setIsAdmin(true);
-      }
+      setIsAdmin(user ? hasAdminAccess(user) : false);
     };
+    
     checkAuth();
+
+    // Listen for auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      const user = session?.user ?? null;
+      setUser(user);
+      setIsAdmin(user ? hasAdminAccess(user) : false);
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   const handleAnchorClick = (e: React.MouseEvent, href: string) => {
@@ -469,7 +479,6 @@ const Navigation = () => {
                 className="text-gray-700 hover:text-blue-600 transition-colors duration-200 font-medium flex items-center gap-2"
               >
                 Account
-                {isAdmin && <Badge className="bg-green-600">Admin</Badge>}
                 <ChevronRight className="h-4 w-4 transition-transform duration-200 group-hover:rotate-90" />
               </button>
               <div className="absolute right-0 top-full pt-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
@@ -480,6 +489,11 @@ const Navigation = () => {
                         <li className="text-xs text-gray-400 px-3 py-2 border-b border-[#1a3a5c]">
                           {user.email}
                         </li>
+                        {isAdmin && (
+                          <li className="px-3 py-2 border-b border-[#1a3a5c]">
+                            <Badge className="bg-green-600">Admin</Badge>
+                          </li>
+                        )}
                         <li>
                           <Link
                             to="/account"

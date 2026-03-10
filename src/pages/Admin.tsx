@@ -11,9 +11,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { hasAdminAccess } from '@/lib/adminAccess';
+import { PageContentEditor } from '@/components/PageContentEditor';
+import { PageManager } from '@/components/PageManager';
 
 interface BookingInquiry {
   id: string;
@@ -508,155 +511,194 @@ const Admin = () => {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 py-8">
-        {/* Status Summary Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
-          <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setStatusFilter('all')}>
-            <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold">{counts.all}</div>
-              <div className="text-sm text-muted-foreground">All</div>
-            </CardContent>
-          </Card>
-          <Card className="cursor-pointer hover:shadow-md transition-shadow border-yellow-200" onClick={() => setStatusFilter('pending')}>
-            <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-yellow-600">{counts.pending}</div>
-              <div className="text-sm text-muted-foreground">Pending</div>
-            </CardContent>
-          </Card>
-          <Card className="cursor-pointer hover:shadow-md transition-shadow border-green-200" onClick={() => setStatusFilter('confirmed')}>
-            <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-green-600">{counts.confirmed}</div>
-              <div className="text-sm text-muted-foreground">Confirmed</div>
-            </CardContent>
-          </Card>
-          <Card className="cursor-pointer hover:shadow-md transition-shadow border-blue-200" onClick={() => setStatusFilter('completed')}>
-            <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-blue-600">{counts.completed}</div>
-              <div className="text-sm text-muted-foreground">Completed</div>
-            </CardContent>
-          </Card>
-          <Card className="cursor-pointer hover:shadow-md transition-shadow border-red-200" onClick={() => setStatusFilter('cancelled')}>
-            <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-red-600">{counts.cancelled}</div>
-              <div className="text-sm text-muted-foreground">Cancelled</div>
-            </CardContent>
-          </Card>
-        </div>
+        <Tabs defaultValue="bookings" className="w-full">
+          <div className="mb-3">
+            <Badge className="bg-green-600">Admin</Badge>
+          </div>
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 mb-6 h-auto">
+            <TabsTrigger value="bookings" className="relative">Bookings</TabsTrigger>
+            <TabsTrigger value="edit-pages">Edit Pages</TabsTrigger>
+            <TabsTrigger value="pricing">Pricing</TabsTrigger>
+            <TabsTrigger value="settings">Settings</TabsTrigger>
+          </TabsList>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center justify-between">
-              <span className="flex items-center gap-2">
-                <Users className="h-5 w-5" /> Booking Inquiries
-              </span>
-              {statusFilter !== 'all' && (
-                <Badge variant="outline" className="cursor-pointer" onClick={() => setStatusFilter('all')}>
-                  Showing: {statusFilter} × Clear
-                </Badge>
-              )}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {filteredBookings.length === 0 ? (
-              <p className="text-center text-muted-foreground py-8">No booking inquiries found.</p>
-            ) : (
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Date</TableHead>
-                      <TableHead>Customer</TableHead>
-                      <TableHead>Booking</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Amounts</TableHead>
-                      <TableHead>Notes</TableHead>
-                      <TableHead>Message</TableHead>
-                      <TableHead></TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredBookings.map((booking) => {
-                      const status = statusConfig[booking.status as keyof typeof statusConfig] || statusConfig.pending;
-                      return (
-                        <TableRow key={booking.id}>
-                          <TableCell className="whitespace-nowrap">
-                            {format(new Date(booking.created_at), 'MMM d, yyyy HH:mm')}
-                          </TableCell>
-                          <TableCell>
-                            <div className="font-medium">{booking.name}</div>
-                            <a href={`mailto:${booking.email}`} className="text-blue-600 hover:underline text-xs">
-                              {booking.email}
-                            </a>
-                            <div className="text-xs text-muted-foreground">{booking.phone || '-'}</div>
-                          </TableCell>
-                          <TableCell className="max-w-[220px]">
-                            <div className="font-medium truncate" title={booking.course_title}>{booking.course_title}</div>
-                            <div className="text-xs text-muted-foreground capitalize">{booking.item_type || '-'}</div>
-                            <div className="text-xs text-muted-foreground">
-                              {booking.preferred_date
-                                ? format(new Date(booking.preferred_date), 'MMM d, yyyy')
-                                : 'No preferred date'}
-                            </div>
-                            <div className="text-xs text-muted-foreground truncate" title={getAddonsDisplay(booking)}>
-                              Add-ons: {getAddonsDisplay(booking)}
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <Select
-                              value={booking.status || 'pending'}
-                              onValueChange={(value) => handleStatusChange(booking.id, value)}
-                            >
-                              <SelectTrigger className={`w-32 ${status.color} border`}>
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="pending">
-                                  <span className="flex items-center gap-2">
-                                    <Clock className="h-3 w-3" /> Pending
-                                  </span>
-                                </SelectItem>
-                                <SelectItem value="confirmed">
-                                  <span className="flex items-center gap-2">
-                                    <CheckCircle className="h-3 w-3" /> Confirmed
-                                  </span>
-                                </SelectItem>
-                                <SelectItem value="completed">
-                                  <span className="flex items-center gap-2">
-                                    <CheckCircle className="h-3 w-3" /> Completed
-                                  </span>
-                                </SelectItem>
-                                <SelectItem value="cancelled">
-                                  <span className="flex items-center gap-2">
-                                    <XCircle className="h-3 w-3" /> Cancelled
-                                  </span>
-                                </SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </TableCell>
-                          <TableCell className="text-sm">
-                            <div>Pay now: {typeof booking.total_payable_now === 'number' ? `฿${booking.total_payable_now}` : '-'}</div>
-                            <div className="text-xs text-muted-foreground">Add-ons: ฿{booking.addons_total || 0}</div>
-                            <div className="text-xs text-muted-foreground">Level: {booking.experience_level || '-'}</div>
-                          </TableCell>
-                          <TableCell className="max-w-[220px] whitespace-normal break-words">
-                            {booking.internal_notes || '-'}
-                          </TableCell>
-                          <TableCell className="max-w-xs truncate" title={booking.message || ''}>
-                            {booking.message || '-'}
-                          </TableCell>
-                          <TableCell>
-                            <Button variant="outline" size="sm" onClick={() => setActionBooking(booking)}>
-                              Manage
-                            </Button>
-                          </TableCell>
+          <TabsContent value="bookings" className="space-y-6">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+              <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setStatusFilter('all')}>
+                <CardContent className="p-4 text-center">
+                  <div className="text-2xl font-bold">{counts.all}</div>
+                  <div className="text-sm text-muted-foreground">All</div>
+                </CardContent>
+              </Card>
+              <Card className="cursor-pointer hover:shadow-md transition-shadow border-yellow-200" onClick={() => setStatusFilter('pending')}>
+                <CardContent className="p-4 text-center">
+                  <div className="text-2xl font-bold text-yellow-600">{counts.pending}</div>
+                  <div className="text-sm text-muted-foreground">Pending</div>
+                </CardContent>
+              </Card>
+              <Card className="cursor-pointer hover:shadow-md transition-shadow border-green-200" onClick={() => setStatusFilter('confirmed')}>
+                <CardContent className="p-4 text-center">
+                  <div className="text-2xl font-bold text-green-600">{counts.confirmed}</div>
+                  <div className="text-sm text-muted-foreground">Confirmed</div>
+                </CardContent>
+              </Card>
+              <Card className="cursor-pointer hover:shadow-md transition-shadow border-blue-200" onClick={() => setStatusFilter('completed')}>
+                <CardContent className="p-4 text-center">
+                  <div className="text-2xl font-bold text-blue-600">{counts.completed}</div>
+                  <div className="text-sm text-muted-foreground">Completed</div>
+                </CardContent>
+              </Card>
+              <Card className="cursor-pointer hover:shadow-md transition-shadow border-red-200" onClick={() => setStatusFilter('cancelled')}>
+                <CardContent className="p-4 text-center">
+                  <div className="text-2xl font-bold text-red-600">{counts.cancelled}</div>
+                  <div className="text-sm text-muted-foreground">Cancelled</div>
+                </CardContent>
+              </Card>
+            </div>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  <span className="flex items-center gap-2">
+                    <Users className="h-5 w-5" /> Booking Inquiries
+                  </span>
+                  {statusFilter !== 'all' && (
+                    <Badge variant="outline" className="cursor-pointer" onClick={() => setStatusFilter('all')}>
+                      Showing: {statusFilter} × Clear
+                    </Badge>
+                  )}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {filteredBookings.length === 0 ? (
+                  <p className="text-center text-muted-foreground py-8">No booking inquiries found.</p>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Date</TableHead>
+                          <TableHead>Customer</TableHead>
+                          <TableHead>Booking</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead>Amounts</TableHead>
+                          <TableHead>Notes</TableHead>
+                          <TableHead>Message</TableHead>
+                          <TableHead></TableHead>
                         </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+                      </TableHeader>
+                      <TableBody>
+                        {filteredBookings.map((booking) => {
+                          const status = statusConfig[booking.status as keyof typeof statusConfig] || statusConfig.pending;
+                          return (
+                            <TableRow key={booking.id}>
+                              <TableCell className="whitespace-nowrap">
+                                {format(new Date(booking.created_at), 'MMM d, yyyy HH:mm')}
+                              </TableCell>
+                              <TableCell>
+                                <div className="font-medium">{booking.name}</div>
+                                <a href={`mailto:${booking.email}`} className="text-blue-600 hover:underline text-xs">
+                                  {booking.email}
+                                </a>
+                                <div className="text-xs text-muted-foreground">{booking.phone || '-'}</div>
+                              </TableCell>
+                              <TableCell className="max-w-[220px]">
+                                <div className="font-medium truncate" title={booking.course_title}>{booking.course_title}</div>
+                                <div className="text-xs text-muted-foreground capitalize">{booking.item_type || '-'}</div>
+                                <div className="text-xs text-muted-foreground">
+                                  {booking.preferred_date
+                                    ? format(new Date(booking.preferred_date), 'MMM d, yyyy')
+                                    : 'No preferred date'}
+                                </div>
+                                <div className="text-xs text-muted-foreground truncate" title={getAddonsDisplay(booking)}>
+                                  Add-ons: {getAddonsDisplay(booking)}
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <Select
+                                  value={booking.status || 'pending'}
+                                  onValueChange={(value) => handleStatusChange(booking.id, value)}
+                                >
+                                  <SelectTrigger className={`w-32 ${status.color} border`}>
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="pending">
+                                      <span className="flex items-center gap-2">
+                                        <Clock className="h-3 w-3" /> Pending
+                                      </span>
+                                    </SelectItem>
+                                    <SelectItem value="confirmed">
+                                      <span className="flex items-center gap-2">
+                                        <CheckCircle className="h-3 w-3" /> Confirmed
+                                      </span>
+                                    </SelectItem>
+                                    <SelectItem value="completed">
+                                      <span className="flex items-center gap-2">
+                                        <CheckCircle className="h-3 w-3" /> Completed
+                                      </span>
+                                    </SelectItem>
+                                    <SelectItem value="cancelled">
+                                      <span className="flex items-center gap-2">
+                                        <XCircle className="h-3 w-3" /> Cancelled
+                                      </span>
+                                    </SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </TableCell>
+                              <TableCell className="text-sm">
+                                <div>Pay now: {typeof booking.total_payable_now === 'number' ? `฿${booking.total_payable_now}` : '-'}</div>
+                                <div className="text-xs text-muted-foreground">Add-ons: ฿{booking.addons_total || 0}</div>
+                                <div className="text-xs text-muted-foreground">Level: {booking.experience_level || '-'}</div>
+                              </TableCell>
+                              <TableCell className="max-w-[220px] whitespace-normal break-words">
+                                {booking.internal_notes || '-'}
+                              </TableCell>
+                              <TableCell className="max-w-xs truncate" title={booking.message || ''}>
+                                {booking.message || '-'}
+                              </TableCell>
+                              <TableCell>
+                                <Button variant="outline" size="sm" onClick={() => setActionBooking(booking)}>
+                                  Manage
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
+                      </TableBody>
+                    </Table>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="edit-pages">
+            <PageManager />
+          </TabsContent>
+
+          <TabsContent value="pricing">
+            <Card>
+              <CardHeader>
+                <CardTitle>Pricing</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground">Pricing management tab placeholder. Add course pricing, discounts, and currency controls here later.</p>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="settings">
+            <Card>
+              <CardHeader>
+                <CardTitle>Settings</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground">Admin settings placeholder for notifications, invoice defaults, and staff permissions.</p>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </main>
 
       {/* Delete Confirmation Dialog */}

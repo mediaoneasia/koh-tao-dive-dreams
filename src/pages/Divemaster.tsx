@@ -1,109 +1,64 @@
-import Contact from '../components/Contact';
+import React from 'react';
+import CoursePageTemplate from '@/components/CoursePageTemplate';
+import { useTranslation } from 'react-i18next';
 
-import React, { useMemo } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { useNavigate } from 'react-router-dom';
-
-const imageList = [
-  '/images/photo-1613853250147-2f73e55c1561.avif',
-  '/images/photo-1618865181016-a80ad83a06d3.avif',
-  '/images/photo-1647825194145-2d94e259c745.avif',
-  '/images/photo-1659518893171-b15e20a8e201.avif',
-  '/images/photo-1682686580849-3e7f67df4015.avif',
-  '/images/photo-1682687982423-295485af248a.avif',
-  '/images/turtle.avif',
-];
 
 const Divemaster: React.FC = () => {
-  const navigate = useNavigate();
-  const bookingUrl = '/booking?item=PADI%20Divemaster%20Course&type=course&price=41000&currency=THB';
-  const randomImage = useMemo(() => {
-    return imageList[Math.floor(Math.random() * imageList.length)];
-  }, []);
+  const { i18n } = useTranslation();
+  const isNl = i18n.language.startsWith('nl');
+  
   return (
-    <div className="min-h-screen bg-background">
-      <section className="relative h-72 md:h-96 flex items-center" style={{backgroundImage: `linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)), url('${randomImage}')`, backgroundSize: 'cover', backgroundPosition: 'center'}}>
-        <div className="container mx-auto px-4 text-white z-10">
-          <h1 className="text-4xl md:text-5xl font-bold">PADI Divemaster Course</h1>
-          <p className="mt-4 max-w-2xl">Begin your professional diving career — learn leadership, supervision, and dive management skills to work as a dive professional worldwide.</p>
-          <div className="mt-6">
-            <Button size="lg" onClick={() => navigate(bookingUrl)}>Enquire About Divemaster</Button>
-          </div>
-        </div>
-      </section>
-
-      <main className="container mx-auto px-4 py-12">
-        <div className="grid md:grid-cols-3 gap-8">
-          <div className="md:col-span-2">
-            <h2 className="text-2xl font-bold mb-4">Program Overview</h2>
-            <p className="mb-6">The Divemaster program develops your dive leadership skills including supervising dive activities, assisting instructors, and guiding certified divers. This course combines knowledge development, water skills and stamina exercises, and practical experience.</p>
-
-            <h3 className="text-xl font-semibold mb-3">Key competencies</h3>
-            <ul className="list-disc pl-5 mb-6">
-              <li>Supervising dive operations and safety</li>
-              <li>Search and recovery, boat operations, and briefings</li>
-              <li>Assisting instructors during training</li>
-              <li>Customer service and dive center procedures</li>
-            </ul>
-
-            <h3 className="text-xl font-semibold mb-3">Duration & Prerequisites</h3>
-            <p className="mb-6">Typical program length: 2-4 weeks depending on experience. Prerequisites: Rescue Diver certification, 40 logged dives to start and 60 to certify (PADI requirements).</p>
-
-            <h3 className="text-xl font-semibold mb-3">What we provide</h3>
-            <ul className="list-disc pl-5 mb-6">
-              <li>Supervised dive practicals and real-world guide experience</li>
-              <li>Mentoring and job placement assistance</li>
-              <li>Course materials and PADI registration</li>
-            </ul>
-
-            <h3 className="text-xl font-semibold mb-3">FAQ</h3>
-            <div className="space-y-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Will I get work after certification?</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  We assist graduates with local work placements, CV advice and introductions to partner centers.
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-
-          <aside>
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle>Course Details</CardTitle>
-                  <Badge>Pro Level</Badge>
-                </div>
-                <CardDescription>2-4 weeks · Practical & theory · PADI Divemaster</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-2xl font-bold text-sky-600 mb-3">฿41,000</p>
-                <p className="text-sm text-muted-foreground mb-4">Includes all training, materials, PADI certification and equipment</p>
-                <Button onClick={() => navigate(bookingUrl)}>Enquire / Apply</Button>
-              </CardContent>
-            </Card>
-          </aside>
-        </div>
-
-        <section className="mt-12">
-          <h3 className="text-2xl font-semibold mb-4">How to apply</h3>
-          <p className="mb-4">Send us your diving resume and preferred start date. We will assess experience and recommend a schedule.</p>
-        </section>
-
-        <section className="mt-8">
-          <div className="mb-4">
-            <a href="https://www.divinginasia.com/#contact" target="_blank" rel="noopener noreferrer" className="inline-block bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded font-semibold mb-2">Get in touch to book/enquire</a>
-            <div className="text-muted-foreground text-sm mb-4">Or use the form below to send a booking request directly.</div>
-          </div>
-          <Button onClick={() => navigate(bookingUrl)}>Send Booking Request</Button>
-        </section>
-      </main>
-        <Contact />
-    </div>
+    <CoursePageTemplate
+      pageSlug="divemaster"
+      locale={isNl ? 'nl' : 'en'}
+      fallbackContent={{
+        hero_title: isNl ? 'PADI Divemaster-cursus' : 'PADI Divemaster Course',
+        hero_subtitle: isNl 
+          ? 'Begin je professionele duikcarrière. Leer leiderschaps-, supervisie- en duikbeheervaardigheden.' 
+          : 'Begin your professional diving career. Learn leadership, supervision, and dive management skills.',
+        course_overview: isNl
+          ? 'Het Divemaster-programma ontwikkelt je duikleiderschapsvaardigheden, waaronder het superviseren van duikactiviteiten, assisteren van instructeurs en begeleiden van gecertificeerde duikers.'
+          : 'The Divemaster program develops your dive leadership skills including supervising dive activities, assisting instructors, and guiding certified divers.',
+        price_thb: '41000',
+        price_usd: '1190',
+        price_eur: '1090',
+        duration: isNl ? '2-4 weken' : '2-4 weeks',
+      }}
+      level="Pro Level"
+      sections={[
+        {
+          title: isNl ? 'Competenties' : 'Key competencies',
+          content: [
+            isNl ? 'Superviseren van duikoperaties en veiligheid' : 'Supervising dive operations and safety',
+            isNl ? 'Zoeken en bergen, bootoperaties en briefings' : 'Search and recovery, boat operations, and briefings',
+            isNl ? 'Assisteren van instructeurs tijdens training' : 'Assisting instructors during training',
+            isNl ? 'Klantenservice en duikcentrumprocedures' : 'Customer service and dive center procedures',
+          ],
+        },
+        {
+          title: isNl ? 'Duur & Vereisten' : 'Duration & Prerequisites',
+          content: isNl
+            ? 'Typische programmalengte: 2-4 weken afhankelijk van ervaring. Vereisten: Rescue Diver-certificering, 40 gelogde duiken om te starten en 60 om te certificeren (PADI-vereisten).'
+            : 'Typical program length: 2-4 weeks depending on experience. Prerequisites: Rescue Diver certification, 40 logged dives to start and 60 to certify (PADI requirements).',
+        },
+        {
+          title: isNl ? 'Wat we bieden' : 'What we provide',
+          content: [
+            isNl ? 'Begeleide duikpraktijken en echte gidservaring' : 'Supervised dive practicals and real-world guide experience',
+            isNl ? 'Mentoring en hulp bij plaatsing' : 'Mentoring and job placement assistance',
+            isNl ? 'Cursusmateriaal en PADI-registratie' : 'Course materials and PADI registration',
+          ],
+        },
+      ]}
+      faqs={[
+        {
+          question: isNl ? 'Krijg ik werk na certificering?' : 'Will I get work after certification?',
+          answer: isNl
+            ? 'We helpen afgestudeerden met lokale werkplaatsingen, CV-advies en introductions bij partnercentra.'
+            : 'We assist graduates with local work placements, CV advice and introductions to partner centers.',
+        },
+      ]}
+    />
   );
 };
 
