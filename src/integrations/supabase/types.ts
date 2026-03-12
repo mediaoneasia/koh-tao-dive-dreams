@@ -382,6 +382,30 @@ export type Database = {
         }
         Relationships: []
       }
+      course_prices: {
+        Row: {
+          id: string;
+          course: string;
+          price_thb: string;
+          price_usd: string;
+          price_eur: string;
+        };
+        Insert: {
+          id?: string;
+          course: string;
+          price_thb: string;
+          price_usd: string;
+          price_eur: string;
+        };
+        Update: {
+          id?: string;
+          course?: string;
+          price_thb?: string;
+          price_usd?: string;
+          price_eur?: string;
+        };
+        Relationships: [];
+      }
     }
     Views: {
       [_ in never]: never
