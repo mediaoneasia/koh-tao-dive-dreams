@@ -15,6 +15,7 @@ import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { hasAdminAccess } from '@/lib/adminAccess';
 import { PageManager } from '@/components/PageManager';
+import PricingManager from '@/components/PricingManager';
 
 interface BookingInquiry {
   id: string;
@@ -691,12 +692,7 @@ const Admin = () => {
           </TabsContent>
 
           <TabsContent value="pricing">
-            {/* Editable pricing table for courses */}
-            <React.Suspense fallback={<div>Loading pricing manager...</div>}>
-              {typeof window !== 'undefined' && (
-                (await import('@/components/PricingManager')).default ? <((await import('@/components/PricingManager')).default) /> : null
-              )}
-            </React.Suspense>
+            <PricingManager />
           </TabsContent>
 
           <TabsContent value="settings">
