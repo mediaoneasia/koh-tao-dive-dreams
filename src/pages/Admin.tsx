@@ -48,32 +48,7 @@ interface BookingInquiry {
               <CardTitle>Bookings</CardTitle>
             </CardHeader>
             <CardContent>
-              {/* ...existing code... */}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="edit-pages">
-          <PageManager />
-        </TabsContent>
-      </Tabs>
-    </div>
-  );
-      return await fetch(apiUrl(path), init);
-    } catch (error) {
-      const message = error instanceof Error ? error.message.toLowerCase() : '';
-      const isNetworkError = message.includes('failed to fetch') || message.includes('networkerror');
-      if (apiBase && isNetworkError) {
-        return fetch(path, init);
-      }
-      throw error;
-    }
-  }, [apiBase, apiUrl]);
-
-  const redirectToLogin = useCallback(() => {
-    navigate('/admin/login');
-  }, [navigate]);
-
+}
   useEffect(() => {
     const initAuth = async () => {
       try {
