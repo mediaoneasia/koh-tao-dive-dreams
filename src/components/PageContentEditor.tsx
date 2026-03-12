@@ -613,11 +613,7 @@ export const PageContentEditor: React.FC<PageContentEditorProps> = ({ pageSlug, 
 
       if (error) {
         const message = getErrorMessage(error);
-        /*...*/
-        .from('page_content_drafts')
-        .delete()
-        .eq('page_slug', pageSlug)
-        .eq('locale', locale);
+        // ...existing code...
 
       // @ts-expect-error - page_metadata table will be available after migration
       const { error: metadataError } = await supabase
