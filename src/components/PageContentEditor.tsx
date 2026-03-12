@@ -6,7 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { Save, RefreshCw } from 'lucide-react';
+import { Save, RefreshCw, Upload } from 'lucide-react';
 import { hasAdminAccess } from '@/lib/adminAccess';
 
 interface PageContentEditorProps {
@@ -21,7 +21,113 @@ interface ContentItem {
   label: string;
 }
 
+type DraftStatus = 'draft' | 'published';
+
+const getErrorMessage = (err: unknown) => {
+  if (!err) return '';
+  if (typeof err === 'string') return err.toLowerCase();
+  if (typeof err === 'object' && 'message' in err && typeof (err as any).message === 'string') {
+    return (err as any).message.toLowerCase();
+  }
+  return '';
+};
+
 const PAGE_DEFINITIONS: Record<string, ContentItem[]> = {
+  'home': [
+    { section_key: 'hero_title', content_value: 'Dive Koh Tao with Pro Diving Asia', content_type: 'text', label: 'Hero Title' },
+    { section_key: 'hero_subtitle', content_value: 'Discover world-class diving, friendly instructors, and unforgettable underwater adventures on Koh Tao.', content_type: 'textarea', label: 'Hero Subtitle' },
+    { section_key: 'hero_primary_cta', content_value: 'Book Now', content_type: 'text', label: 'Hero Primary CTA' },
+    { section_key: 'hero_secondary_cta', content_value: 'Courses', content_type: 'text', label: 'Hero Secondary CTA' },
+    { section_key: 'about_headline', content_value: 'Small island, 21 km², lush and surrounded by more than 15 dive sites.', content_type: 'textarea', label: 'About Headline' },
+    { section_key: 'about_sites_line', content_value: 'WHITE ROCK - TWINS - GREEN ROCK - CHUMPHON PINNACLE - SAIL ROCK - SOUTHWEST PINNACLE - AND MORE', content_type: 'textarea', label: 'About Dive Sites Line' },
+    { section_key: 'about_map_alt', content_value: 'Map of Koh Tao and dive sites', content_type: 'text', label: 'About Map Alt Text' },
+    { section_key: 'about_title', content_value: 'From PADI Open Water certifications to PADI Divemaster internships', content_type: 'textarea', label: 'About Title' },
+    { section_key: 'about_paragraph_1', content_value: 'Koh Tao is not only a top destination in Thailand for your diving holiday, but also ideal for completing almost all PADI dive certifications, for both beginners and experienced divers.', content_type: 'textarea', label: 'About Paragraph 1' },
+    { section_key: 'about_paragraph_2', content_value: 'Lifetime certifications valid worldwide, at a surprisingly low price. Earn your PADI diving certification here for 9000 baht, now including 4 nights accommodation in the course price.', content_type: 'textarea', label: 'About Paragraph 2' },
+    { section_key: 'courses_section_title', content_value: 'Our Diving Courses', content_type: 'text', label: 'Courses Section Title' },
+    { section_key: 'courses_section_subtitle', content_value: 'Choose from beginner experiences to professional dive training on Koh Tao.', content_type: 'textarea', label: 'Courses Section Subtitle' },
+    { section_key: 'course_open_water_title', content_value: 'PADI Open Water Course', content_type: 'text', label: 'Open Water Card Title' },
+    { section_key: 'course_open_water_level', content_value: 'Beginner', content_type: 'text', label: 'Open Water Card Level' },
+    { section_key: 'course_open_water_duration', content_value: '3-4 days', content_type: 'text', label: 'Open Water Card Duration' },
+    { section_key: 'course_open_water_max_depth', content_value: '18m', content_type: 'text', label: 'Open Water Card Max Depth' },
+    { section_key: 'course_open_water_price', content_value: '฿11,000', content_type: 'text', label: 'Open Water Card Price' },
+    { section_key: 'course_open_water_description', content_value: 'Learn the fundamentals of scuba diving and become a certified diver for life.', content_type: 'textarea', label: 'Open Water Card Description' },
+    { section_key: 'course_advanced_title', content_value: 'Advanced Open Water', content_type: 'text', label: 'Advanced Card Title' },
+    { section_key: 'course_advanced_level', content_value: 'Intermediate', content_type: 'text', label: 'Advanced Card Level' },
+    { section_key: 'course_advanced_duration', content_value: '2 days', content_type: 'text', label: 'Advanced Card Duration' },
+    { section_key: 'course_advanced_max_depth', content_value: '30m', content_type: 'text', label: 'Advanced Card Max Depth' },
+    { section_key: 'course_advanced_price', content_value: '฿9,500', content_type: 'text', label: 'Advanced Card Price' },
+    { section_key: 'course_advanced_description', content_value: 'Build confidence underwater, improve navigation, and unlock deeper dive adventures.', content_type: 'textarea', label: 'Advanced Card Description' },
+    { section_key: 'course_efr_title', content_value: 'Emergency First Response', content_type: 'text', label: 'EFR Card Title' },
+    { section_key: 'course_efr_level', content_value: 'First Aid', content_type: 'text', label: 'EFR Card Level' },
+    { section_key: 'course_efr_duration', content_value: '1 day', content_type: 'text', label: 'EFR Card Duration' },
+    { section_key: 'course_efr_max_depth', content_value: 'N/A', content_type: 'text', label: 'EFR Card Max Depth' },
+    { section_key: 'course_efr_price', content_value: '฿3,500', content_type: 'text', label: 'EFR Card Price' },
+    { section_key: 'course_efr_description', content_value: 'Learn CPR, first aid, and emergency response skills essential for divers and non-divers.', content_type: 'textarea', label: 'EFR Card Description' },
+    { section_key: 'course_rescue_title', content_value: 'PADI Rescue Diver', content_type: 'text', label: 'Rescue Card Title' },
+    { section_key: 'course_rescue_level', content_value: 'Advanced', content_type: 'text', label: 'Rescue Card Level' },
+    { section_key: 'course_rescue_duration', content_value: '3 days', content_type: 'text', label: 'Rescue Card Duration' },
+    { section_key: 'course_rescue_max_depth', content_value: '30m', content_type: 'text', label: 'Rescue Card Max Depth' },
+    { section_key: 'course_rescue_price', content_value: '฿10,000', content_type: 'text', label: 'Rescue Card Price' },
+    { section_key: 'course_rescue_description', content_value: 'Learn to prevent and manage dive emergencies while becoming a stronger, more aware diver.', content_type: 'textarea', label: 'Rescue Card Description' },
+    { section_key: 'course_divemaster_title', content_value: 'PADI Divemaster', content_type: 'text', label: 'Divemaster Card Title' },
+    { section_key: 'course_divemaster_level', content_value: 'Professional', content_type: 'text', label: 'Divemaster Card Level' },
+    { section_key: 'course_divemaster_duration', content_value: '2-4 weeks', content_type: 'text', label: 'Divemaster Card Duration' },
+    { section_key: 'course_divemaster_max_depth', content_value: '40m', content_type: 'text', label: 'Divemaster Card Max Depth' },
+    { section_key: 'course_divemaster_price', content_value: '฿41,000', content_type: 'text', label: 'Divemaster Card Price' },
+    { section_key: 'course_divemaster_description', content_value: 'Start your professional dive career and train to lead certified divers underwater.', content_type: 'textarea', label: 'Divemaster Card Description' },
+    { section_key: 'course_instructor_title', content_value: 'PADI Instructor', content_type: 'text', label: 'Instructor Card Title' },
+    { section_key: 'course_instructor_level', content_value: 'Professional', content_type: 'text', label: 'Instructor Card Level' },
+    { section_key: 'course_instructor_duration', content_value: '2-3 weeks', content_type: 'text', label: 'Instructor Card Duration' },
+    { section_key: 'course_instructor_max_depth', content_value: '40m', content_type: 'text', label: 'Instructor Card Max Depth' },
+    { section_key: 'course_instructor_price', content_value: '฿68,900', content_type: 'text', label: 'Instructor Card Price' },
+    { section_key: 'course_instructor_description', content_value: 'Train to teach scuba professionally and build a dive career anywhere in the world.', content_type: 'textarea', label: 'Instructor Card Description' },
+    { section_key: 'course_discover_scuba_title', content_value: 'Discover Scuba Diving (DSD)', content_type: 'text', label: 'Discover Scuba Card Title' },
+    { section_key: 'course_discover_scuba_level', content_value: 'Beginner', content_type: 'text', label: 'Discover Scuba Card Level' },
+    { section_key: 'course_discover_scuba_duration', content_value: '1 day', content_type: 'text', label: 'Discover Scuba Card Duration' },
+    { section_key: 'course_discover_scuba_max_depth', content_value: '12m', content_type: 'text', label: 'Discover Scuba Card Max Depth' },
+    { section_key: 'course_discover_scuba_price', content_value: '฿2,500', content_type: 'text', label: 'Discover Scuba Card Price' },
+    { section_key: 'course_discover_scuba_description', content_value: 'No certification required. The perfect first step to experience scuba diving safely.', content_type: 'textarea', label: 'Discover Scuba Card Description' },
+    { section_key: 'course_discover_scuba_deluxe_title', content_value: 'Discover Scuba Diving Deluxe', content_type: 'text', label: 'Discover Scuba Deluxe Card Title' },
+    { section_key: 'course_discover_scuba_deluxe_level', content_value: 'Beginner', content_type: 'text', label: 'Discover Scuba Deluxe Card Level' },
+    { section_key: 'course_discover_scuba_deluxe_duration', content_value: '1-2 days', content_type: 'text', label: 'Discover Scuba Deluxe Card Duration' },
+    { section_key: 'course_discover_scuba_deluxe_max_depth', content_value: '12m', content_type: 'text', label: 'Discover Scuba Deluxe Card Max Depth' },
+    { section_key: 'course_discover_scuba_deluxe_price', content_value: '฿5,000', content_type: 'text', label: 'Discover Scuba Deluxe Card Price' },
+    { section_key: 'course_discover_scuba_deluxe_description', content_value: 'Extended DSD with 3 dives for more underwater time and a more relaxed pace.', content_type: 'textarea', label: 'Discover Scuba Deluxe Card Description' },
+  ],
+
+  'contact': [
+    { section_key: 'section_title', content_value: 'Get in Touch', content_type: 'text', label: 'Section Title' },
+    { section_key: 'section_subtitle', content_value: 'Ready to explore the underwater world? Contact Bas to book your diving adventure on Koh Tao.', content_type: 'textarea', label: 'Section Subtitle' },
+    { section_key: 'details_title', content_value: 'Contact Details', content_type: 'text', label: 'Details Title' },
+    { section_key: 'location_title', content_value: 'Location', content_type: 'text', label: 'Location Title' },
+    { section_key: 'location_line_1', content_value: 'Sairee Beach, Koh Tao', content_type: 'text', label: 'Location Line 1' },
+    { section_key: 'location_line_2', content_value: 'Surat Thani 84360, Thailand', content_type: 'text', label: 'Location Line 2' },
+    { section_key: 'phone_title', content_value: 'Phone', content_type: 'text', label: 'Phone Title' },
+    { section_key: 'phone_line_1', content_value: '+66 77 456 789', content_type: 'text', label: 'Phone Line 1' },
+    { section_key: 'phone_line_2', content_value: '+66 89 123 4567', content_type: 'text', label: 'Phone Line 2' },
+    { section_key: 'email_title', content_value: 'Email', content_type: 'text', label: 'Email Title' },
+    { section_key: 'email_value', content_value: 'contact@divinginasia.com', content_type: 'text', label: 'Email Value' },
+    { section_key: 'opening_hours_title', content_value: 'Opening Hours', content_type: 'text', label: 'Opening Hours Title' },
+    { section_key: 'opening_hours_line_1', content_value: 'Daily: 07:00 - 19:00', content_type: 'text', label: 'Opening Hours Line 1' },
+    { section_key: 'opening_hours_line_2', content_value: 'Emergency: 24/7', content_type: 'text', label: 'Opening Hours Line 2' },
+    { section_key: 'follow_title', content_value: 'Follow Us', content_type: 'text', label: 'Follow Title' },
+    { section_key: 'form_title', content_value: 'Send Us a Message', content_type: 'text', label: 'Form Title' },
+    { section_key: 'form_first_name_label', content_value: 'First Name', content_type: 'text', label: 'First Name Label' },
+    { section_key: 'form_last_name_label', content_value: 'Last Name', content_type: 'text', label: 'Last Name Label' },
+    { section_key: 'form_email_label', content_value: 'Email', content_type: 'text', label: 'Email Label' },
+    { section_key: 'form_subject_label', content_value: 'Subject', content_type: 'text', label: 'Subject Label' },
+    { section_key: 'subject_option_1', content_value: 'Course Information', content_type: 'text', label: 'Subject Option 1' },
+    { section_key: 'subject_option_2', content_value: 'Dive Trip Booking', content_type: 'text', label: 'Subject Option 2' },
+    { section_key: 'subject_option_3', content_value: 'Equipment Rental', content_type: 'text', label: 'Subject Option 3' },
+    { section_key: 'subject_option_4', content_value: 'General Question', content_type: 'text', label: 'Subject Option 4' },
+    { section_key: 'form_message_label', content_value: 'Message', content_type: 'text', label: 'Message Label' },
+    { section_key: 'form_submit_label', content_value: 'Send Message', content_type: 'text', label: 'Submit Button Label' },
+    { section_key: 'form_sending_label', content_value: 'Sending...', content_type: 'text', label: 'Sending Button Label' },
+    { section_key: 'footer_line_1', content_value: '© 2026 Pro Diving Asia. All rights reserved. Powered by One Media Asia @ www.onemedia.asia', content_type: 'textarea', label: 'Footer Line 1' },
+    { section_key: 'footer_line_2', content_value: "Discover the magic beneath the waves in Thailand's diving paradise.", content_type: 'textarea', label: 'Footer Line 2' },
+  ],
+
   'open-water': [
     { section_key: 'hero_title', content_value: 'PADI Open Water Course', content_type: 'text', label: 'Hero Title' },
     { section_key: 'hero_subtitle', content_value: "The world's most popular scuba course. Learn the fundamentals and get certified to dive independently to 18 metres/60 feet.", content_type: 'text', label: 'Hero Subtitle' },
@@ -44,16 +150,16 @@ const PAGE_DEFINITIONS: Record<string, ContentItem[]> = {
     { section_key: 'hero_title', content_value: 'PADI Rescue Diver Course', content_type: 'text', label: 'Hero Title' },
     { section_key: 'hero_subtitle', content_value: 'Learn to prevent and manage dive emergencies. Essential skills for any serious diver.', content_type: 'text', label: 'Hero Subtitle' },
     { section_key: 'course_overview', content_value: 'Build confidence in handling emergencies underwater and at the surface through realistic rescue scenarios.', content_type: 'text', label: 'Course Overview' },
-    { section_key: 'price_thb', content_value: '12500', content_type: 'text', label: 'Price (THB)' },
-    { section_key: 'price_usd', content_value: '360', content_type: 'text', label: 'Price (USD)' },
-    { section_key: 'price_eur', content_value: '330', content_type: 'text', label: 'Price (EUR)' },
+    { section_key: 'price_thb', content_value: '10000', content_type: 'text', label: 'Price (THB)' },
+    { section_key: 'price_usd', content_value: '290', content_type: 'text', label: 'Price (USD)' },
+    { section_key: 'price_eur', content_value: '265', content_type: 'text', label: 'Price (EUR)' },
     { section_key: 'duration', content_value: '3 days', content_type: 'text', label: 'Duration' },
   ],
   'efr': [
     { section_key: 'hero_title', content_value: 'Emergency First Response (EFR)', content_type: 'text', label: 'Hero Title' },
     { section_key: 'hero_subtitle', content_value: 'Learn CPR, first aid, and emergency response. Required for Rescue Diver certification.', content_type: 'text', label: 'Hero Subtitle' },
     { section_key: 'course_overview', content_value: 'Practice primary and secondary care skills including bandaging, splinting, and emergency assessments.', content_type: 'text', label: 'Course Overview' },
-    { section_key: 'price_thb', content_value: '4500', content_type: 'text', label: 'Price (THB)' },
+    { section_key: 'price_thb', content_value: '3500', content_type: 'text', label: 'Price (THB)' },
     { section_key: 'price_usd', content_value: '130', content_type: 'text', label: 'Price (USD)' },
     { section_key: 'price_eur', content_value: '120', content_type: 'text', label: 'Price (EUR)' },
     { section_key: 'duration', content_value: '1 day', content_type: 'text', label: 'Duration' },
@@ -80,9 +186,9 @@ const PAGE_DEFINITIONS: Record<string, ContentItem[]> = {
     { section_key: 'hero_title', content_value: 'Discover Scuba Diving', content_type: 'text', label: 'Hero Title' },
     { section_key: 'hero_subtitle', content_value: 'Try scuba diving for the first time. No experience necessary!', content_type: 'text', label: 'Hero Subtitle' },
     { section_key: 'course_overview', content_value: 'A quick introduction to scuba diving. Pool practice followed by a shallow ocean dive.', content_type: 'text', label: 'Course Overview' },
-    { section_key: 'price_thb', content_value: '2900', content_type: 'text', label: 'Price (THB)' },
-    { section_key: 'price_usd', content_value: '85', content_type: 'text', label: 'Price (USD)' },
-    { section_key: 'price_eur', content_value: '78', content_type: 'text', label: 'Price (EUR)' },
+    { section_key: 'price_thb', content_value: '2500', content_type: 'text', label: 'Price (THB)' },
+    { section_key: 'price_usd', content_value: '72', content_type: 'text', label: 'Price (USD)' },
+    { section_key: 'price_eur', content_value: '66', content_type: 'text', label: 'Price (EUR)' },
     { section_key: 'duration', content_value: 'Half day', content_type: 'text', label: 'Duration' },
   ],
   'scuba-diver': [
@@ -98,19 +204,19 @@ const PAGE_DEFINITIONS: Record<string, ContentItem[]> = {
     { section_key: 'hero_title', content_value: 'Scuba Review / ReActivate', content_type: 'text', label: 'Hero Title' },
     { section_key: 'hero_subtitle', content_value: "Haven't dived in a while? Refresh your skills with a professional instructor.", content_type: 'text', label: 'Hero Subtitle' },
     { section_key: 'course_overview', content_value: 'Quick knowledge review followed by confined and open water skill practice.', content_type: 'text', label: 'Course Overview' },
-    { section_key: 'price_thb', content_value: '3500', content_type: 'text', label: 'Price (THB)' },
-    { section_key: 'price_usd', content_value: '100', content_type: 'text', label: 'Price (USD)' },
-    { section_key: 'price_eur', content_value: '92', content_type: 'text', label: 'Price (EUR)' },
-    { section_key: 'duration', content_value: '1 day', content_type: 'text', label: 'Duration' },
+    { section_key: 'price_thb', content_value: '2500', content_type: 'text', label: 'Price (THB)' },
+    { section_key: 'price_usd', content_value: '72', content_type: 'text', label: 'Price (USD)' },
+    { section_key: 'price_eur', content_value: '66', content_type: 'text', label: 'Price (EUR)' },
+    { section_key: 'duration', content_value: '1-2 days', content_type: 'text', label: 'Duration' },
   ],
   'discover-scuba-deluxe': [
     { section_key: 'hero_title', content_value: 'Discover Scuba Diving Deluxe', content_type: 'text', label: 'Hero Title' },
     { section_key: 'hero_subtitle', content_value: 'An upgraded first dive experience with extra dives and a professional photo package.', content_type: 'text', label: 'Hero Subtitle' },
     { section_key: 'course_overview', content_value: 'Includes a briefing, two open water dives, and an underwater photo session.', content_type: 'text', label: 'Course Overview' },
-    { section_key: 'price_thb', content_value: '4500', content_type: 'text', label: 'Price (THB)' },
-    { section_key: 'price_usd', content_value: '130', content_type: 'text', label: 'Price (USD)' },
-    { section_key: 'price_eur', content_value: '120', content_type: 'text', label: 'Price (EUR)' },
-    { section_key: 'duration', content_value: '1 day', content_type: 'text', label: 'Duration' },
+    { section_key: 'price_thb', content_value: '5000', content_type: 'text', label: 'Price (THB)' },
+    { section_key: 'price_usd', content_value: '144', content_type: 'text', label: 'Price (USD)' },
+    { section_key: 'price_eur', content_value: '132', content_type: 'text', label: 'Price (EUR)' },
+    { section_key: 'duration', content_value: '1-2 days', content_type: 'text', label: 'Duration' },
   ],
   'msdt-program': [
     { section_key: 'hero_title', content_value: 'MSDT Program', content_type: 'text', label: 'Hero Title' },
@@ -290,11 +396,19 @@ export const PageContentEditor: React.FC<PageContentEditorProps> = ({ pageSlug, 
   const [isAdmin, setIsAdmin] = useState(false);
   const [contentItems, setContentItems] = useState<ContentItem[]>([]);
   const [isSaving, setIsSaving] = useState(false);
+  const [isPublishing, setIsPublishing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [draftStatus, setDraftStatus] = useState<DraftStatus>('published');
+  const [lastUpdated, setLastUpdated] = useState<string | null>(null);
 
   useEffect(() => {
     const checkAdmin = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
+      const [{ data: userData }, { data: sessionData }] = await Promise.all([
+        supabase.auth.getUser(),
+        supabase.auth.getSession(),
+      ]);
+
+      const user = userData.user || sessionData.session?.user || null;
       setIsAdmin(user ? hasAdminAccess(user) : false);
     };
     checkAdmin();
@@ -305,8 +419,18 @@ export const PageContentEditor: React.FC<PageContentEditorProps> = ({ pageSlug, 
       const template = PAGE_DEFINITIONS[pageSlug] || [];
       
       try {
+        // @ts-expect-error - page_metadata table will be available after migration
+        const { data: metadata } = await supabase
+          .from('page_metadata')
+          .select('draft_status, updated_at')
+          .eq('page_slug', pageSlug)
+          .maybeSingle();
+
+        setDraftStatus((metadata?.draft_status as DraftStatus) || 'published');
+        setLastUpdated(metadata?.updated_at || null);
+
         // @ts-expect-error - page_content table will be available after migration
-        const { data, error } = await supabase
+        const { data: publishedData, error } = await supabase
           .from('page_content')
           .select('section_key, content_value, content_type')
           .eq('page_slug', pageSlug)
@@ -314,8 +438,21 @@ export const PageContentEditor: React.FC<PageContentEditorProps> = ({ pageSlug, 
 
         if (error) throw error;
 
+        // @ts-expect-error - page_content_drafts table will be available after migration
+        const { data: draftData, error: draftError } = await supabase
+          .from('page_content_drafts')
+          .select('section_key, content_value, content_type')
+          .eq('page_slug', pageSlug)
+          .eq('locale', locale);
+
+        if (draftError) {
+          console.warn('Draft table unavailable, falling back to published content:', draftError.message);
+        }
+
+        const sourceData = draftData && draftData.length > 0 ? draftData : publishedData;
+
         const loadedItems = template.map((item) => {
-          const dbItem = data?.find((d: any) => d.section_key === item.section_key);
+          const dbItem = sourceData?.find((d: any) => d.section_key === item.section_key);
           return {
             ...item,
             content_value: dbItem?.content_value || item.content_value,
@@ -335,11 +472,90 @@ export const PageContentEditor: React.FC<PageContentEditorProps> = ({ pageSlug, 
     loadContent();
   }, [pageSlug, locale]);
 
-  const handleSave = async () => {
+  const ensureMetadata = async (status: DraftStatus) => {
+    // @ts-expect-error - page_metadata table will be available after migration
+    const { error } = await supabase
+      .from('page_metadata')
+      .upsert({
+        page_slug: pageSlug,
+        draft_status: status,
+        updated_at: new Date().toISOString(),
+      }, { onConflict: 'page_slug' });
+
+    if (!error) return;
+
+    const message = getErrorMessage(error);
+    const missingDraftColumns = message.includes('draft_status') || message.includes('published_at');
+    if (!missingDraftColumns) throw error;
+
+    // Backward-compatible fallback when draft columns do not exist yet.
+    // @ts-expect-error - page_metadata table will be available after migration
+    const { error: legacyError } = await supabase
+      .from('page_metadata')
+      .upsert({
+        page_slug: pageSlug,
+        updated_at: new Date().toISOString(),
+      }, { onConflict: 'page_slug' });
+
+    if (legacyError) throw legacyError;
+  };
+
+  const handleSaveDraft = async () => {
     setIsSaving(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
+      await ensureMetadata('draft');
       
+      const upserts = contentItems.map((item) => ({
+        page_slug: pageSlug,
+        locale,
+        section_key: item.section_key,
+        content_type: item.content_type,
+        content_value: item.content_value,
+        updated_by: user?.email || null,
+      }));
+
+      // @ts-expect-error - page_content_drafts table will be available after migration
+      const { error } = await supabase
+        .from('page_content_drafts')
+        .upsert(upserts, { onConflict: 'page_slug,locale,section_key' });
+
+      if (error) {
+        const message = getErrorMessage(error);
+        const missingDraftTable = message.includes('page_content_drafts') || message.includes('does not exist');
+
+        if (!missingDraftTable) throw error;
+
+        // Backward-compatible fallback: persist directly to published table.
+        // @ts-expect-error - page_content table will be available after migration
+        const { error: publishFallbackError } = await supabase
+          .from('page_content')
+          .upsert(upserts, { onConflict: 'page_slug,locale,section_key' });
+
+        if (publishFallbackError) throw publishFallbackError;
+
+        setDraftStatus('published');
+        setLastUpdated(new Date().toISOString());
+        toast.success('Draft table not set up yet, saved directly as live content.');
+        return;
+      }
+
+      setDraftStatus('draft');
+      setLastUpdated(new Date().toISOString());
+      toast.success('Draft saved successfully');
+    } catch (err) {
+      console.error('Failed to save draft:', err);
+      toast.error('Failed to save draft');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handlePublish = async () => {
+    setIsPublishing(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+
       const upserts = contentItems.map((item) => ({
         page_slug: pageSlug,
         locale,
@@ -356,12 +572,48 @@ export const PageContentEditor: React.FC<PageContentEditorProps> = ({ pageSlug, 
 
       if (error) throw error;
 
-      toast.success('Page content saved successfully');
+      // @ts-expect-error - page_content_drafts table will be available after migration
+      await supabase
+        .from('page_content_drafts')
+        .delete()
+        .eq('page_slug', pageSlug)
+        .eq('locale', locale);
+
+      // @ts-expect-error - page_metadata table will be available after migration
+      const { error: metadataError } = await supabase
+        .from('page_metadata')
+        .upsert({
+          page_slug: pageSlug,
+          draft_status: 'published',
+          published_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        }, { onConflict: 'page_slug' });
+
+      if (metadataError) {
+        const message = getErrorMessage(metadataError);
+        const missingDraftColumns = message.includes('draft_status') || message.includes('published_at');
+        if (!missingDraftColumns) throw metadataError;
+
+        // Backward-compatible metadata update when new columns are not yet migrated.
+        // @ts-expect-error - page_metadata table will be available after migration
+        const { error: legacyMetadataError } = await supabase
+          .from('page_metadata')
+          .upsert({
+            page_slug: pageSlug,
+            updated_at: new Date().toISOString(),
+          }, { onConflict: 'page_slug' });
+
+        if (legacyMetadataError) throw legacyMetadataError;
+      }
+
+      setDraftStatus('published');
+      setLastUpdated(new Date().toISOString());
+      toast.success('Changes published successfully');
     } catch (err) {
-      console.error('Failed to save content:', err);
-      toast.error('Failed to save page content');
+      console.error('Failed to publish content:', err);
+      toast.error('Failed to publish changes');
     } finally {
-      setIsSaving(false);
+      setIsPublishing(false);
     }
   };
 
@@ -386,6 +638,9 @@ export const PageContentEditor: React.FC<PageContentEditorProps> = ({ pageSlug, 
         <CardDescription>
           Admin-only: Edit page content for {pageSlug} ({locale})
         </CardDescription>
+        <CardDescription>
+          Status: {draftStatus === 'draft' ? 'Draft' : 'Published'}{lastUpdated ? ` • Last updated ${new Date(lastUpdated).toLocaleString()}` : ''}
+        </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         {contentItems.map((item) => (
@@ -409,10 +664,16 @@ export const PageContentEditor: React.FC<PageContentEditorProps> = ({ pageSlug, 
             )}
           </div>
         ))}
-        <Button onClick={handleSave} disabled={isSaving} className="w-full">
-          <Save className="w-4 h-4 mr-2" />
-          {isSaving ? 'Saving...' : 'Save Changes'}
-        </Button>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <Button onClick={handleSaveDraft} disabled={isSaving || isPublishing} variant="outline">
+            <Save className="w-4 h-4 mr-2" />
+            {isSaving ? 'Saving Draft...' : 'Save Draft'}
+          </Button>
+          <Button onClick={handlePublish} disabled={isSaving || isPublishing}>
+            <Upload className="w-4 h-4 mr-2" />
+            {isPublishing ? 'Publishing...' : 'Publish Live'}
+          </Button>
+        </div>
       </CardContent>
     </Card>
   );

@@ -36,6 +36,7 @@ export interface CoursePageProps {
   faqs?: CourseFAQ[];
   level?: string;
   bookingItemName?: string;
+  bookingType?: 'course' | 'dive';
 }
 
 const CoursePageTemplate: React.FC<CoursePageProps> = ({
@@ -48,6 +49,7 @@ const CoursePageTemplate: React.FC<CoursePageProps> = ({
   faqs = [],
   level = 'Recreational',
   bookingItemName,
+  bookingType = 'course',
 }) => {
   const navigate = useNavigate();
   const { content, isLoading } = usePageContent({
@@ -66,7 +68,7 @@ const CoursePageTemplate: React.FC<CoursePageProps> = ({
   const duration = content.duration || fallbackContent.duration || 'Contact us';
   
   const bookingName = bookingItemName || content.hero_title;
-  const bookingUrl = `/booking?item=${encodeURIComponent(bookingName)}&type=course&price=${priceThb}&currency=THB`;
+  const bookingUrl = `/booking?item=${encodeURIComponent(bookingName)}&type=${bookingType}&price=${priceThb}&currency=THB`;
 
   const heroImageUrl = heroImage || images[0];
 

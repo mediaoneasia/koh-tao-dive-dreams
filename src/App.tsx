@@ -114,14 +114,18 @@ const RequireAdmin = ({ children }: { children: JSX.Element }) => {
   const [status, setStatus] = useState<'loading' | 'allowed' | 'denied'>('loading');
 
   useEffect(() => {
-    // In local development, bypass admin check so devs can view admin pages
-    if (import.meta.env.DEV) {
-      setStatus('allowed');
-      return;
-    }
+    let isMounted = true;
+
     const checkAdmin = async () => {
-      const { data: userData } = await supabase.auth.getUser();
-      const user = userData.user;
+      const { data: sessionData } = await supabase.auth.getSession();
+      let user = sessionData.session?.user ?? null;
+
+      if (!user) {
+        const { data: userData } = await supabase.auth.getUser();
+        user = userData.user;
+      }
+
+      if (!isMounted) return;
 
       if (user && hasAdminAccess(user)) {
         setStatus('allowed');
@@ -132,6 +136,22 @@ const RequireAdmin = ({ children }: { children: JSX.Element }) => {
     };
 
     checkAdmin();
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      const user = session?.user ?? null;
+      if (user && hasAdminAccess(user)) {
+        setStatus('allowed');
+      } else {
+        setStatus('denied');
+      }
+    });
+
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   if (status === 'loading') {
@@ -165,7 +185,10 @@ const App = () => (
             <Route path="/clicks-dashboard" element={<ClicksDashboard />} />
 
             <Route path="/booking" element={<BookingPage />} />
-            <Route path="/admin" element={<RequireAdmin><Admin /></RequireAdmin>} />
+            <Route
+              path="/admin"
+              element={<RequireAdmin><Admin /></RequireAdmin>}
+            />
             <Route path="/login" element={<Login />} />
             <Route path="/admin/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />

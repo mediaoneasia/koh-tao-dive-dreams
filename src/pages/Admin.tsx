@@ -86,6 +86,10 @@ const Admin = () => {
     }
   }, [apiBase, apiUrl]);
 
+  const redirectToLogin = useCallback(() => {
+    navigate('/admin/login');
+  }, [navigate]);
+
   useEffect(() => {
     const initAuth = async () => {
       try {
@@ -94,17 +98,16 @@ const Admin = () => {
           supabase.auth.getSession(),
         ]);
 
-        const user = userData.user;
-        const isDev = import.meta.env.DEV;
+        const user = userData.user || sessionData.session?.user || null;
         let token = sessionData.session?.access_token || null;
 
         if (!user) {
-          navigate('/admin/login');
+          redirectToLogin();
           return;
         }
 
-        if (!hasAdminAccess(user) && !isDev) {
-          navigate('/admin/login');
+        if (!hasAdminAccess(user)) {
+          redirectToLogin();
           return;
         }
 
@@ -115,11 +118,7 @@ const Admin = () => {
 
         if (!token) {
           toast.error('Unable to establish session token. Please log in again.');
-          if (isDev) {
-            setIsLoading(false);
-            return;
-          }
-          navigate('/admin/login');
+          redirectToLogin();
           return;
         }
 
@@ -143,13 +142,14 @@ const Admin = () => {
         setIsLoading(false);
       } catch (error) {
         console.error('Admin auth init failed:', error);
+        toast.error('Unable to load bookings right now. You can still use Edit Pages.');
+        setBookings([]);
         setIsLoading(false);
-        navigate('/admin/login');
       }
     };
 
     initAuth();
-  }, [navigate, fetchAdminApi]);
+  }, [fetchAdminApi, redirectToLogin]);
 
   useEffect(() => {
     if (window.location.hash === '#pages') {
@@ -195,7 +195,7 @@ const Admin = () => {
         body: JSON.stringify({ status: newStatus }),
       });
       if (response.status === 401 || response.status === 403) {
-        navigate('/admin/login');
+        redirectToLogin();
         return;
       }
       if (!response.ok) throw new Error('Failed to update status');
@@ -221,7 +221,7 @@ const Admin = () => {
         },
       });
       if (response.status === 401 || response.status === 403) {
-        navigate('/admin/login');
+        redirectToLogin();
         return;
       }
       if (!response.ok) throw new Error('Failed to delete booking');
@@ -451,7 +451,7 @@ const Admin = () => {
       if (response.status === 401 || response.status === 403) {
         await supabase.auth.signOut();
         toast.error('Admin session expired. Please login again.');
-        navigate('/admin/login');
+        redirectToLogin();
         return;
       }
 

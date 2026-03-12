@@ -25,6 +25,9 @@ export const getAdminAccessConfig = () => {
 export const hasAdminAccess = (user: SupabaseUserLike | null | undefined) => {
   if (!user) return false;
 
+  // Local development convenience: any authenticated user can access admin tools.
+  if (import.meta.env.DEV) return true;
+
   const appRole = user.app_metadata?.app_role;
   const userRole = user.user_metadata?.app_role || user.user_metadata?.role;
   

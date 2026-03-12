@@ -92,22 +92,22 @@ export const SEOMetaEditor: React.FC<SEOMetaEditorProps> = ({ pageSlug, onClose 
     setIsSaving(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      
-      // @ts-expect-error - page_seo table will be available after migration
-      const { error } = await supabase
-        .from('page_seo')
-        .upsert({
-          page_slug: pageSlug,
-          ...seoData,
-          updated_by: user?.email || null,
-          updated_at: new Date().toISOString(),
-        }, { onConflict: 'page_slug' });
 
-      if (error) throw error;
+      let parsedSchemaJson: any = null;
+      const rawSchema = (seoData.schema_json || '').trim();
+      if (rawSchema) {
+        try {
+          parsedSchemaJson = JSON.parse(rawSchema);
+        } catch {
+          toast.error('Structured Data JSON is invalid. Please fix it before saving.');
+          setIsSaving(false);
+          return;
+        }
+      }
 
-      // Update metadata flag
+      // Ensure parent row exists first (required by page_seo FK -> page_metadata.page_slug).
       // @ts-expect-error - page_metadata table will be available after migration
-      await supabase
+      const { error: metadataError } = await supabase
         .from('page_metadata')
         .upsert({
           page_slug: pageSlug,
@@ -115,11 +115,27 @@ export const SEOMetaEditor: React.FC<SEOMetaEditorProps> = ({ pageSlug, onClose 
           updated_at: new Date().toISOString(),
         }, { onConflict: 'page_slug' });
 
+      if (metadataError) throw metadataError;
+      
+      // @ts-expect-error - page_seo table will be available after migration
+      const { error } = await supabase
+        .from('page_seo')
+        .upsert({
+          page_slug: pageSlug,
+          ...seoData,
+          schema_json: parsedSchemaJson,
+          updated_by: user?.email || null,
+          updated_at: new Date().toISOString(),
+        }, { onConflict: 'page_slug' });
+
+      if (error) throw error;
+
       toast.success('SEO metadata saved successfully');
       onClose();
     } catch (err) {
       console.error('Failed to save SEO data:', err);
-      toast.error('Failed to save SEO metadata');
+      const message = err instanceof Error ? err.message : 'Failed to save SEO metadata';
+      toast.error(message || 'Failed to save SEO metadata');
     } finally {
       setIsSaving(false);
     }

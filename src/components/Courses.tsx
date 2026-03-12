@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Clock, Star, ChevronDown, ChevronUp } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import CourseRecommender from './CourseRecommender';
@@ -11,11 +11,84 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { usePageContent } from '@/hooks/usePageContent';
 
 const Courses = () => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const isDutch = i18n.language.startsWith('nl');
+  const locale = isDutch ? 'nl' : 'en';
+
+  const homeFallbackContent = useMemo(() => ({
+    courses_section_title: t('courses.title'),
+    courses_section_subtitle: t('courses.subtitle'),
+
+    course_open_water_title: t('courses.openWater.title'),
+    course_open_water_level: t('courses.openWater.level'),
+    course_open_water_duration: t('courses.openWater.duration'),
+    course_open_water_max_depth: t('courses.openWater.maxDepth'),
+    course_open_water_price: t('courses.openWater.price'),
+    course_open_water_description: t('courses.openWater.description'),
+
+    course_advanced_title: t('courses.advanced.title'),
+    course_advanced_level: t('courses.advanced.level'),
+    course_advanced_duration: t('courses.advanced.duration'),
+    course_advanced_max_depth: t('courses.advanced.maxDepth'),
+    course_advanced_price: t('courses.advanced.price'),
+    course_advanced_description: t('courses.advanced.description'),
+
+    course_efr_title: t('courses.efr.title'),
+    course_efr_level: t('courses.efr.level'),
+    course_efr_duration: t('courses.efr.duration'),
+    course_efr_max_depth: t('courses.efr.maxDepth'),
+    course_efr_price: t('courses.efr.price'),
+    course_efr_description: t('courses.efr.description'),
+
+    course_rescue_title: t('courses.rescue.title'),
+    course_rescue_level: t('courses.rescue.level'),
+    course_rescue_duration: t('courses.rescue.duration'),
+    course_rescue_max_depth: t('courses.rescue.maxDepth'),
+    course_rescue_price: t('courses.rescue.price'),
+    course_rescue_description: t('courses.rescue.description'),
+
+    course_divemaster_title: t('courses.divemaster.title'),
+    course_divemaster_level: t('courses.divemaster.level'),
+    course_divemaster_duration: t('courses.divemaster.duration'),
+    course_divemaster_max_depth: t('courses.divemaster.maxDepth'),
+    course_divemaster_price: t('courses.divemaster.price'),
+    course_divemaster_description: t('courses.divemaster.description'),
+
+    course_instructor_title: t('courses.instructor.title'),
+    course_instructor_level: t('courses.instructor.level'),
+    course_instructor_duration: t('courses.instructor.duration'),
+    course_instructor_max_depth: t('courses.instructor.maxDepth'),
+    course_instructor_price: t('courses.instructor.price'),
+    course_instructor_description: t('courses.instructor.description'),
+
+    course_discover_scuba_title: 'Discover Scuba Diving (DSD)',
+    course_discover_scuba_level: isDutch ? 'Beginner' : 'Beginner',
+    course_discover_scuba_duration: isDutch ? '1 dag' : '1 day',
+    course_discover_scuba_max_depth: '12m',
+    course_discover_scuba_price: '฿2,500',
+    course_discover_scuba_description: isDutch
+      ? 'Geen brevet nodig. De ideale eerste stap om veilig kennis te maken met duiken.'
+      : 'No certification required. The perfect first step to experience scuba diving safely.',
+
+    course_discover_scuba_deluxe_title: 'Discover Scuba Diving Deluxe',
+    course_discover_scuba_deluxe_level: isDutch ? 'Beginner' : 'Beginner',
+    course_discover_scuba_deluxe_duration: isDutch ? '1-2 dagen' : '1-2 days',
+    course_discover_scuba_deluxe_max_depth: '12m',
+    course_discover_scuba_deluxe_price: '฿5,000',
+    course_discover_scuba_deluxe_description: isDutch
+      ? 'Uitgebreide DSD met 3 duiken voor meer onderwatertijd en een relaxter tempo.'
+      : 'Extended DSD with 3 dives for more underwater time and a more relaxed pace.',
+  }), [t, locale, isDutch]);
+
+  const { content: homeContent } = usePageContent({
+    pageSlug: 'home',
+    locale,
+    fallbackContent: homeFallbackContent,
+  });
 
   const parsePriceMajor = (priceLabel: string) => {
     const digits = priceLabel.replace(/[^\d]/g, '');
@@ -26,12 +99,12 @@ const Courses = () => {
     {
       key: 'openWater',
       path: '/courses/open-water',
-      title: t('courses.openWater.title'),
-      level: t('courses.openWater.level'),
-      duration: t('courses.openWater.duration'),
-      maxDepth: t('courses.openWater.maxDepth'),
-      price: t('courses.openWater.price'),
-      description: t('courses.openWater.description'),
+      title: homeContent.course_open_water_title,
+      level: homeContent.course_open_water_level,
+      duration: homeContent.course_open_water_duration,
+      maxDepth: homeContent.course_open_water_max_depth,
+      price: homeContent.course_open_water_price,
+      description: homeContent.course_open_water_description,
       fullDescription: t('courses.openWater.fullDescription'),
       includes: t('courses.openWater.includes', { returnObjects: true }),
       whatsNext: t('courses.openWater.whatsNext'),
@@ -43,12 +116,12 @@ const Courses = () => {
     {
       key: 'advanced',
       path: '/courses/advanced',
-      title: t('courses.advanced.title'),
-      level: t('courses.advanced.level'),
-      duration: t('courses.advanced.duration'),
-      maxDepth: t('courses.advanced.maxDepth'),
-      price: t('courses.advanced.price'),
-      description: t('courses.advanced.description'),
+      title: homeContent.course_advanced_title,
+      level: homeContent.course_advanced_level,
+      duration: homeContent.course_advanced_duration,
+      maxDepth: homeContent.course_advanced_max_depth,
+      price: homeContent.course_advanced_price,
+      description: homeContent.course_advanced_description,
       fullDescription: t('courses.advanced.fullDescription'),
       includes: t('courses.advanced.includes', { returnObjects: true }),
       courseImages: t('courses.advanced.courseImages', { returnObjects: true }),
@@ -59,12 +132,12 @@ const Courses = () => {
     {
       key: 'efr',
       path: '/courses/efr',
-      title: t('courses.efr.title'),
-      level: t('courses.efr.level'),
-      duration: t('courses.efr.duration'),
-      maxDepth: t('courses.efr.maxDepth'),
-      price: t('courses.efr.price'),
-      description: t('courses.efr.description'),
+      title: homeContent.course_efr_title,
+      level: homeContent.course_efr_level,
+      duration: homeContent.course_efr_duration,
+      maxDepth: homeContent.course_efr_max_depth,
+      price: homeContent.course_efr_price,
+      description: homeContent.course_efr_description,
       fullDescription: t('courses.efr.fullDescription'),
       includes: t('courses.efr.includes', { returnObjects: true }),
       courseImages: t('courses.efr.courseImages', { returnObjects: true }),
@@ -75,12 +148,12 @@ const Courses = () => {
     {
       key: 'rescue',
       path: '/courses/rescue',
-      title: t('courses.rescue.title'),
-      level: t('courses.rescue.level'),
-      duration: t('courses.rescue.duration'),
-      maxDepth: t('courses.rescue.maxDepth'),
-      price: t('courses.rescue.price'),
-      description: t('courses.rescue.description'),
+      title: homeContent.course_rescue_title,
+      level: homeContent.course_rescue_level,
+      duration: homeContent.course_rescue_duration,
+      maxDepth: homeContent.course_rescue_max_depth,
+      price: homeContent.course_rescue_price,
+      description: homeContent.course_rescue_description,
       fullDescription: t('courses.rescue.fullDescription'),
       includes: t('courses.rescue.includes', { returnObjects: true }),
       courseImages: t('courses.rescue.courseImages', { returnObjects: true }),
@@ -91,12 +164,12 @@ const Courses = () => {
     {
       key: 'divemaster',
       path: '/courses/divemaster',
-      title: t('courses.divemaster.title'),
-      level: t('courses.divemaster.level'),
-      duration: t('courses.divemaster.duration'),
-      maxDepth: t('courses.divemaster.maxDepth'),
-      price: t('courses.divemaster.price'),
-      description: t('courses.divemaster.description'),
+      title: homeContent.course_divemaster_title,
+      level: homeContent.course_divemaster_level,
+      duration: homeContent.course_divemaster_duration,
+      maxDepth: homeContent.course_divemaster_max_depth,
+      price: homeContent.course_divemaster_price,
+      description: homeContent.course_divemaster_description,
       fullDescription: t('courses.divemaster.fullDescription'),
       includes: t('courses.divemaster.includes', { returnObjects: true }),
       courseImages: t('courses.divemaster.courseImages', { returnObjects: true }),
@@ -107,12 +180,12 @@ const Courses = () => {
     {
       key: 'instructor',
       path: '/courses/instructor',
-      title: t('courses.instructor.title'),
-      level: t('courses.instructor.level'),
-      duration: t('courses.instructor.duration'),
-      maxDepth: t('courses.instructor.maxDepth'),
-      price: t('courses.instructor.price'),
-      description: t('courses.instructor.description'),
+      title: homeContent.course_instructor_title,
+      level: homeContent.course_instructor_level,
+      duration: homeContent.course_instructor_duration,
+      maxDepth: homeContent.course_instructor_max_depth,
+      price: homeContent.course_instructor_price,
+      description: homeContent.course_instructor_description,
       fullDescription: t('courses.instructor.fullDescription'),
       includes: t('courses.instructor.includes', { returnObjects: true }),
       courseImages: t('courses.instructor.courseImages', { returnObjects: true }),
@@ -123,14 +196,12 @@ const Courses = () => {
     {
       key: 'discoverScuba',
       path: '/courses/discover-scuba',
-      title: isDutch ? 'Discover Scuba Diving (DSD)' : 'Discover Scuba Diving (DSD)',
-      level: isDutch ? 'Beginner' : 'Beginner',
-      duration: isDutch ? '1 dag' : '1 day',
-      maxDepth: '12m',
-      price: '฿2,500',
-      description: isDutch
-        ? 'Geen brevet nodig. De ideale eerste stap om veilig kennis te maken met duiken.'
-        : 'No certification required. The perfect first step to experience scuba diving safely.',
+      title: homeContent.course_discover_scuba_title,
+      level: homeContent.course_discover_scuba_level,
+      duration: homeContent.course_discover_scuba_duration,
+      maxDepth: homeContent.course_discover_scuba_max_depth,
+      price: homeContent.course_discover_scuba_price,
+      description: homeContent.course_discover_scuba_description,
       fullDescription: isDutch
         ? 'Discover Scuba Diving is ontworpen voor beginners. Je leert basisvaardigheden in een veilige omgeving en maakt daarna je eerste buitenwaterduik met een professional.'
         : 'Discover Scuba Diving is designed for beginners. You learn core skills in a safe environment and then complete your first open water dive with a professional.',
@@ -146,14 +217,12 @@ const Courses = () => {
     {
       key: 'discoverScubaDeluxe',
       path: '/courses/discover-scuba-deluxe',
-      title: isDutch ? 'Discover Scuba Diving Deluxe' : 'Discover Scuba Diving Deluxe',
-      level: isDutch ? 'Beginner' : 'Beginner',
-      duration: isDutch ? '1-2 dagen' : '1-2 days',
-      maxDepth: '12m',
-      price: '฿5,000',
-      description: isDutch
-        ? 'Uitgebreide DSD met 3 duiken voor meer onderwatertijd en een relaxter tempo.'
-        : 'Extended DSD with 3 dives for more underwater time and a more relaxed pace.',
+      title: homeContent.course_discover_scuba_deluxe_title,
+      level: homeContent.course_discover_scuba_deluxe_level,
+      duration: homeContent.course_discover_scuba_deluxe_duration,
+      maxDepth: homeContent.course_discover_scuba_deluxe_max_depth,
+      price: homeContent.course_discover_scuba_deluxe_price,
+      description: homeContent.course_discover_scuba_deluxe_description,
       fullDescription: isDutch
         ? 'DSD Deluxe bevat zwembad/confined training plus een kustduik en twee bootduiken rond Koh Tao. Perfect als je meer ervaring wilt voordat je beslist over Open Water.'
         : 'DSD Deluxe includes confined training plus one shore dive and two boat dives around Koh Tao. Ideal if you want more experience before deciding on Open Water.',
@@ -185,10 +254,10 @@ const Courses = () => {
       <div className="max-w-7xl mx-auto px-4 lg:px-8 sm:px-[24px]">
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold text-gray-900 mb-4">
-            {t('courses.title')}
+            {homeContent.courses_section_title}
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            {t('courses.subtitle')}
+            {homeContent.courses_section_subtitle}
           </p>
         </div>
 

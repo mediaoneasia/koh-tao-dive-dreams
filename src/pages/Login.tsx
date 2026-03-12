@@ -1,15 +1,54 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
+import { hasAdminAccess } from '@/lib/adminAccess';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    const targetPath = location.pathname.startsWith('/admin') ? '/admin' : '/account';
+    const isAdminLogin = location.pathname.startsWith('/admin');
+
+    const checkExistingSession = async () => {
+      const { data } = await supabase.auth.getSession();
+      const user = data.session?.user || null;
+      if (!user) return;
+
+      if (isAdminLogin && !hasAdminAccess(user)) {
+        return;
+      }
+
+      if (user) {
+        navigate(targetPath, { replace: true });
+      }
+    };
+
+    checkExistingSession();
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      // Avoid automatic bounce loops on /admin/login.
+      if (isAdminLogin) return;
+
+      const user = session?.user || null;
+      if (!user) return;
+
+      if (user) {
+        navigate(targetPath, { replace: true });
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [location.pathname, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,12 +59,40 @@ const Login: React.FC = () => {
 
     setIsLoading(true);
     try {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) {
         toast.error(error.message || 'Login failed');
       } else {
         toast.success('Logged in successfully');
-        navigate('/account');
+        const isAdminLogin = location.pathname.startsWith('/admin');
+        const hasSession = !!data.session;
+        const user = data.session?.user || null;
+
+        if (isAdminLogin && user && !hasAdminAccess(user)) {
+          toast.error('Your account is signed in but does not have admin access.');
+          return;
+        }
+
+        if (hasSession) {
+          navigate(isAdminLogin ? '/admin' : '/account', { replace: true });
+          return;
+        }
+
+        // Fallback when session state arrives asynchronously.
+        setTimeout(async () => {
+          const { data: sessionData } = await supabase.auth.getSession();
+          const delayedUser = sessionData.session?.user || null;
+          if (!delayedUser) return;
+
+          if (isAdminLogin && !hasAdminAccess(delayedUser)) {
+            toast.error('Your account is signed in but does not have admin access.');
+            return;
+          }
+
+          if (sessionData.session) {
+            navigate(isAdminLogin ? '/admin' : '/account', { replace: true });
+          }
+        }, 150);
       }
     } catch (err) {
       console.error(err);

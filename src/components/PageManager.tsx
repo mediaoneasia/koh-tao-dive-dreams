@@ -19,10 +19,14 @@ interface PageInfo {
   hasDutch: boolean;
   hasSEO: boolean;
   isSecured: boolean;
+  draftStatus?: 'draft' | 'published';
   lastModified?: string;
 }
 
 const PAGE_REGISTRY: PageInfo[] = [
+  { slug: 'home', title: 'Homepage', category: 'other', hasEnglish: true, hasDutch: true, hasSEO: false, isSecured: false },
+  { slug: 'contact', title: 'Contact Section', category: 'other', hasEnglish: true, hasDutch: true, hasSEO: false, isSecured: false },
+
   // COURSES
   { slug: 'open-water', title: 'PADI Open Water', category: 'course', hasEnglish: true, hasDutch: true, hasSEO: false, isSecured: false },
   { slug: 'advanced', title: 'PADI Advanced', category: 'course', hasEnglish: true, hasDutch: true, hasSEO: false, isSecured: false },
@@ -89,11 +93,17 @@ export const PageManager: React.FC = () => {
     loadPageMetadata();
   }, []);
 
+  useEffect(() => {
+    if (!editingPage) {
+      loadPageMetadata();
+    }
+  }, [editingPage]);
+
   const loadPageMetadata = async () => {
     try {
       const { data, error } = await supabase
         .from('page_metadata')
-        .select('page_slug, has_seo, is_secured, updated_at');
+        .select('page_slug, has_seo, is_secured, draft_status, updated_at');
 
       if (!error && data) {
         setPages(prevPages =>
@@ -103,6 +113,7 @@ export const PageManager: React.FC = () => {
               ...page,
               hasSEO: meta.has_seo || false,
               isSecured: meta.is_secured || false,
+              draftStatus: (meta.draft_status as 'draft' | 'published') || 'published',
               lastModified: meta.updated_at,
             } : page;
           })
@@ -227,6 +238,8 @@ export const PageManager: React.FC = () => {
                 <TableHead className="text-center">Languages</TableHead>
                 <TableHead className="text-center">SEO</TableHead>
                 <TableHead className="text-center">Security</TableHead>
+                <TableHead className="text-center">Status</TableHead>
+                <TableHead>Last Updated</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -263,6 +276,18 @@ export const PageManager: React.FC = () => {
                     ) : (
                       <Unlock className="h-4 w-4 text-gray-400 mx-auto" />
                     )}
+                  </TableCell>
+                  <TableCell className="text-center">
+                    {page.draftStatus === 'draft' ? (
+                      <Badge className="bg-amber-100 text-amber-800">Draft</Badge>
+                    ) : (
+                      <Badge className="bg-emerald-100 text-emerald-800">Published</Badge>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    <span className="text-xs text-muted-foreground">
+                      {page.lastModified ? new Date(page.lastModified).toLocaleString() : '—'}
+                    </span>
                   </TableCell>
                   <TableCell>
                     <div className="flex gap-1 justify-end">
