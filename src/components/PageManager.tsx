@@ -132,6 +132,26 @@ export const PageManager: React.FC = () => {
   });
 
   if (editingPage) {
+    // Provide a minimal fallbackContent for the editor (can be improved per page/locale)
+    const fallbackContent: Record<string, string> = {
+      hero_title: '',
+      hero_subtitle: '',
+      course_overview: '',
+      price_thb: '',
+      price_usd: '',
+      price_eur: '',
+      duration: '',
+      about_headline: '',
+      about_sites_line: '',
+      about_map_alt: '',
+      about_title: '',
+      about_paragraph_1: '',
+      about_paragraph_2: '',
+      courses_section_title: '',
+      courses_section_subtitle: '',
+      gallery_headline: '',
+      gallery_subtitle: '',
+    };
     return (
       <div className="space-y-4">
         <div className="flex items-center justify-between">
@@ -145,6 +165,7 @@ export const PageManager: React.FC = () => {
         <PageContentEditor 
           pageSlug={editingPage.slug} 
           locale={editingPage.locale}
+          fallbackContent={fallbackContent}
           key={`${editingPage.slug}-${editingPage.locale}`}
         />
       </div>
