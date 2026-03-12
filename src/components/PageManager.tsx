@@ -109,13 +109,16 @@ export const PageManager: React.FC = () => {
         setPages(prevPages =>
           prevPages.map(page => {
             const meta = data.find((d: any) => d.page_slug === page.slug);
-            return meta ? {
-              ...page,
-              hasSEO: meta.has_seo || false,
-              isSecured: meta.is_secured || false,
-              draftStatus: (meta.draft_status as 'draft' | 'published') || 'published',
-              lastModified: meta.updated_at,
-            } : page;
+            if (meta && typeof meta === 'object' && !('message' in meta)) {
+              return {
+                ...page,
+                hasSEO: 'has_seo' in meta ? meta.has_seo || false : false,
+                isSecured: 'is_secured' in meta ? meta.is_secured || false : false,
+                draftStatus: 'draft_status' in meta ? (meta.draft_status as 'draft' | 'published') || 'published' : 'published',
+                lastModified: 'updated_at' in meta ? meta.updated_at : undefined,
+              };
+            }
+            return page;
           })
         );
       }
