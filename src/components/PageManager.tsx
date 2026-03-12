@@ -32,14 +32,14 @@ const PAGE_REGISTRY: PageInfo[] = [
   { slug: 'advanced', title: 'PADI Advanced', category: 'course', hasEnglish: true, hasDutch: true, hasSEO: false, isSecured: false },
   { slug: 'rescue', title: 'PADI Rescue Diver', category: 'course', hasEnglish: true, hasDutch: true, hasSEO: false, isSecured: false },
   { slug: 'efr', title: 'Emergency First Response', category: 'course', hasEnglish: true, hasDutch: true, hasSEO: false, isSecured: false },
-  { slug: 'divemaster', title: 'PADI Divemaster', category: 'course', hasEnglish: true, hasDutch: false, hasSEO: false, isSecured: false },
-  { slug: 'instructor', title: 'PADI Instructor (IDC)', category: 'course', hasEnglish: true, hasDutch: false, hasSEO: false, isSecured: false },
+  { slug: 'divemaster', title: 'PADI Divemaster', category: 'course', hasEnglish: true, hasDutch: true, hasSEO: false, isSecured: false },
+  { slug: 'instructor', title: 'PADI Instructor (IDC)', category: 'course', hasEnglish: true, hasDutch: true, hasSEO: false, isSecured: false },
   { slug: 'discover-scuba', title: 'Discover Scuba Diving', category: 'course', hasEnglish: true, hasDutch: true, hasSEO: false, isSecured: false },
   { slug: 'scuba-diver', title: 'PADI Scuba Diver', category: 'course', hasEnglish: true, hasDutch: true, hasSEO: false, isSecured: false },
   { slug: 'scuba-review', title: 'Scuba Review/ReActivate', category: 'course', hasEnglish: true, hasDutch: true, hasSEO: false, isSecured: false },
   { slug: 'discover-scuba-deluxe', title: 'DSD Deluxe', category: 'course', hasEnglish: true, hasDutch: true, hasSEO: false, isSecured: false },
-  { slug: 'msdt-program', title: 'MSDT Program', category: 'course', hasEnglish: true, hasDutch: false, hasSEO: false, isSecured: false },
-  
+  { slug: 'msdt-program', title: 'MSDT Program', category: 'course', hasEnglish: true, hasDutch: true, hasSEO: false, isSecured: false },
+
   // SPECIALTIES
   { slug: 'specialty/night-diver', title: 'Night Diver Specialty', category: 'specialty', hasEnglish: true, hasDutch: true, hasSEO: false, isSecured: false },
   { slug: 'specialty/deep-diver', title: 'Deep Diver Specialty', category: 'specialty', hasEnglish: true, hasDutch: true, hasSEO: false, isSecured: false },
@@ -47,27 +47,27 @@ const PAGE_REGISTRY: PageInfo[] = [
   { slug: 'specialty/enriched-air', title: 'Enriched Air (Nitrox)', category: 'specialty', hasEnglish: true, hasDutch: true, hasSEO: false, isSecured: false },
   { slug: 'specialty/underwater-photography', title: 'Underwater Photography', category: 'specialty', hasEnglish: true, hasDutch: true, hasSEO: false, isSecured: false },
   { slug: 'specialty/sidemount', title: 'Sidemount Diver', category: 'specialty', hasEnglish: true, hasDutch: true, hasSEO: false, isSecured: false },
-  
+
   // DIVE SITES
-  { slug: 'dive-sites/sail-rock', title: 'Sail Rock', category: 'dive-site', hasEnglish: true, hasDutch: false, hasSEO: false, isSecured: false },
-  { slug: 'dive-sites/chumphon-pinnacle', title: 'Chumphon Pinnacle', category: 'dive-site', hasEnglish: true, hasDutch: false, hasSEO: false, isSecured: false },
-  { slug: 'dive-sites/japanese-gardens', title: 'Japanese Gardens', category: 'dive-site', hasEnglish: true, hasDutch: false, hasSEO: false, isSecured: false },
-  { slug: 'dive-sites/htms-sattakut', title: 'HTMS Sattakut Wreck', category: 'dive-site', hasEnglish: true, hasDutch: false, hasSEO: false, isSecured: false },
-  { slug: 'dive-sites/twins', title: 'The Twins', category: 'dive-site', hasEnglish: true, hasDutch: false, hasSEO: false, isSecured: false },
-  { slug: 'dive-sites/shark-island', title: 'Shark Island', category: 'dive-site', hasEnglish: true, hasDutch: false, hasSEO: false, isSecured: false },
-  
+  { slug: 'dive-sites/sail-rock', title: 'Sail Rock', category: 'dive-site', hasEnglish: true, hasDutch: true, hasSEO: false, isSecured: false },
+  { slug: 'dive-sites/chumphon-pinnacle', title: 'Chumphon Pinnacle', category: 'dive-site', hasEnglish: true, hasDutch: true, hasSEO: false, isSecured: false },
+  { slug: 'dive-sites/japanese-gardens', title: 'Japanese Gardens', category: 'dive-site', hasEnglish: true, hasDutch: true, hasSEO: false, isSecured: false },
+  { slug: 'dive-sites/htms-sattakut', title: 'HTMS Sattakut Wreck', category: 'dive-site', hasEnglish: true, hasDutch: true, hasSEO: false, isSecured: false },
+  { slug: 'dive-sites/twins', title: 'The Twins', category: 'dive-site', hasEnglish: true, hasDutch: true, hasSEO: false, isSecured: false },
+  { slug: 'dive-sites/shark-island', title: 'Shark Island', category: 'dive-site', hasEnglish: true, hasDutch: true, hasSEO: false, isSecured: false },
+
   // MARINE LIFE
-  { slug: 'marine-life/whale-shark', title: 'Whale Shark', category: 'marine-life', hasEnglish: true, hasDutch: false, hasSEO: false, isSecured: false },
-  { slug: 'marine-life/green-sea-turtle', title: 'Green Sea Turtle', category: 'marine-life', hasEnglish: true, hasDutch: false, hasSEO: false, isSecured: false },
-  { slug: 'marine-life/hawksbill-turtle', title: 'Hawksbill Turtle', category: 'marine-life', hasEnglish: true, hasDutch: false, hasSEO: false, isSecured: false },
-  
+  { slug: 'marine-life/whale-shark', title: 'Whale Shark', category: 'marine-life', hasEnglish: true, hasDutch: true, hasSEO: false, isSecured: false },
+  { slug: 'marine-life/green-sea-turtle', title: 'Green Sea Turtle', category: 'marine-life', hasEnglish: true, hasDutch: true, hasSEO: false, isSecured: false },
+  { slug: 'marine-life/hawksbill-turtle', title: 'Hawksbill Turtle', category: 'marine-life', hasEnglish: true, hasDutch: true, hasSEO: false, isSecured: false },
+
   // INFO PAGES
-  { slug: 'accommodation', title: 'Accommodation', category: 'info', hasEnglish: true, hasDutch: false, hasSEO: false, isSecured: false },
-  { slug: 'koh-tao-info', title: 'Koh Tao Information', category: 'info', hasEnglish: true, hasDutch: false, hasSEO: false, isSecured: false },
-  { slug: 'how-to-get-here', title: 'How to Get Here', category: 'info', hasEnglish: true, hasDutch: false, hasSEO: false, isSecured: false },
-  { slug: 'things-to-do', title: 'Things to Do', category: 'info', hasEnglish: true, hasDutch: false, hasSEO: false, isSecured: false },
-  { slug: 'weather', title: 'Weather Information', category: 'info', hasEnglish: true, hasDutch: false, hasSEO: false, isSecured: false },
-  
+  { slug: 'accommodation', title: 'Accommodation', category: 'info', hasEnglish: true, hasDutch: true, hasSEO: false, isSecured: false },
+  { slug: 'koh-tao-info', title: 'Koh Tao Information', category: 'info', hasEnglish: true, hasDutch: true, hasSEO: false, isSecured: false },
+  { slug: 'how-to-get-here', title: 'How to Get Here', category: 'info', hasEnglish: true, hasDutch: true, hasSEO: false, isSecured: false },
+  { slug: 'things-to-do', title: 'Things to Do', category: 'info', hasEnglish: true, hasDutch: true, hasSEO: false, isSecured: false },
+  { slug: 'weather', title: 'Weather Information', category: 'info', hasEnglish: true, hasDutch: true, hasSEO: false, isSecured: false },
+
   // OTHER
   { slug: 'fun-diving', title: 'Fun Diving', category: 'other', hasEnglish: true, hasDutch: true, hasSEO: false, isSecured: false },
 ];
