@@ -475,17 +475,7 @@ export const PageContentEditor: React.FC<PageContentEditorProps> = ({ pageSlug, 
         if (error) throw error;
 
         // @ts-expect-error - page_content_drafts table will be available after migration
-        const { data: draftData, error: draftError } = await supabase
-          .from('page_content_drafts')
-          .select('section_key, content_value, content_type')
-          .eq('page_slug', pageSlug)
-          .eq('locale', locale);
-
-        if (draftError) {
-          console.warn('Draft table unavailable, falling back to published content:', draftError.message);
-        }
-
-        const sourceData = draftData && draftData.length > 0 ? draftData : publishedData;
+        const sourceData = publishedData;
 
         const loadedItems = template.map((item) => {
           const dbItem = sourceData?.find((d: any) => d.section_key === item.section_key);
@@ -540,8 +530,7 @@ export const PageContentEditor: React.FC<PageContentEditorProps> = ({ pageSlug, 
     setIsSaving(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      await ensureMetadata('draft');
-      
+      await ensureMetadata('published');
       const upserts = contentItems.map((item) => ({
         page_slug: pageSlug,
         locale,
@@ -550,38 +539,16 @@ export const PageContentEditor: React.FC<PageContentEditorProps> = ({ pageSlug, 
         content_value: item.content_value,
         updated_by: user?.email || null,
       }));
-
-      // @ts-expect-error - page_content_drafts table will be available after migration
       const { error } = await supabase
-        .from('page_content_drafts')
+        .from('page_content')
         .upsert(upserts, { onConflict: 'page_slug,locale,section_key' });
-
-      if (error) {
-        const message = getErrorMessage(error);
-        const missingDraftTable = message.includes('page_content_drafts') || message.includes('does not exist');
-
-        if (!missingDraftTable) throw error;
-
-        // Backward-compatible fallback: persist directly to published table.
-        // @ts-expect-error - page_content table will be available after migration
-        const { error: publishFallbackError } = await supabase
-          .from('page_content')
-          .upsert(upserts, { onConflict: 'page_slug,locale,section_key' });
-
-        if (publishFallbackError) throw publishFallbackError;
-
-        setDraftStatus('published');
-        setLastUpdated(new Date().toISOString());
-        toast.success('Draft table not set up yet, saved directly as live content.');
-        return;
-      }
-
-      setDraftStatus('draft');
+      if (error) throw error;
+      setDraftStatus('published');
       setLastUpdated(new Date().toISOString());
-      toast.success('Draft saved successfully');
+      toast.success('Content saved successfully');
     } catch (err) {
-      console.error('Failed to save draft:', err);
-      toast.error('Failed to save draft');
+      console.error('Failed to save content:', err);
+      toast.error('Failed to save content');
     } finally {
       setIsSaving(false);
     }
@@ -591,7 +558,7 @@ export const PageContentEditor: React.FC<PageContentEditorProps> = ({ pageSlug, 
     setIsSaving(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      await ensureMetadata('draft');
+      await ensureMetadata('published');
 
       const upserts = contentItems.map((item) => ({
         page_slug: pageSlug,
@@ -604,16 +571,13 @@ export const PageContentEditor: React.FC<PageContentEditorProps> = ({ pageSlug, 
 
       // Debug: log locale and upsert payload
       // eslint-disable-next-line no-console
-      console.log('[DEBUG] Saving draft with locale:', locale, 'upserts:', upserts);
-
-      // @ts-expect-error - page_content_drafts table will be available after migration
+      console.log('[DEBUG] Publishing content with locale:', locale, 'upserts:', upserts);
       const { error } = await supabase
-        .from('page_content_drafts')
+        .from('page_content')
         .upsert(upserts, { onConflict: 'page_slug,locale,section_key' });
-
       if (error) {
         const message = getErrorMessage(error);
-        // ...existing code...
+        throw error;
 
       // @ts-expect-error - page_metadata table will be available after migration
       const { error: metadataError } = await supabase
