@@ -102,9 +102,8 @@ export default async function handler(req, res) {
 
   try {
     if (req.method === 'GET') {
-      // Admin authentication temporarily disabled for logic testing
-      // const adminUser = await requireAdmin(req, res);
-      // if (!adminUser) return;
+      const adminUser = await requireAdmin(req, res);
+      if (!adminUser) return;
       if (!supabase) return res.status(500).json({ error: 'Supabase not configured' });
 
       const { rows } = await selectBookings();
