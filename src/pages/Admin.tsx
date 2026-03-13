@@ -341,7 +341,324 @@ const Admin = () => {
     `;
   };
 
-  // ...rest of Admin component (JSX and handlers)...
+  const handlePrintInvoice = (booking: BookingInquiry, payPalLink?: string) => {
+    const popup = window.open('', '_blank', 'width=900,height=700');
+    if (!popup) {
+      toast.error('Please allow popups to print invoice.');
+      return;
+    }
+
+    popup.document.open();
+    popup.document.write(buildInvoiceHtml(booking, payPalLink));
+    popup.document.close();
+    popup.focus();
+    popup.print();
+  };
+
+  const handleSaveNotes = async () => {
+    if (!notesBooking || !authToken) return;
+    setIsSavingNotes(true);
+
+    try {
+      const noteValue = notesDraft.trim();
+      const response = await fetchAdminApi(`/api/bookings/${notesBooking.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${authToken}`,
+        },
+        body: JSON.stringify({ internal_notes: noteValue }),
+      });
+
+      if (response.status === 401 || response.status === 403) {
+        await supabase.auth.signOut();
+        toast.error('Admin session expired. Please login again.');
+        redirectToLogin();
+        return;
+      }
+
+      if (!response.ok) {
+        const payload = await response.json().catch(() => ({}));
+        throw new Error(payload?.error || `Failed to save notes (${response.status})`);
+      }
+
+      toast.success('Internal notes saved');
+      setNotesBooking(null);
+      await fetchBookings();
+    } catch (error) {
+      console.error('Error saving notes:', error);
+      const message = error instanceof Error ? error.message : 'Failed to save notes';
+      if (message.toLowerCase().includes('failed to fetch')) {
+        toast.error('Cannot reach API. Check VITE_API_BASE_URL or run npm run dev for local API.');
+      } else {
+        toast.error(message);
+      }
+    } finally {
+      setIsSavingNotes(false);
+    }
+  };
+
+  const filteredBookings = statusFilter === 'all' 
+    ? bookings 
+    : bookings.filter(b => b.status === statusFilter);
+
+  const getStatusCounts = () => {
+    return {
+      all: bookings.length,
+      pending: bookings.filter(b => b.status === 'pending').length,
+      confirmed: bookings.filter(b => b.status === 'confirmed').length,
+      completed: bookings.filter(b => b.status === 'completed').length,
+      cancelled: bookings.filter(b => b.status === 'cancelled').length,
+    };
+  };
+
+  const counts = getStatusCounts();
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-muted">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    
+    toast.success('Logged out successfully');
+    navigate('/admin/login');
+  };
+
+  return (
+    <div className="min-h-screen bg-muted">
+      <header className="bg-background border-b sticky top-0 z-10">
+        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+          <h1 className="text-2xl font-bold">Admin Dashboard</h1>
+          <div className="flex gap-2">
+            <Button onClick={fetchBookings} variant="outline" size="sm">
+              <RefreshCw className="h-4 w-4 mr-2" /> Refresh
+            </Button>
+            <Button onClick={handleLogout} variant="outline" size="sm">
+              <LogOut className="h-4 w-4 mr-2" /> Logout
+            </Button>
+          </div>
+        </div>
+      </header>
+
+      <main className="max-w-7xl mx-auto px-4 py-8">
+        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as AdminTab)} className="w-full">
+          <div className="mb-3">
+            <Badge className="bg-green-600">Admin</Badge>
+          </div>
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-2 mb-6 h-auto">
+            <TabsTrigger value="bookings" className="relative">Bookings</TabsTrigger>
+            <TabsTrigger value="edit-pages">Edit Pages</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="bookings" className="space-y-6">
+            {/* ...existing code for bookings... */}
+          </TabsContent>
+
+          <TabsContent value="edit-pages">
+            <PageManager />
+          </TabsContent>
+        </Tabs>
+      </main>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Booking</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this booking inquiry? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteId(null)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleDeleteBooking}>
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!actionBooking} onOpenChange={() => setActionBooking(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Booking Actions</DialogTitle>
+            <DialogDescription>
+              {actionBooking ? `${actionBooking.name} — ${actionBooking.course_title}` : 'Choose an action'}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <Button
+              variant="outline"
+              onClick={() => {
+                if (!actionBooking) return;
+                setActionBooking(null);
+                openNotesDialog(actionBooking);
+              }}
+            >
+              Notes
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => {
+                if (!actionBooking) return;
+                setActionBooking(null);
+                openInvoiceDialog(actionBooking);
+              }}
+            >
+              <FileText className="h-4 w-4 mr-1" /> Invoice
+            </Button>
+            <Button
+              variant="outline"
+              onClick={async () => {
+                if (!actionBooking) return;
+                await handleSendInvoice(actionBooking);
+              }}
+              disabled={isSendingInvoice}
+            >
+              {isSendingInvoice ? 'Sending...' : 'Send Invoice'}
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                if (!actionBooking) return;
+                setDeleteId(actionBooking.id);
+                setActionBooking(null);
+              }}
+            >
+              <Trash2 className="h-4 w-4 mr-1" /> Delete
+            </Button>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setActionBooking(null)}>
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!notesBooking} onOpenChange={() => setNotesBooking(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Internal Notes</DialogTitle>
+            <DialogDescription>
+              {notesBooking ? `Booking: ${notesBooking.course_title} — ${notesBooking.name}` : 'Add private staff notes for this booking.'}
+            </DialogDescription>
+          </DialogHeader>
+          <Textarea
+            value={notesDraft}
+            onChange={(e) => setNotesDraft(e.target.value)}
+            rows={6}
+            placeholder="Add internal comments, follow-up notes, reminders..."
+          />
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setNotesBooking(null)} disabled={isSavingNotes}>
+              Cancel
+            </Button>
+            <Button onClick={handleSaveNotes} disabled={isSavingNotes}>
+              {isSavingNotes ? 'Saving...' : 'Save Notes'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!invoiceBooking} onOpenChange={() => {
+        setInvoiceBooking(null);
+        setIsPayPalLinkCopied(false);
+      }}>
+        <DialogContent className="sm:max-w-[700px]">
+          <DialogHeader>
+            <DialogTitle>Invoice Preview</DialogTitle>
+            <DialogDescription>
+              {invoiceBooking ? `Invoice for ${invoiceBooking.name} — ${invoiceBooking.course_title}` : 'Invoice preview'}
+            </DialogDescription>
+          </DialogHeader>
+
+          {invoiceBooking && (
+            <div className="space-y-4 text-sm">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <img src="/images/logo.avif" alt="Pro Diving Asia" className="h-12 w-auto mb-2" />
+                  <div className="font-semibold">Customer</div>
+                  <div>{invoiceBooking.name}</div>
+                  <div>{invoiceBooking.email}</div>
+                  <div>{invoiceBooking.phone || '-'}</div>
+                </div>
+                <div className="text-right">
+                  <div className="font-semibold">Invoice #</div>
+                  <div>{`INV-${invoiceBooking.id.slice(0, 8).toUpperCase()}`}</div>
+                  <div>{format(new Date(), 'yyyy-MM-dd')}</div>
+                </div>
+              </div>
+
+              <div className="border rounded-md overflow-hidden">
+                <table className="w-full">
+                  <thead className="bg-muted">
+                    <tr>
+                      <th className="text-left p-2">Description</th>
+                      <th className="text-right p-2">Amount</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr className="border-t">
+                      <td className="p-2">{invoiceBooking.course_title}{invoiceBooking.item_type ? ` (${invoiceBooking.item_type})` : ''}</td>
+                      <td className="p-2 text-right">{typeof invoiceBooking.subtotal_amount === 'number' ? `฿${invoiceBooking.subtotal_amount}` : '-'}</td>
+                    </tr>
+                    <tr className="border-t">
+                      <td className="p-2">Add-ons</td>
+                      <td className="p-2 text-right">฿{invoiceBooking.addons_total || 0}</td>
+                    </tr>
+                    <tr className="border-t font-semibold">
+                      <td className="p-2">Payable now</td>
+                      <td className="p-2 text-right">{typeof invoiceBooking.total_payable_now === 'number' ? `฿${invoiceBooking.total_payable_now}` : '-'}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="space-y-2 border rounded-md p-3 bg-muted/40">
+                <div className="font-semibold">PayPal Payment Link</div>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <Input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    placeholder="Amount (THB)"
+                    value={invoiceAmountDraft}
+                    onChange={(e) => setInvoiceAmountDraft(e.target.value)}
+                    className="sm:max-w-[180px]"
+                  />
+                  <Button type="button" variant="outline" onClick={handleGeneratePayPalLink}>Generate Link</Button>
+                  <Button type="button" variant="outline" onClick={handleCopyPayPalLink} disabled={!invoicePayPalLink}>
+                    <Copy className="h-4 w-4 mr-1" /> Copy
+                  </Button>
+                  {isPayPalLinkCopied && <Badge variant="secondary">Copied</Badge>}
+                </div>
+                <Input readOnly value={invoicePayPalLink} placeholder="Generate a PayPal link for this invoice" />
+              </div>
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setInvoiceBooking(null)}>
+              Close
+            </Button>
+            <Button onClick={() => invoiceBooking && handlePrintInvoice(invoiceBooking, invoicePayPalLink || undefined)}>
+              Print / Save PDF
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
 };
 
 export default Admin;
