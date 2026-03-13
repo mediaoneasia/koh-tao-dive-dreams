@@ -113,7 +113,7 @@ const Admin = () => {
     };
     initAuth();
   }, [fetchAdminApi, redirectToLogin]);
-  useEffect(() => {
+          return `
     if (window.location.hash === '#pages') {
       setActiveTab('edit-pages');
     }
