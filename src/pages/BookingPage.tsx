@@ -208,7 +208,7 @@ const       BookingPage: React.FC = () => {
 
       let persisted = false;
       try {
-        const dbRes = await fetch(apiUrl('/api/bookings'), {
+        const dbRes = await fetch('https://koh-tao-dive-dreams.vercel.app/api/bookings', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(apiBookingPayload),

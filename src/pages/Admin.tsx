@@ -157,7 +157,7 @@ const Admin = () => {
   const handleDeleteBooking = async () => {
     if (!deleteId || !authToken) return;
     try {
-      const response = await fetchAdminApi(`/api/bookings/${deleteId}`, {
+      const response = await fetchAdminApi(`https://koh-tao-dive-dreams.vercel.app/api/bookings/${deleteId}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${authToken}` },
       });
@@ -357,7 +357,7 @@ const Admin = () => {
 
     try {
       const noteValue = notesDraft.trim();
-      const response = await fetchAdminApi(`/api/bookings/${notesBooking.id}`, {
+      const response = await fetchAdminApi(`https://koh-tao-dive-dreams.vercel.app/api/bookings/${notesBooking.id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
