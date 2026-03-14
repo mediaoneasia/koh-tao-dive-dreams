@@ -33,10 +33,7 @@ interface BookingInquiry {
   addons_total: number;
   subtotal_amount: number | null;
   total_payable_now: number | null;
-  internal_notes: string | null;
   message: string | null;
-  status: string;
-  source?: 'bookings' | 'booking_inquiries'; // NEW: source table
 }
 
 const Admin = () => {
@@ -63,18 +60,6 @@ const Admin = () => {
     return fetch(url, options);
   }, []);
 
-  // Helper to get correct API endpoint for a booking
-  const getBookingApiUrl = (booking: BookingInquiry, action: 'status' | 'notes' | 'delete' = 'notes') => {
-    if (booking.source === 'booking_inquiries') {
-      // Use Supabase Edge Function for legacy/edge bookings
-      return `https://bjiaxftiiqteweteyzna.functions.supabase.co/booking_inquiries/${booking.id}`;
-    }
-    // Default: Vercel API for main bookings
-    if (action === 'status') {
-      return `https://koh-tao-dive-dreams.vercel.app/api/bookings/${booking.id}/status`;
-    }
-    return `https://koh-tao-dive-dreams.vercel.app/api/bookings/${booking.id}`;
-  };
   const redirectToLogin = useCallback(() => navigate('/admin/login'), [navigate]);
   const PAYPAL_ME_LINK = 'https://paypal.me/prodivingasia';
   const statusConfig = {
@@ -151,27 +136,6 @@ const Admin = () => {
       setIsLoading(false);
     }
   };
-  const handleStatusChange = async (bookingId: string, newStatus: string) => {
-    if (!authToken) return;
-    const booking = bookings.find(b => b.id === bookingId);
-    if (!booking) return;
-    try {
-      const url = getBookingApiUrl(booking, 'status');
-      const method = booking.source === 'booking_inquiries' ? 'PATCH' : 'PUT';
-      const response = await fetchAdminApi(url, {
-        method,
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authToken}` },
-        body: JSON.stringify({ status: newStatus }),
-      });
-      if (response.status === 401 || response.status === 403) { redirectToLogin(); return; }
-      if (!response.ok) throw new Error('Failed to update status');
-      await fetchBookings();
-      toast.success(`Status updated to ${statusConfig[newStatus as keyof typeof statusConfig]?.label || newStatus}`);
-    } catch (error) {
-      console.error('Error updating status:', error);
-      toast.error('Failed to update status');
-    }
-  };
   const handleDeleteBooking = async () => {
     if (!deleteId || !authToken) return;
     try {
@@ -219,10 +183,6 @@ const Admin = () => {
     } finally {
       setIsSendingInvoice(false);
     }
-  };
-  const openNotesDialog = (booking: BookingInquiry) => {
-    setNotesBooking(booking);
-    setNotesDraft(booking.internal_notes || '');
   };
   const getAddonsList = (booking: BookingInquiry) => {
     if (!booking.addons_json) return [] as Array<{ label?: string; amount?: number }>;
@@ -369,50 +329,6 @@ const Admin = () => {
     popup.print();
   };
 
-  const handleSaveNotes = async () => {
-    if (!notesBooking || !authToken) return;
-    setIsSavingNotes(true);
-
-    try {
-      const noteValue = notesDraft.trim();
-      const url = getBookingApiUrl(notesBooking, 'notes');
-      const method = notesBooking.source === 'booking_inquiries' ? 'PATCH' : 'PATCH';
-      const response = await fetchAdminApi(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${authToken}`,
-        },
-        body: JSON.stringify({ internal_notes: noteValue }),
-      });
-
-      if (response.status === 401 || response.status === 403) {
-        await supabase.auth.signOut();
-        toast.error('Admin session expired. Please login again.');
-        redirectToLogin();
-        return;
-      }
-
-      if (!response.ok) {
-        const payload = await response.json().catch(() => ({}));
-        throw new Error(payload?.error || `Failed to save notes (${response.status})`);
-      }
-
-      toast.success('Internal notes saved');
-      setNotesBooking(null);
-      await fetchBookings();
-    } catch (error) {
-      console.error('Error saving notes:', error);
-      const message = error instanceof Error ? error.message : 'Failed to save notes';
-      if (message.toLowerCase().includes('failed to fetch')) {
-        toast.error('Cannot reach API. Check VITE_API_BASE_URL or run npm run dev for local API.');
-      } else {
-        toast.error(message);
-      }
-    } finally {
-      setIsSavingNotes(false);
-    }
-  };
 
   const filteredBookings = statusFilter === 'all' 
     ? bookings 
@@ -498,22 +414,6 @@ const Admin = () => {
                       <TableRow key={booking.id}>
                         <TableCell>{booking.name}</TableCell>
                         <TableCell>{booking.email}</TableCell>
-                        <TableCell>
-                          <Select
-                            value={booking.status}
-                            onValueChange={(value) => handleStatusChange(booking.id, value)}
-                          >
-                            <SelectTrigger className="w-[120px]">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="pending">Pending</SelectItem>
-                              <SelectItem value="confirmed">Confirmed</SelectItem>
-                              <SelectItem value="completed">Completed</SelectItem>
-                              <SelectItem value="cancelled">Cancelled</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </TableCell>
                         <TableCell>{booking.course_title}</TableCell>
                         <TableCell>{booking.preferred_date}</TableCell>
                         <TableCell>
@@ -524,15 +424,6 @@ const Admin = () => {
                           ) : (
                             <span className="text-gray-400">N/A</span>
                           )}
-                        </TableCell>
-                        <TableCell>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => openNotesDialog(booking)}
-                          >
-                            {booking.internal_notes ? 'Edit' : 'Add'}
-                          </Button>
                         </TableCell>
                         <TableCell>
                           <Button
@@ -637,30 +528,6 @@ const Admin = () => {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={!!notesBooking} onOpenChange={() => setNotesBooking(null)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Internal Notes</DialogTitle>
-            <DialogDescription>
-              {notesBooking ? `Booking: ${notesBooking.course_title} — ${notesBooking.name}` : 'Add private staff notes for this booking.'}
-            </DialogDescription>
-          </DialogHeader>
-          <Textarea
-            value={notesDraft}
-            onChange={(e) => setNotesDraft(e.target.value)}
-            rows={6}
-            placeholder="Add internal comments, follow-up notes, reminders..."
-          />
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setNotesBooking(null)} disabled={isSavingNotes}>
-              Cancel
-            </Button>
-            <Button onClick={handleSaveNotes} disabled={isSavingNotes}>
-              {isSavingNotes ? 'Saving...' : 'Save Notes'}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
 
       <Dialog open={!!invoiceBooking} onOpenChange={() => {
         setInvoiceBooking(null);
