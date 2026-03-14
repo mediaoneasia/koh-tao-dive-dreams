@@ -452,7 +452,32 @@ const Admin = () => {
           </TabsList>
 
           <TabsContent value="bookings" className="space-y-6">
-            {/* ...existing code for bookings... */}
+            {filteredBookings.length === 0 ? (
+              <div>No bookings found.</div>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Email</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Course</TableHead>
+                    <TableHead>Date</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredBookings.map((booking) => (
+                    <TableRow key={booking.id}>
+                      <TableCell>{booking.name}</TableCell>
+                      <TableCell>{booking.email}</TableCell>
+                      <TableCell>{booking.status}</TableCell>
+                      <TableCell>{booking.course_title}</TableCell>
+                      <TableCell>{booking.preferred_date}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
           </TabsContent>
 
           <TabsContent value="edit-pages">
