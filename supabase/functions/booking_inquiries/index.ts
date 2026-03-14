@@ -14,36 +14,37 @@ function getIdFromUrl(url) {
   return null;
 }
 
-serve(async (req) => {
 
-    if (req.method === 'GET') {
-      try {
-        // Fetch all or a single booking_inquiries row by id
-        let fetchUrl = `${SUPABASE_URL}/rest/v1/booking_inquiries`;
-        if (id) {
-          fetchUrl += `?id=eq.${id}`;
-        }
-        const res = await fetch(fetchUrl, {
-          method: 'GET',
-          headers: {
-            'apikey': SERVICE_ROLE_KEY,
-            'Authorization': `Bearer ${SERVICE_ROLE_KEY}`,
-          },
-        });
-        const text = await res.text();
-        if (!res.ok) {
-          return new Response(JSON.stringify({ error: text || 'Fetch failed' }), { status: res.status, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'Content-Type, apikey, Authorization' } });
-        }
-        return new Response(text, {
-          status: 200,
-          headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'Content-Type, apikey, Authorization' },
-        });
-      } catch (err) {
-        return new Response(JSON.stringify({ error: err.message }), { status: 500, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'Content-Type, apikey, Authorization' } });
-      }
-    }
+serve(async (req) => {
   const url = new URL(req.url);
   const id = getIdFromUrl(url.pathname);
+
+  if (req.method === 'GET') {
+    try {
+      // Fetch all or a single booking_inquiries row by id
+      let fetchUrl = `${SUPABASE_URL}/rest/v1/booking_inquiries`;
+      if (id) {
+        fetchUrl += `?id=eq.${id}`;
+      }
+      const res = await fetch(fetchUrl, {
+        method: 'GET',
+        headers: {
+          'apikey': SERVICE_ROLE_KEY,
+          'Authorization': `Bearer ${SERVICE_ROLE_KEY}`,
+        },
+      });
+      const text = await res.text();
+      if (!res.ok) {
+        return new Response(JSON.stringify({ error: text || 'Fetch failed' }), { status: res.status, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'Content-Type, apikey, Authorization' } });
+      }
+      return new Response(text, {
+        status: 200,
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'Content-Type, apikey, Authorization' },
+      });
+    } catch (err) {
+      return new Response(JSON.stringify({ error: err.message }), { status: 500, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'Content-Type, apikey, Authorization' } });
+    }
+  }
 
   if (req.method === 'OPTIONS') {
     return new Response('', {
