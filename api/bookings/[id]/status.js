@@ -30,7 +30,16 @@ export default async function handler(req, res) {
       return;
     }
 
-    const id = req.query?.id || req.url?.split('/')?.pop();
+
+    // Robustly extract booking ID from /api/bookings/[id]/status
+    let id = req.query?.id;
+    if (!id) {
+      // Try to extract from URL path: /api/bookings/{id}/status
+      const match = req.url.match(/bookings\/(.+?)\/status/);
+      if (match && match[1]) {
+        id = match[1];
+      }
+    }
     if (!id) return res.status(400).json({ error: 'Missing booking id' });
 
     const targetTable = await findBookingTable(id);
