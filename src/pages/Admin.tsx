@@ -463,53 +463,69 @@ const Admin = () => {
                     <TableHead>Status</TableHead>
                     <TableHead>Course</TableHead>
                     <TableHead>Date</TableHead>
+                    <TableHead>PayPal</TableHead>
                     <TableHead>Notes</TableHead>
                     <TableHead>Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredBookings.map((booking) => (
-                    <TableRow key={booking.id}>
-                      <TableCell>{booking.name}</TableCell>
-                      <TableCell>{booking.email}</TableCell>
-                      <TableCell>
-                        <Select
-                          value={booking.status}
-                          onValueChange={(value) => handleStatusChange(booking.id, value)}
-                        >
-                          <SelectTrigger className="w-[120px]">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="pending">Pending</SelectItem>
-                            <SelectItem value="confirmed">Confirmed</SelectItem>
-                            <SelectItem value="completed">Completed</SelectItem>
-                            <SelectItem value="cancelled">Cancelled</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </TableCell>
-                      <TableCell>{booking.course_title}</TableCell>
-                      <TableCell>{booking.preferred_date}</TableCell>
-                      <TableCell>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => openNotesDialog(booking)}
-                        >
-                          {booking.internal_notes ? 'Edit' : 'Add'}
-                        </Button>
-                      </TableCell>
-                      <TableCell>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setActionBooking(booking)}
-                        >
-                          More
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                  {filteredBookings.map((booking) => {
+                    const amount = typeof booking.total_payable_now === 'number' && booking.total_payable_now > 0
+                      ? booking.total_payable_now
+                      : (typeof booking.subtotal_amount === 'number' && booking.subtotal_amount > 0 ? booking.subtotal_amount : null);
+                    const payPalLink = amount ? `https://paypal.me/prodivingasia/${amount}THB` : null;
+                    return (
+                      <TableRow key={booking.id}>
+                        <TableCell>{booking.name}</TableCell>
+                        <TableCell>{booking.email}</TableCell>
+                        <TableCell>
+                          <Select
+                            value={booking.status}
+                            onValueChange={(value) => handleStatusChange(booking.id, value)}
+                          >
+                            <SelectTrigger className="w-[120px]">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="pending">Pending</SelectItem>
+                              <SelectItem value="confirmed">Confirmed</SelectItem>
+                              <SelectItem value="completed">Completed</SelectItem>
+                              <SelectItem value="cancelled">Cancelled</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </TableCell>
+                        <TableCell>{booking.course_title}</TableCell>
+                        <TableCell>{booking.preferred_date}</TableCell>
+                        <TableCell>
+                          {payPalLink ? (
+                            <a href={payPalLink} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">
+                              Pay {amount} THB
+                            </a>
+                          ) : (
+                            <span className="text-gray-400">N/A</span>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => openNotesDialog(booking)}
+                          >
+                            {booking.internal_notes ? 'Edit' : 'Add'}
+                          </Button>
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setActionBooking(booking)}
+                          >
+                            More
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
             )}
