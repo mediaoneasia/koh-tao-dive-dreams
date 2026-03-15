@@ -50,7 +50,6 @@ const AdminBookings: React.FC = () => {
             <th className="border px-2 py-1">Email</th>
             <th className="border px-2 py-1">Course</th>
             <th className="border px-2 py-1">Date</th>
-            <th className="border px-2 py-1">Status</th>
             <th className="border px-2 py-1">Created</th>
           </tr>
         </thead>
@@ -62,7 +61,6 @@ const AdminBookings: React.FC = () => {
               <td className="border px-2 py-1">{b.email}</td>
               <td className="border px-2 py-1">{b.course_title}</td>
               <td className="border px-2 py-1">{b.preferred_date || '-'}</td>
-              <td className="border px-2 py-1">{b.status}</td>
               <td className="border px-2 py-1">{new Date(b.created_at).toLocaleString()}</td>
             </tr>
           ))}
