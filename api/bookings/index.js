@@ -1,16 +1,11 @@
+
 import { handleOptions, applyCors } from '../_lib/cors.js';
-import { createClient } from '@supabase/supabase-js';
-import { requireAdmin } from '../_lib/auth.js';
+import sqlite3 from 'sqlite3';
+import { open } from 'sqlite';
+import path from 'path';
 
-const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
-const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-const supabase = SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY
-  ? createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
-  : null;
-
+const DB_PATH = path.resolve(process.cwd(), 'bookings.db');
 const BOOKING_TABLE = 'bookings';
-const LEGACY_BOOKING_TABLE = 'booking_inquiries';
 
 const toNumberOr = (value, fallback = 0) => {
   if (typeof value === 'number' && !Number.isNaN(value)) return value;
@@ -67,27 +62,13 @@ const sanitizePayload = (body = {}) => {
 };
 
 const selectBookings = async () => {
-  const primary = await supabase
-    .from(BOOKING_TABLE)
-    .select('*')
-    .order('created_at', { ascending: false })
-    .limit(1000);
-
-  if (!primary.error) {
-    return { table: BOOKING_TABLE, rows: primary.data || [] };
-  }
-
-  const fallback = await supabase
-    .from(LEGACY_BOOKING_TABLE)
-    .select('*')
-    .order('created_at', { ascending: false })
-    .limit(1000);
-
-  if (!fallback.error) {
-    return { table: LEGACY_BOOKING_TABLE, rows: fallback.data || [] };
-  }
-
-  throw new Error(primary.error?.message || fallback.error?.message || 'Failed to read bookings');
+  const db = await open({
+    filename: DB_PATH,
+    driver: sqlite3.Database
+  });
+  const rows = await db.all(`SELECT * FROM ${BOOKING_TABLE} ORDER BY created_at DESC LIMIT 1000`);
+  await db.close();
+  return { table: BOOKING_TABLE, rows };
 };
 
 const parseBody = (req) => {
@@ -108,10 +89,14 @@ export default async function handler(req, res) {
   }
 
   try {
+
     if (req.method === 'GET') {
-      if (!supabase) return res.status(500).json({ error: 'Supabase not configured' });
-      const { rows } = await selectBookings();
-      return res.json((rows || []).map(normalizeBooking));
+      try {
+        const { rows } = await selectBookings();
+        return res.json((rows || []).map(normalizeBooking));
+      } catch (err) {
+        return res.status(500).json({ error: err?.message || 'Failed to load bookings from SQLite' });
+      }
     }
 
     if (req.method === 'POST') {
