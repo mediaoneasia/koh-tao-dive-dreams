@@ -43,79 +43,6 @@ const Admin = () => {
   const [authToken, setAuthToken] = useState<string | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [actionBooking, setActionBooking] = useState<BookingInquiry | null>(null);
-  const [notesBooking, setNotesBooking] = useState<BookingInquiry | null>(null);
-  const [notesDraft, setNotesDraft] = useState('');
-  const [isSavingNotes, setIsSavingNotes] = useState(false);
-  const [editingStatusId, setEditingStatusId] = useState<string | null>(null);
-  const [statusDraft, setStatusDraft] = useState('');
-    // --- PATCH HELPERS ---
-    const handleStatusEdit = (booking: BookingInquiry) => {
-      setEditingStatusId(booking.id);
-      setStatusDraft(booking.status || 'pending');
-    };
-
-    const saveStatus = async (booking: BookingInquiry) => {
-      if (!authToken) return;
-      setEditingStatusId(null);
-      // Detect legacy table by presence of 'notes' or fallback logic if needed
-      const isLegacy = (booking as any).notes !== undefined || (booking as any).table === 'booking_inquiries';
-      const url = isLegacy
-        ? `/api/booking_inquiries/${booking.id}`
-        : `https://koh-tao-dive-dreams.vercel.app/api/bookings/${booking.id}/status`;
-      const method = 'PATCH';
-      const body = { status: statusDraft };
-      try {
-        const res = await fetchAdminApi(url, {
-          method,
-          headers: {
-            'Content-Type': 'application/json',
-            ...(isLegacy ? { Authorization: `Bearer ${authToken}` } : {}),
-          },
-          body: JSON.stringify(body),
-        });
-        if (!res.ok) throw new Error('Failed to update status');
-        await fetchBookings();
-        toast.success('Status updated');
-      } catch (err) {
-        toast.error('Failed to update status');
-      }
-    };
-
-    const openNotesDialog = (booking: BookingInquiry) => {
-      setNotesBooking(booking);
-      setNotesDraft((booking as any).internal_notes || (booking as any).notes || '');
-    };
-
-    const saveNotes = async () => {
-      if (!notesBooking || !authToken) return;
-      setIsSavingNotes(true);
-      const isLegacy = (notesBooking as any).notes !== undefined || (notesBooking as any).table === 'booking_inquiries';
-      const url = isLegacy
-        ? `/api/booking_inquiries/${notesBooking.id}`
-        : `https://koh-tao-dive-dreams.vercel.app/api/bookings/${notesBooking.id}`;
-      const method = 'PATCH';
-      const body = isLegacy
-        ? { notes: notesDraft }
-        : { internal_notes: notesDraft };
-      try {
-        const res = await fetchAdminApi(url, {
-          method,
-          headers: {
-            'Content-Type': 'application/json',
-            ...(isLegacy ? { Authorization: `Bearer ${authToken}` } : {}),
-          },
-          body: JSON.stringify(body),
-        });
-        if (!res.ok) throw new Error('Failed to update notes');
-        await fetchBookings();
-        setNotesBooking(null);
-        toast.success('Notes updated');
-      } catch (err) {
-        toast.error('Failed to update notes');
-      } finally {
-        setIsSavingNotes(false);
-      }
-    };
   const [invoiceBooking, setInvoiceBooking] = useState<BookingInquiry | null>(null);
   const [invoiceAmountDraft, setInvoiceAmountDraft] = useState('');
   const [invoicePayPalLink, setInvoicePayPalLink] = useState('');
@@ -396,21 +323,6 @@ const Admin = () => {
   };
 
 
-  const filteredBookings = statusFilter === 'all' 
-    ? bookings 
-    : bookings.filter(b => b.status === statusFilter);
-
-  const getStatusCounts = () => {
-    return {
-      all: bookings.length,
-      pending: bookings.filter(b => b.status === 'pending').length,
-      confirmed: bookings.filter(b => b.status === 'confirmed').length,
-      completed: bookings.filter(b => b.status === 'completed').length,
-      cancelled: bookings.filter(b => b.status === 'cancelled').length,
-    };
-  };
-
-  const counts = getStatusCounts();
 
   if (isLoading) {
     return (
@@ -462,11 +374,9 @@ const Admin = () => {
                   <TableRow>
                     <TableHead>Name</TableHead>
                     <TableHead>Email</TableHead>
-                    <TableHead>Status</TableHead>
                     <TableHead>Course</TableHead>
                     <TableHead>Date</TableHead>
                     <TableHead>PayPal</TableHead>
-                    <TableHead>Notes</TableHead>
                     <TableHead>Actions</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -480,30 +390,6 @@ const Admin = () => {
                       <TableRow key={booking.id}>
                         <TableCell>{booking.name}</TableCell>
                         <TableCell>{booking.email}</TableCell>
-                        <TableCell>
-                          {editingStatusId === booking.id ? (
-                            <div className="flex gap-2 items-center">
-                              <select
-                                value={statusDraft}
-                                onChange={e => setStatusDraft(e.target.value)}
-                                className="border rounded px-2 py-1"
-                              >
-                                <option value="pending">Pending</option>
-                                <option value="confirmed">Confirmed</option>
-                                <option value="completed">Completed</option>
-                                <option value="cancelled">Cancelled</option>
-                                <option value="paid">Paid</option>
-                              </select>
-                              <Button size="sm" onClick={() => saveStatus(booking)}>Save</Button>
-                              <Button size="sm" variant="outline" onClick={() => setEditingStatusId(null)}>Cancel</Button>
-                            </div>
-                          ) : (
-                            <div className="flex gap-2 items-center">
-                              <span>{booking.status || 'pending'}</span>
-                              <Button size="sm" variant="outline" onClick={() => handleStatusEdit(booking)}>Edit</Button>
-                            </div>
-                          )}
-                        </TableCell>
                         <TableCell>{booking.course_title}</TableCell>
                         <TableCell>{booking.preferred_date}</TableCell>
                         <TableCell>
@@ -516,45 +402,12 @@ const Admin = () => {
                           )}
                         </TableCell>
                         <TableCell>
-                          <Button size="sm" variant="outline" onClick={() => openNotesDialog(booking)}>
-                            {(booking as any).internal_notes || (booking as any).notes ? 'Edit' : 'Add'}
-                          </Button>
-                        </TableCell>
-                        <TableCell>
                           <Button size="sm" onClick={() => setActionBooking(booking)}>More</Button>
                         </TableCell>
                       </TableRow>
                     );
                   })}
                 </TableBody>
-                    {/* Notes Dialog */}
-                    <Dialog open={!!notesBooking} onOpenChange={() => setNotesBooking(null)}>
-                      <DialogContent>
-                        <DialogHeader>
-                          <DialogTitle>Edit Notes</DialogTitle>
-                          <DialogDescription>
-                            {notesBooking ? `${notesBooking.name} — ${notesBooking.course_title}` : ''}
-                          </DialogDescription>
-                        </DialogHeader>
-                        <div className="mb-4">
-                          <Textarea
-                            value={notesDraft}
-                            onChange={e => setNotesDraft(e.target.value)}
-                            rows={6}
-                            className="w-full"
-                            placeholder="Enter internal notes..."
-                          />
-                        </div>
-                        <DialogFooter>
-                          <Button variant="outline" onClick={() => setNotesBooking(null)}>
-                            Cancel
-                          </Button>
-                          <Button onClick={saveNotes} disabled={isSavingNotes}>
-                            {isSavingNotes ? 'Saving...' : 'Save'}
-                          </Button>
-                        </DialogFooter>
-                      </DialogContent>
-                    </Dialog>
               </Table>
             )}
           </TabsContent>
