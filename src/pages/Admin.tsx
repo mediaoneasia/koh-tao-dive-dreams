@@ -366,7 +366,7 @@ const Admin = () => {
           </TabsList>
 
           <TabsContent value="bookings" className="space-y-6">
-            {filteredBookings.length === 0 ? (
+            {bookings.length === 0 ? (
               <div>No bookings found.</div>
             ) : (
               <Table>
@@ -381,7 +381,7 @@ const Admin = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredBookings.map((booking) => {
+                  {bookings.map((booking) => {
                     const amount = typeof booking.total_payable_now === 'number' && booking.total_payable_now > 0
                       ? booking.total_payable_now
                       : (typeof booking.subtotal_amount === 'number' && booking.subtotal_amount > 0 ? booking.subtotal_amount : null);
