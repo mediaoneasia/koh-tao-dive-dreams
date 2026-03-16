@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { supabase } from '@/integrations/supabase';
+import { supabase } from '@/integrations/supabase/client';
 
 const TEAM_EMAILS = [
   { email: 'contact@prodiving.asia', name: 'Contact' },
