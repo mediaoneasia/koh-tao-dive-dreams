@@ -1,4 +1,13 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
+import { getExchangeRates, ExchangeRates } from '@/lib/exchangeRates';
+  // Exchange rates state
+  const [rates, setRates] = useState<ExchangeRates | null>(null);
+  const [ratesError, setRatesError] = useState<string | null>(null);
+  useEffect(() => {
+    getExchangeRates()
+      .then(setRates)
+      .catch(() => setRatesError('Could not fetch live exchange rates.'));
+  }, []);
 import { Clock, Star, ChevronDown, ChevronUp } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import CourseRecommender from './CourseRecommender';
@@ -118,6 +127,11 @@ const Courses = () => {
       currency,
       maximumFractionDigits: 0,
     }).format(amount);
+  // Helper to get THB price as number from price string (e.g., '฿2,500')
+  const getThbPrice = (price: string) => {
+    const digits = String(price || '').replace(/[^\d.]/g, '').replace(/,/g, '');
+    return digits ? Number(digits) : 0;
+  };
 
 
   const courses = [
@@ -322,8 +336,15 @@ const Courses = () => {
                   </span>
                 </div>
                 <div className="text-right">
-                  <div className="text-3xl font-bold text-blue-600">{formatCurrency(parsePriceMajor(course.price), 'THB')}</div>
-                  <div className="text-sm text-gray-500">{formatCurrency(Number(course.priceUsd) || 0, 'USD')} / {formatCurrency(Number(course.priceEur) || 0, 'EUR')}</div>
+                  <div className="text-3xl font-bold text-blue-600">{formatCurrency(getThbPrice(course.price), 'THB')}</div>
+                  {ratesError && <div className="text-xs text-red-500">{ratesError}</div>}
+                  {rates ? (
+                    <div className="text-sm text-gray-500">
+                      {formatCurrency(getThbPrice(course.price) * rates.USD, 'USD')} / {formatCurrency(getThbPrice(course.price) * rates.EUR, 'EUR')}
+                    </div>
+                  ) : (
+                    <div className="text-sm text-gray-400">Loading rates...</div>
+                  )}
                   <div className="text-sm text-gray-500">{t('courses.perPerson')}</div>
                 </div>
               </div>
