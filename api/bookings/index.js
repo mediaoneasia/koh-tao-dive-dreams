@@ -97,18 +97,29 @@ export default async function handler(req, res) {
     if (req.method === 'POST') {
       const body = parseBody(req);
       const payload = sanitizePayload(body);
-
+      // If updating an existing booking
+      if (body.id && (body.internal_notes !== undefined || body.status !== undefined)) {
+        const updateFields = {};
+        if (body.internal_notes !== undefined) updateFields.internal_notes = body.internal_notes;
+        if (body.status !== undefined) updateFields.status = body.status;
+        updateFields.updated_at = new Date().toISOString();
+        const { data, error } = await supabase
+          .from(BOOKING_TABLE)
+          .update(updateFields)
+          .eq('id', body.id)
+          .select();
+        if (error) return res.status(500).json({ error: error.message });
+        return res.status(200).json(normalizeBooking((data || [])[0] || null));
+      }
+      // Otherwise, create new booking
       if (!payload.name || !payload.email) {
         return res.status(400).json({ error: 'Missing required fields: name and email' });
       }
-
       if (!supabase) return res.status(500).json({ error: 'Supabase not configured' });
-
       const primaryInsert = await supabase.from(BOOKING_TABLE).insert([payload]).select();
       if (!primaryInsert.error) {
         return res.status(201).json(normalizeBooking((primaryInsert.data || [])[0] || null));
       }
-
       const legacyPayload = {
         name: payload.name,
         email: payload.email,
