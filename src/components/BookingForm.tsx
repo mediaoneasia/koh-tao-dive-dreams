@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { toast } from 'sonner';
+import { supabase } from '@/lib/supabase';
 
 const bookingSchema = z.object({
   name: z.string().trim().min(1, "Name is required").max(100, "Name must be less than 100 characters"),
@@ -69,6 +70,7 @@ const BookingForm: React.FC<BookingFormProps> = ({ isOpen, onClose, itemType, it
       const paymentChoice = (data as any).paymentChoice || 'none';
       const messageBody = `Phone: ${data.phone || 'N/A'}\nPreferred Date: ${data.preferred_date || 'N/A'}\nExperience Level: ${data.experience_level || 'N/A'}\nPayment Option: ${paymentChoice}\n\nMessage:\n${data.message || 'N/A'}`;
 
+      // Send to Web3Forms (existing)
       const payload = {
         access_key: '4ca93aa5-cd42-4902-af87-a08e1ae7c832',
         subject: `Booking Inquiry: ${itemTitle}`,
@@ -76,13 +78,34 @@ const BookingForm: React.FC<BookingFormProps> = ({ isOpen, onClose, itemType, it
         email: data.email,
         message: messageBody,
       };
-
       const response = await fetch('https://api.web3forms.com/submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
       const responseData = await response.json().catch(() => ({}));
+
+      // Insert booking into Supabase
+      const { error: supaError } = await supabase.from('bookings').insert([
+        {
+          name: data.name,
+          email: data.email,
+          phone: data.phone,
+          preferred_date: data.preferred_date,
+          experience_level: data.experience_level,
+          message: data.message,
+          payment_choice: paymentChoice,
+          item_type: itemType,
+          course_title: itemTitle,
+          created_at: new Date().toISOString(),
+          status: 'pending',
+        }
+      ]);
+      if (supaError) {
+        console.error('Supabase insert error:', supaError);
+        toast.error('Booking saved to email, but not to admin database.');
+      }
+
       if (response.ok && responseData.success) {
         toast.success('Booking inquiry sent. We will contact you shortly.');
         form.reset();
