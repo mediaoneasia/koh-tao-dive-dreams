@@ -18,7 +18,7 @@ import { hasAdminAccess } from '@/lib/adminAccess';
 import { PageManager } from '@/components/PageManager';
 import PricingManager from '../components/PricingManager';
 
-// Move interface to top
+// Interface at top
 interface BookingInquiry {
   id: string;
   name: string;
@@ -80,94 +80,34 @@ interface BookingInquiry {
     created_at?: string;
   }
 
-  const Admin = () => {
-    // Notes dialog state
-    const [notesBooking, setNotesBooking] = useState<BookingInquiry | null>(null);
-    const [newNote, setNewNote] = useState('');
-    const [noteType, setNoteType] = useState('admin');
-    // Open notes dialog for a booking
-    const openNotesDialog = (booking: BookingInquiry) => {
-      setNotesBooking(booking);
-      setNewNote('');
-      setNoteType('admin');
-    };
-  // --- Notes hook for selected booking ---
-  const { notes: bookingNotes, loading: notesLoading, setNotes: setBookingNotes } = useBookingNotes(notesBooking?.id);
-      // Notes Dialog is rendered in the return statement below
-          {notesLoading ? (
-            <div>Loading notes...</div>
-          ) : (
-            <div className="space-y-3">
-              <div>
-                <div className="font-semibold mb-1">All Notes</div>
-                {bookingNotes && bookingNotes.length > 0 ? (
-                  <ul className="max-h-40 overflow-y-auto border rounded p-2 bg-muted/40">
-                    {bookingNotes.map((note) => (
-                      <li key={note.id} className="mb-2 border-b last:border-b-0 pb-1">
-                        <div className="text-xs text-gray-500">{note.note_type} • {new Date(note.created_at).toLocaleString()}</div>
-                        <div>{note.content}</div>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <div className="text-gray-400">No notes yet.</div>
-                )}
-              </div>
-              <div className="mt-2">
-                <div className="font-semibold mb-1">Add Note</div>
-                <div className="flex gap-2 mb-2">
-                  <Select value={noteType} onValueChange={setNoteType}>
-                    <SelectTrigger className="w-[120px]">
-                      <SelectValue placeholder="Type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="admin">Admin</SelectItem>
-                      <SelectItem value="paypal">PayPal</SelectItem>
-                      <SelectItem value="other">Other</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <Textarea
-                    value={newNote}
-                    onChange={e => setNewNote(e.target.value)}
-                    placeholder="Enter note..."
-                    rows={2}
-                    className="flex-1"
-                  />
-                  <Button
-                    onClick={async () => {
-                      if (!notesBooking || !newNote.trim()) return;
-                      const ok = await addBookingNote(notesBooking.id, noteType, newNote.trim());
-                      if (ok) {
-                        setNewNote('');
-                        // Refetch notes
-                        fetch(`/api/bookings/${notesBooking.id}/notes`).then(res => res.json()).then(data => setBookingNotes(data.notes || []));
-                        toast.success('Note added');
-                      } else {
-                        toast.error('Failed to add note');
-                      }
-                    }}
-                    disabled={!newNote.trim()}
-                  >Add</Button>
-                </div>
-              </div>
-            </div>
-          )}
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setNotesBooking(null)}>
-              Close
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-  // ...existing state and logic declarations go here...
+const Admin = () => {
+  // --- STATE & HOOKS ---
+  const [bookings, setBookings] = useState<BookingInquiry[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [authToken, setAuthToken] = useState<string | null>(null);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [actionBooking, setActionBooking] = useState<BookingInquiry | null>(null);
+  const [invoiceBooking, setInvoiceBooking] = useState<BookingInquiry | null>(null);
+  const [invoiceAmountDraft, setInvoiceAmountDraft] = useState('');
+  const [invoicePayPalLink, setInvoicePayPalLink] = useState('');
+  const [isPayPalLinkCopied, setIsPayPalLinkCopied] = useState(false);
+  const [isSendingInvoice, setIsSendingInvoice] = useState(false);
+  const [activeTab, setActiveTab] = useState('bookings');
   const [statusFilter, setStatusFilter] = useState('all');
   const [notesBooking, setNotesBooking] = useState<BookingInquiry | null>(null);
   const [newNote, setNewNote] = useState('');
   const [noteType, setNoteType] = useState('admin');
   const navigate = useNavigate();
-
   // --- Notes hook for selected booking ---
+  const { notes: bookingNotes, loading: notesLoading, setNotes: setBookingNotes } = useBookingNotes(notesBooking?.id);
+
+  // ...existing logic and handlers here (fetchAdminApi, useEffect, etc.) ...
+
+  // --- RENDER ---
+  return (
+    // ...existing JSX, including Dialogs, goes here...
+  );
+};
   const { notes: bookingNotes, loading: notesLoading, setNotes: setBookingNotes } = useBookingNotes(notesBooking?.id);
       // Notes Dialog is rendered in the return statement below
 
