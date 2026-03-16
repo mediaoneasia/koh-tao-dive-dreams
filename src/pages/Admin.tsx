@@ -10,12 +10,15 @@ const Admin = () => {
   useEffect(() => {
     if (activeTab === 'bookings') {
       setLoading(true);
-      supabase
-        .from('bookings')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .then(({ data, error }) => {
+      fetch('https://koh-tao-dive-dreams.vercel.app/api/bookings')
+        .then(res => res.json())
+        .then(data => {
+          console.log('Bookings API response:', data);
           setBookings(data || []);
+          setLoading(false);
+        })
+        .catch(err => {
+          console.error('Bookings API error:', err);
           setLoading(false);
         });
     }
