@@ -168,7 +168,7 @@ const Admin = () => {
                             : 'https://paypal.me/divinginasia';
                           window.open(paypalUrl, '_blank');
                         }}
-                      >{booking.total_payable_now ? `Pay ฿${booking.total_payable_now} with PayPal` : 'Pay with PayPal'}</button>
+                      >{`Pay ฿${typeof booking.total_payable_now === 'number' ? booking.total_payable_now : 0} with PayPal`}</button>
                     </td>
                     <td className="p-1">
                       <button
