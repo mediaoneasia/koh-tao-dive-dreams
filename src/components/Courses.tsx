@@ -1,13 +1,5 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { getExchangeRates, ExchangeRates } from '@/lib/exchangeRates';
-  // Exchange rates state
-  const [rates, setRates] = useState<ExchangeRates | null>(null);
-  const [ratesError, setRatesError] = useState<string | null>(null);
-  useEffect(() => {
-    getExchangeRates()
-      .then(setRates)
-      .catch(() => setRatesError('Could not fetch live exchange rates.'));
-  }, []);
 import { Clock, Star, ChevronDown, ChevronUp } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import CourseRecommender from './CourseRecommender';
@@ -23,6 +15,16 @@ import {
 import { usePageContent } from '@/hooks/usePageContent';
 
 const Courses = () => {
+
+  // Exchange rates state (must be inside component)
+  const [rates, setRates] = useState<ExchangeRates | null>(null);
+  const [ratesError, setRatesError] = useState<string | null>(null);
+  useEffect(() => {
+    getExchangeRates()
+      .then(setRates)
+      .catch(() => setRatesError('Could not fetch live exchange rates.'));
+  }, []);
+
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const isDutch = i18n.language.startsWith('nl');

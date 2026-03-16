@@ -1,13 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { getExchangeRates, ExchangeRates } from '@/lib/exchangeRates';
-  // Exchange rates state
-  const [rates, setRates] = useState<ExchangeRates | null>(null);
-  const [ratesError, setRatesError] = useState<string | null>(null);
-  useEffect(() => {
-    getExchangeRates()
-      .then(setRates)
-      .catch(() => setRatesError('Could not fetch live exchange rates.'));
-  }, []);
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -60,6 +52,16 @@ const CoursePageTemplate: React.FC<CoursePageProps> = ({
   bookingItemName,
   bookingType = 'course',
 }) => {
+
+  // Exchange rates state (must be inside component)
+  const [rates, setRates] = useState<ExchangeRates | null>(null);
+  const [ratesError, setRatesError] = useState<string | null>(null);
+  useEffect(() => {
+    getExchangeRates()
+      .then(setRates)
+      .catch(() => setRatesError('Could not fetch live exchange rates.'));
+  }, []);
+
   const navigate = useNavigate();
   const { content, isLoading } = usePageContent({
     pageSlug,
