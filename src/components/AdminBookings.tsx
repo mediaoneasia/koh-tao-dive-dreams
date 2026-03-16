@@ -4,13 +4,8 @@ interface Booking {
   id: string;
   name: string;
   email: string;
-  phone?: string;
-  item_type?: string;
   course_title: string;
   preferred_date?: string;
-  experience_level?: string;
-  message?: string;
-  payment_choice?: string;
   status: string;
   notes?: string;
   created_at: string;
