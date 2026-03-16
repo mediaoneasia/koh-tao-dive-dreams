@@ -27,7 +27,7 @@ const Admin = () => {
   const handleNoteChange = async (id, value) => {
     setBookings(bookings.map(b => b.id === id ? { ...b, internal_notes: value } : b));
   };
-  };
+}
 
   const handleStatusChange = (id, value) => {
     setBookings(bookings.map(b => b.id === id ? { ...b, status: value } : b));
@@ -155,7 +155,7 @@ const Admin = () => {
         </div>
       )}
     </div>
-  );
+  )
 }
 
 export default Admin;
