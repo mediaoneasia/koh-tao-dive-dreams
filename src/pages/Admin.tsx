@@ -158,7 +158,7 @@ const Admin = () => {
                     <td className="p-1">
                       <button
                         className="bg-green-500 text-white px-2 py-0.5 rounded hover:bg-green-600"
-                        style={{ fontSize: '0.8rem', minWidth: 30 }}
+                        style={{ fontSize: '0.8rem', minWidth: 80 }}
                         onClick={() => {
                           const amount = typeof booking.total_payable_now === 'number' && booking.total_payable_now > 0
                             ? booking.total_payable_now.toFixed(2)
@@ -168,7 +168,7 @@ const Admin = () => {
                             : 'https://paypal.me/divinginasia';
                           window.open(paypalUrl, '_blank');
                         }}
-                      >💲</button>
+                      >{booking.total_payable_now ? `Pay ฿${booking.total_payable_now} with PayPal` : 'Pay with PayPal'}</button>
                     </td>
                     <td className="p-1">
                       <button
