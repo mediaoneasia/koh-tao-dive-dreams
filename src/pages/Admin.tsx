@@ -13,6 +13,7 @@ const Admin = () => {
       supabase
         .from('bookings')
         .select('*')
+        .order('created_at', { ascending: false })
         .then(({ data, error }) => {
           setBookings(data || []);
           setLoading(false);
@@ -21,10 +22,10 @@ const Admin = () => {
   }, [activeTab]);
 
   const handleNoteChange = async (id, value) => {
-    setBookings(bookings.map(b => b.id === id ? { ...b, notes: value } : b));
+    setBookings(bookings.map(b => b.id === id ? { ...b, internal_notes: value } : b));
     await supabase
       .from('bookings')
-      .update({ notes: value })
+      .update({ internal_notes: value, updated_at: new Date().toISOString() })
       .eq('id', id);
   };
 
@@ -47,9 +48,14 @@ const Admin = () => {
                 <tr>
                   <th>Name</th>
                   <th>Email</th>
-                  <th>Course</th>
-                  <th>Date</th>
+                  <th>Phone</th>
+                  <th>Course Title</th>
+                  <th>Item Type</th>
+                  <th>Preferred Date</th>
+                  <th>Experience Level</th>
+                  <th>Message</th>
                   <th>Status</th>
+                  <th>Created At</th>
                   <th>Notes</th>
                 </tr>
               </thead>
@@ -58,16 +64,21 @@ const Admin = () => {
                   <tr key={booking.id}>
                     <td>{booking.name}</td>
                     <td>{booking.email}</td>
-                    <td>{booking.course_title || booking.course}</td>
-                    <td>{booking.preferred_date || booking.date}</td>
+                    <td>{booking.phone}</td>
+                    <td>{booking.course_title}</td>
+                    <td>{booking.item_type}</td>
+                    <td>{booking.preferred_date}</td>
+                    <td>{booking.experience_level}</td>
+                    <td>{booking.message}</td>
                     <td>{booking.status}</td>
+                    <td>{booking.created_at ? new Date(booking.created_at).toLocaleString() : ''}</td>
                     <td>
                       <textarea
-                        value={booking.notes || ''}
+                        value={booking.internal_notes || ''}
                         onChange={e => handleNoteChange(booking.id, e.target.value)}
                         className="border rounded p-2 w-full"
                         rows={2}
-                        placeholder="Add notes/comments..."
+                        placeholder="Add internal notes/comments..."
                       />
                     </td>
                   </tr>
