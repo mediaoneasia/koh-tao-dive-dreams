@@ -45,7 +45,6 @@ const Admin = () => {
       alert('Error saving');
     }
   };
-
   const handleSaveStatus = async (id, status) => {
     try {
       const res = await fetch('https://koh-tao-dive-dreams.vercel.app/api/bookings', {
