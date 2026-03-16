@@ -28,6 +28,24 @@ const Admin = () => {
     setBookings(bookings.map(b => b.id === id ? { ...b, internal_notes: value } : b));
   };
 
+  const handleStatusChange = (id, value) => {
+    setBookings(bookings.map(b => b.id === id ? { ...b, status: value } : b));
+  };
+
+  const handleSave = async (id, internal_notes, status) => {
+    try {
+      const res = await fetch('https://koh-tao-dive-dreams.vercel.app/api/bookings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, internal_notes, status })
+      });
+      if (!res.ok) throw new Error('Failed to save');
+    } catch (err) {
+      alert('Error saving');
+    }
+  };
+  };
+
   const handleSaveStatus = async (id, status) => {
     try {
       const res = await fetch('https://koh-tao-dive-dreams.vercel.app/api/bookings', {
@@ -81,6 +99,7 @@ const Admin = () => {
                   <th className="p-2">Experience Level</th>
                   <th className="p-2">Message</th>
                   <th className="p-2">Status</th>
+                                    <th className="p-2">Update</th>
                   <th className="p-2">Created At</th>
                   <th className="p-2">Notes</th>
                   <th className="p-2">Save</th>
@@ -97,7 +116,24 @@ const Admin = () => {
                     <td className="p-2">{booking.preferred_date}</td>
                     <td className="p-2">{booking.experience_level}</td>
                     <td className="p-2">{booking.message}</td>
-                    <td className="p-2">{booking.status}</td>
+                    <td className="p-2">
+                      <select
+                        value={booking.status || 'pending'}
+                        onChange={e => handleStatusChange(booking.id, e.target.value)}
+                        className="border rounded p-2 w-full"
+                      >
+                        <option value="pending">Pending</option>
+                        <option value="paid">Paid</option>
+                        <option value="booked">Booked</option>
+                        <option value="talking">Talking</option>
+                      </select>
+                    </td>
+                    <td className="p-2">
+                      <button
+                        className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+                        onClick={() => handleSave(booking.id, booking.internal_notes || '', booking.status || 'pending')}
+                      >Save</button>
+                    </td>
                     <td className="p-2">{booking.created_at ? new Date(booking.created_at).toLocaleString() : ''}</td>
                     <td className="p-2">
                       <textarea
