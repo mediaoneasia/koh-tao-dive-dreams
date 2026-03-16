@@ -1,12 +1,14 @@
 
-// Helper to get deposit, total, and due
+// Map to your actual booking fields
 function getDeposit(booking) {
-  return booking.paypalAmount || booking.total_payable_now || 0;
+  return booking.total_deposit || 0;
 }
 function getTotal(booking) {
-  return booking.total || booking.full_price || booking.total_payable || 0;
+  return booking.total_payable || 0;
 }
 function getDue(booking) {
+  // If you have total_amount_due, use it directly
+  if (typeof booking.total_amount_due === 'number') return booking.total_amount_due;
   const total = getTotal(booking);
   const deposit = getDeposit(booking);
   return total > 0 ? Math.max(total - deposit, 0) : 0;
