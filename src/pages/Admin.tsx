@@ -104,12 +104,13 @@ const Admin = () => {
                                     <th className="p-2">Update</th>
                   <th className="p-2">Created At</th>
                   <th className="p-2">Notes</th>
-                  <th className="p-2">Save</th>
+                                  <th className="p-2">PayPal</th>
+                                  <th className="p-2">Invoice</th>
                 </tr>
               </thead>
               <tbody>
                 {bookings.map(booking => (
-                  <tr key={booking.id} className="border-t border-gray-200">
+                  <tr key={booking.id} className="border-t border-gray-200 hover:bg-gray-50">
                     <td className="p-2">{booking.name}</td>
                     <td className="p-2">{booking.email}</td>
                     <td className="p-2">{booking.phone}</td>
@@ -150,6 +151,32 @@ const Admin = () => {
                         rows={2}
                         placeholder="Add internal notes/comments..."
                       />
+                                          <button
+                                            className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600"
+                                            onClick={() => {
+                                              const paypalUrl = `https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=${encodeURIComponent(booking.email)}&item_name=${encodeURIComponent(booking.course_title)}&amount=${booking.total_payable_now || 0}&currency_code=USD`;
+                                              window.open(paypalUrl, '_blank');
+                                            }}
+                                          >PayPal Link</button>
+                                        </td>
+                                        <td className="p-2">
+                                          <button
+                                            className="bg-gray-500 text-white px-3 py-1 rounded hover:bg-gray-600"
+                                            onClick={() => {
+                                              // Simple invoice generation (download as text file)
+                                              const invoice = `Invoice\nName: ${booking.name}\nEmail: ${booking.email}\nCourse: ${booking.course_title}\nAmount: $${booking.total_payable_now || 0}\nDate: ${booking.created_at}`;
+                                              const blob = new Blob([invoice], { type: 'text/plain' });
+                                              const url = URL.createObjectURL(blob);
+                                              const a = document.createElement('a');
+                                              a.href = url;
+                                              a.download = `invoice-${booking.id}.txt`;
+                                              document.body.appendChild(a);
+                                              a.click();
+                                              document.body.removeChild(a);
+                                              URL.revokeObjectURL(url);
+                                            }}
+                                          >Invoice</button>
+                                        </td>
                     </td>
                   </tr>
                 ))}
