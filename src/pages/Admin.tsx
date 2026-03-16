@@ -41,6 +41,10 @@ const Admin = () => {
       });
       if (!res.ok) throw new Error('Failed to save');
       alert('Booking updated successfully!');
+      // Refresh bookings list
+      fetch('https://koh-tao-dive-dreams.vercel.app/api/bookings')
+        .then(res => res.json())
+        .then(data => setBookings(data || []));
     } catch (err) {
       alert('Error saving');
     }
