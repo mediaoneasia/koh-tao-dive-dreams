@@ -129,7 +129,6 @@ const Admin = () => {
                         <option value="booked">Booked</option>
                         <option value="talking">Talking</option>
                       </select>
-                    </td>
                     <td className="p-2">
                       <button
                         className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
