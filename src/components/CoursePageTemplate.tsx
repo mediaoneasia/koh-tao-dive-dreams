@@ -1,4 +1,13 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { getExchangeRates, ExchangeRates } from '@/lib/exchangeRates';
+  // Exchange rates state
+  const [rates, setRates] = useState<ExchangeRates | null>(null);
+  const [ratesError, setRatesError] = useState<string | null>(null);
+  useEffect(() => {
+    getExchangeRates()
+      .then(setRates)
+      .catch(() => setRatesError('Could not fetch live exchange rates.'));
+  }, []);
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -75,8 +84,6 @@ const CoursePageTemplate: React.FC<CoursePageProps> = ({
     }).format(amount);
 
   const priceThb = content.price_thb || fallbackContent.price_thb || '0';
-  const priceUsd = content.price_usd || fallbackContent.price_usd || '';
-  const priceEur = content.price_eur || fallbackContent.price_eur || '';
   const duration = content.duration || fallbackContent.duration || 'Contact us';
   const thbAmount = parseAmount(priceThb);
   const bookingUrl = `/booking?item=${encodeURIComponent(bookingItemName || '')}&type=${bookingType}&price=${thbAmount}&currency=THB`;
@@ -165,11 +172,16 @@ const CoursePageTemplate: React.FC<CoursePageProps> = ({
                   </div>
                   <div className="space-y-1">
                     <p className="text-2xl font-bold text-sky-600">{formatCurrency(thbAmount, 'THB')}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {priceUsd && <span>{formatCurrency(Number(priceUsd), 'USD')}</span>}
-                      {priceUsd && priceEur && <span> / </span>}
-                      {priceEur && <span>{formatCurrency(Number(priceEur), 'EUR')}</span>}
-                    </p>
+                    {ratesError && <div className="text-xs text-red-500">{ratesError}</div>}
+                    {rates ? (
+                      <p className="text-sm text-muted-foreground">
+                        <span>{formatCurrency(thbAmount * rates.USD, 'USD')}</span>
+                        <span> / </span>
+                        <span>{formatCurrency(thbAmount * rates.EUR, 'EUR')}</span>
+                      </p>
+                    ) : (
+                      <p className="text-sm text-gray-400">Loading rates...</p>
+                    )}
                   </div>
                 </div>
                 <p className="text-sm text-muted-foreground">
