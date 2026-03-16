@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 
 interface Booking {
+    total_payable_now?: number | null;
+    subtotal_amount?: number | null;
   id: string;
   name: string;
   email: string;
@@ -79,6 +81,8 @@ const AdminBookings: React.FC = () => {
             <th className="border px-2 py-1">Email</th>
             <th className="border px-2 py-1">Course</th>
             <th className="border px-2 py-1">Date</th>
+            <th className="border px-2 py-1">Amount</th>
+            <th className="border px-2 py-1">Subtotal</th>
             <th className="border px-2 py-1">Status</th>
             <th className="border px-2 py-1">Notes</th>
             <th className="border px-2 py-1">Created</th>
@@ -92,6 +96,8 @@ const AdminBookings: React.FC = () => {
               <td className="border px-2 py-1">{b.email}</td>
               <td className="border px-2 py-1">{b.course_title}</td>
               <td className="border px-2 py-1">{b.preferred_date || '-'}</td>
+              <td className="border px-2 py-1">{typeof b.total_payable_now === 'number' ? b.total_payable_now : '-'}</td>
+              <td className="border px-2 py-1">{typeof b.subtotal_amount === 'number' ? b.subtotal_amount : '-'}</td>
               <td className="border px-2 py-1">
                 {editingStatusId === b.id ? (
                   <>
