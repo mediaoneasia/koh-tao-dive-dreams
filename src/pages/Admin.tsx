@@ -44,7 +44,6 @@ const Admin = () => {
       alert('Error saving');
     }
   };
-  };
 
   const handleSaveStatus = async (id, status) => {
     try {
