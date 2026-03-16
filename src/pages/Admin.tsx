@@ -54,7 +54,6 @@ const Admin = () => {
       alert('Error saving note');
     }
   };
-  };
 
   return (
     <div className="min-h-screen bg-muted p-8">
