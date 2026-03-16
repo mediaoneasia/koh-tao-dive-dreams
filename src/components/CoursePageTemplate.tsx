@@ -179,11 +179,14 @@ const CoursePageTemplate: React.FC<CoursePageProps> = ({
                     <p className="text-2xl font-bold text-sky-600">{formatCurrency(thbAmount, 'THB')}</p>
                     {ratesError && <div className="text-xs text-red-500">{ratesError}</div>}
                     {rates ? (
-                      <p className="text-sm text-muted-foreground">
-                        <span>{formatCurrency(thbAmount * rates.USD, 'USD')}</span>
-                        <span> / </span>
-                        <span>{formatCurrency(thbAmount * rates.EUR, 'EUR')}</span>
-                      </p>
+                      <>
+                        <p className="text-sm text-muted-foreground">
+                          <span>{formatCurrency(thbAmount * rates.USD, 'USD')}</span>
+                          <span> / </span>
+                          <span>{formatCurrency(thbAmount * rates.EUR, 'EUR')}</span>
+                        </p>
+                        <p className="text-xs text-gray-500 mt-1">Conversions are correct at the time of booking.</p>
+                      </>
                     ) : (
                       <p className="text-sm text-gray-400">Loading rates...</p>
                     )}
