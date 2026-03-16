@@ -82,7 +82,6 @@ const Admin = () => {
                   <th className="p-2">Experience Level</th>
                   <th className="p-2">Message</th>
                   <th className="p-2">Status</th>
-                                    <th className="p-2">Update Status</th>
                   <th className="p-2">Created At</th>
                   <th className="p-2">Notes</th>
                   <th className="p-2">Save</th>
@@ -99,24 +98,7 @@ const Admin = () => {
                     <td className="p-2">{booking.preferred_date}</td>
                     <td className="p-2">{booking.experience_level}</td>
                     <td className="p-2">{booking.message}</td>
-                    <td className="p-2">
-                      <select
-                        value={booking.status || 'pending'}
-                        onChange={e => handleNoteChange(booking.id, { ...booking, status: e.target.value })}
-                        className="border rounded p-2 w-full"
-                      >
-                        <option value="pending">Pending</option>
-                        <option value="paid">Paid</option>
-                        <option value="booked">Booked</option>
-                        <option value="talking">Talking</option>
-                      </select>
-                    </td>
-                    <td className="p-2">
-                      <button
-                        className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600"
-                        onClick={() => handleSaveStatus(booking.id, booking.status || 'pending')}
-                      >Save Status</button>
-                    </td>
+                    <td className="p-2">{booking.status}</td>
                     <td className="p-2">{booking.created_at ? new Date(booking.created_at).toLocaleString() : ''}</td>
                     <td className="p-2">
                       <textarea
