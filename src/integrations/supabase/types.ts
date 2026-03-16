@@ -71,6 +71,72 @@ export type Database = {
           referrer: string | null
           user_agent: string | null
         }
+        bookings: {
+          Row: {
+            id: string;
+            name: string;
+            email: string;
+            phone: string | null;
+            item_type: string | null;
+            course_title: string | null;
+            preferred_date: string | null;
+            experience_level: string | null;
+            message: string | null;
+            payment_choice: string | null;
+            addons: string | null;
+            addons_json: string | null;
+            addons_total: number | null;
+            subtotal_amount: number | null;
+            total_payable_now: number | null;
+            internal_notes: string | null;
+            status: string | null;
+            created_at: string | null;
+            updated_at: string | null;
+          };
+          Insert: {
+            id?: string;
+            name: string;
+            email: string;
+            phone?: string | null;
+            item_type?: string | null;
+            course_title?: string | null;
+            preferred_date?: string | null;
+            experience_level?: string | null;
+            message?: string | null;
+            payment_choice?: string | null;
+            addons?: string | null;
+            addons_json?: string | null;
+            addons_total?: number | null;
+            subtotal_amount?: number | null;
+            total_payable_now?: number | null;
+            internal_notes?: string | null;
+            status?: string | null;
+            created_at?: string | null;
+            updated_at?: string | null;
+          };
+          Update: {
+            id?: string;
+            name?: string;
+            email?: string;
+            phone?: string | null;
+            item_type?: string | null;
+            course_title?: string | null;
+            preferred_date?: string | null;
+            experience_level?: string | null;
+            message?: string | null;
+            payment_choice?: string | null;
+            addons?: string | null;
+            addons_json?: string | null;
+            addons_total?: number | null;
+            subtotal_amount?: number | null;
+            total_payable_now?: number | null;
+            internal_notes?: string | null;
+            status?: string | null;
+            created_at?: string | null;
+            updated_at?: string | null;
+          };
+          Relationships: [];
+        };
         Insert: {
           affiliate_id?: string | null
           clicked_at?: string | null
