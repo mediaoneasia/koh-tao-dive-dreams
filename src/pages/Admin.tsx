@@ -333,10 +333,11 @@ const Admin = () => {
                 className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600"
                 style={{ fontSize: '0.9rem' }}
                 onClick={() => {
-                  const amount = selectedBooking.paypalAmount !== undefined ? selectedBooking.paypalAmount : selectedBooking.total_payable_now;
+                  let amount = selectedBooking.paypalAmount !== undefined ? selectedBooking.paypalAmount : selectedBooking.total_payable_now;
+                  amount = typeof amount === 'string' ? amount.replace(/[^\d.]/g, '') : amount;
                   const isNumber = !isNaN(parseFloat(amount)) && isFinite(amount);
                   const paypalUrl = isNumber && parseFloat(amount) > 0
-                    ? `https://paypal.me/prodivingasia/${parseFloat(amount).toFixed(2)}`
+                    ? `https://paypal.me/prodivingasia/${parseFloat(amount).toFixed(2)}THB`
                     : 'https://paypal.me/prodivingasia';
                   window.open(paypalUrl, '_blank');
                 }}
