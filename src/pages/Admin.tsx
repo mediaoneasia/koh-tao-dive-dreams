@@ -18,7 +18,25 @@ const Admin = () => {
         .then(data => {
           console.log('Bookings API response:', data);
           // Map amounts and other fields for consistency
-          const mapped = (data || []);
+          const mapped = (data || []).map((b: any) => ({
+            id: b.id,
+            name: b.name,
+            email: b.email,
+            phone: b.phone,
+            deposit_amount: b.deposit_amount ?? b.deposit ?? '',
+            total_amount: b.total_amount ?? b.total ?? '',
+            due_amount: b.due_amount ?? b.due ?? '',
+            course_title: b.course_title || b.item_title || '',
+            preferred_date: b.preferred_date,
+            experience_level: b.experience_level,
+            message: b.message,
+            status: b.status || 'pending',
+            created_at: b.created_at,
+            internal_notes: b.internal_notes,
+            paypalAmount: b.paypalAmount,
+            total_payable_now: b.total_payable_now
+          }));
+          setBookings(mapped);
           setLoading(false);
         })
         .catch(err => {
@@ -48,7 +66,14 @@ const Admin = () => {
       // Refresh bookings list
       fetch('https://koh-tao-dive-dreams.vercel.app/api/bookings')
         .then(res => res.json())
-        .then(data => setBookings(data || []));
+        .then(data => {
+          const mapped = (data || []).map((b: any) => ({
+            id: b.id,
+            name: b.name,
+            email: b.email,
+            phone: b.phone,
+            deposit_amount: b.deposit_amount ?? b.deposit ?? '',
+            total_amount: b.tota || []));
     } catch (err) {
       alert('Error saving');
     }
