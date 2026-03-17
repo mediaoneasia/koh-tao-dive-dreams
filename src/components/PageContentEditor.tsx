@@ -462,7 +462,7 @@ const PageContentEditor: React.FC<PageContentEditorProps> = ({ pageSlug, locale 
     const loadContent = async () => {
       const template = PAGE_DEFINITIONS[pageSlug] || [];
       try {
-        const res = await fetch(`/functions/v1/page_content?id=${encodeURIComponent(pageSlug)}&locale=${encodeURIComponent(locale)}`);
+        const res = await fetch(`/functions/v1/page_content?page_slug=${encodeURIComponent(pageSlug)}&locale=${encodeURIComponent(locale)}`);
         if (!res.ok) throw new Error('Failed to fetch page content');
         const data = await res.json();
         const loadedItems = template.map((item) => {
