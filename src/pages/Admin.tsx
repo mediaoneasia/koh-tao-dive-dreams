@@ -269,7 +269,7 @@ const Admin = () => {
                 setSelectedBooking(prev => prev ? { ...prev, [`${field}_amount`]: value } : prev);
                 setBookings(prev => prev.map(b => b.id === selectedBooking.id ? { ...b, [`${field}_amount`]: value } : b));
                 // Persist to backend
-                await fetch('koh-tao-dive-dreams-mocha.vercel.app/api/bookings', {
+                await fetch('https://koh-tao-dive-dreams-mocha.vercel.app/api/bookings', {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({
