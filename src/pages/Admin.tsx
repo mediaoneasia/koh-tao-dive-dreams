@@ -28,13 +28,13 @@ const Admin = () => {
   return (
     <>
       {/* Admin Tabs */}
-      <div className="flex gap-2 mb-4 sticky top-0 z-10 bg-white py-2">
+      <div className="flex gap-2 mb-4 sticky top-0 z-50 bg-white py-2 border-b border-gray-200 shadow-sm">
         <button
-          className={`px-3 py-1 rounded ${activeTab === 'bookings' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-800'}`}
+          className={`px-3 py-1 rounded font-semibold transition-colors duration-150 ${activeTab === 'bookings' ? 'bg-blue-600 text-white shadow' : 'bg-gray-100 text-gray-800 hover:bg-gray-200'}`}
           onClick={() => setActiveTab('bookings')}
         >Bookings</button>
         <button
-          className={`px-3 py-1 rounded ${activeTab === 'pages' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-800'}`}
+          className={`px-3 py-1 rounded font-semibold transition-colors duration-150 ${activeTab === 'pages' ? 'bg-blue-600 text-white shadow' : 'bg-gray-100 text-gray-800 hover:bg-gray-200'}`}
           onClick={() => setActiveTab('pages')}
         >Pages</button>
         {/* Add more tabs as needed */}
