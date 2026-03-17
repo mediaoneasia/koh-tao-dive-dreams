@@ -6,9 +6,10 @@ import AdminVouchers from '@/components/AdminVouchers';
 import AmountTabs from '@/components/AmountTabs';
 import { supabase } from '@/integrations/supabase/client';
 import RichTextEditor from '@/components/RichTextEditor';
-import { Calendar, momentLocalizer } from 'react-big-calendar';
+import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
-import { addDays } from 'date-fns';
+import { addDays, format, parse, startOfWeek, getDay } from 'date-fns';
+import enUS from 'date-fns/locale/en-US';
 
 const Admin = () => {
   const [activeTab, setActiveTab] = useState('bookings');
@@ -34,7 +35,16 @@ const Admin = () => {
     // Add more amenities as needed
   ]);
 
-  const localizer = momentLocalizer(require('moment'));
+  const locales = {
+    'en-US': enUS,
+  };
+  const localizer = dateFnsLocalizer({
+    format,
+    parse,
+    startOfWeek: () => startOfWeek(new Date(), { weekStartsOn: 1 }),
+    getDay,
+    locales,
+  });
 
   useEffect(() => {
     if (activeTab === 'bookings') {
