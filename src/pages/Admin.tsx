@@ -167,7 +167,7 @@ const Admin = () => {
                         }}
                       >Finance</button>
                     </td>
-                    {/* Finance modal is now rendered once outside the table */}
+                    <td className="p-1">
                       <button
                         className="bg-blue-500 text-white px-2 py-0.5 rounded hover:bg-blue-600"
                         style={{ fontSize: '0.8rem', minWidth: 30 }}
