@@ -84,7 +84,7 @@ const AdminBookings: React.FC = () => {
             <th className="border px-2 py-1">Amount</th>
             <th className="border px-2 py-1">Subtotal</th>
             <th className="border px-2 py-1">Status</th>
-            <th className="border px-2 py-1">Admin Notes</th>
+            <th className="border px-2 py-1">Internal</th>
               <th className="border px-2 py-1">Created</th>
               <th className="border px-2 py-1">Debug</th>
           </tr>
