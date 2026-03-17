@@ -19,124 +19,88 @@ const Admin = () => {
       fetch('https://koh-tao-dive-dreams.vercel.app/api/bookings')
         .then(res => res.json())
         .then(data => {
-          console.log('Bookings API response:', data);
-          // Map amounts and other fields for consistency
-          const mapped = (data || []).map((b: any) => ({
-            id: b.id,
-            name: b.name,
-            email: b.email,
-            phone: b.phone,
-            deposit_amount: b.deposit_amount ?? b.deposit ?? '',
-            total_amount: b.total_amount ?? b.total ?? '',
-            due_amount: b.due_amount ?? b.due ?? '',
-            course_title: b.course_title || b.item_title || '',
-            preferred_date: b.preferred_date,
-            experience_level: b.experience_level,
-            message: b.message,
-            status: b.status || 'pending',
-            created_at: b.created_at,
-            internal_notes: b.internal_notes,
-            paypalAmount: b.paypalAmount,
-            total_payable_now: b.total_payable_now
-          }));
-          setBookings(mapped);
-          setLoading(false);
-        })
-        .catch(err => {
-          console.error('Bookings API error:', err);
-          setLoading(false);
-        });
-    }
-  }, [activeTab]);
-
-  const handleNoteChange = async (id, value) => {
-    setBookings(bookings.map(b => b.id === id ? { ...b, internal_notes: value } : b));
-  };
-
-  const handleStatusChange = (id, value) => {
-    setBookings(bookings.map(b => b.id === id ? { ...b, status: value } : b));
-  };
-
-  const handleSave = async (id, internal_notes, status) => {
-    try {
-      const res = await fetch('https://koh-tao-dive-dreams.vercel.app/api/bookings', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id, internal_notes, status })
-      });
-      if (!res.ok) throw new Error('Failed to save');
-      alert('Booking updated successfully!');
-      // Refresh bookings list
-      fetch('https://koh-tao-dive-dreams.vercel.app/api/bookings')
-        .then(res => res.json())
-        .then(data => {
-          const mapped = (data || []).map((b: any) => ({
-            id: b.id,
-            name: b.name,
-            email: b.email,
-            phone: b.phone,
-            deposit_amount: b.deposit_amount ?? b.deposit ?? '',
-            total_amount: b.total_amount ?? b.total ?? '',
-            due_amount: b.due_amount ?? b.due ?? '',
-            course_title: b.course_title || b.item_title || '',
-            preferred_date: b.preferred_date,
-            experience_level: b.experience_level,
-            message: b.message,
-            status: b.status || 'pending',
-            created_at: b.created_at,
-            internal_notes: b.internal_notes,
-            paypalAmount: b.paypalAmount,
-            total_payable_now: b.total_payable_now
-          }));
-          setBookings(mapped);
-        })
-        .catch(err => {
-          alert('Error saving');
-        });
-    } catch (err) {
-      alert('Error saving');
-    }
-  };
-  const handleSaveStatus = async (id, status) => {
-    try {
-      const res = await fetch('https://koh-tao-dive-dreams.vercel.app/api/bookings', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id, status })
-      });
-      if (!res.ok) throw new Error('Failed to save status');
-    } catch (err) {
-      alert('Error saving status');
-    }
-  };
-
-  const handleSaveNote = async (id, value) => {
-    try {
-      const res = await fetch('https://koh-tao-dive-dreams.vercel.app/api/bookings', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id, internal_notes: value })
-      });
-      if (!res.ok) throw new Error('Failed to save note');
-      // Optionally show a success message
-    } catch (err) {
-      alert('Error saving note');
-    }
-  };
-
-  return (
-    <div className="min-h-screen bg-muted p-8">
-      <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
-      <div className="mb-6 flex gap-4">
-        <button className={`px-4 py-2 rounded ${activeTab === 'pages' ? 'bg-blue-600 text-white' : 'bg-white'}`} onClick={() => setActiveTab('pages')}>Pages</button>
-        <button className={`px-4 py-2 rounded ${activeTab === 'bookings' ? 'bg-blue-600 text-white' : 'bg-white'}`} onClick={() => setActiveTab('bookings')}>Bookings</button>
-        <button className={`px-4 py-2 rounded ${activeTab === 'emails' ? 'bg-blue-600 text-white' : 'bg-white'}`} onClick={() => setActiveTab('emails')}>Emails</button>
-        <button className={`px-4 py-2 rounded ${activeTab === 'vouchers' ? 'bg-blue-600 text-white' : 'bg-white'}`} onClick={() => setActiveTab('vouchers')}>Vouchers</button>
-      </div>
-      {activeTab === 'pages' && <PageManager />}
-      {activeTab === 'emails' && <AdminEmails />}
-      {activeTab === 'vouchers' && <AdminVouchers bookings={bookings} />}
-      {activeTab === 'bookings' && (
+                    <td className="p-1">
+                      <button
+                        className="bg-yellow-600 text-white px-2 py-0.5 rounded hover:bg-yellow-700"
+                        style={{ fontSize: '0.8rem', minWidth: 90 }}
+                        onClick={() => {
+                          setSelectedBooking(booking);
+                          setShowAmountsModal(true);
+                        }}
+                      >Finance</button>
+                    </td>
+            {/* Finance Modal */}
+            {showAmountsModal && selectedBooking && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+                <div className="bg-white rounded-lg shadow-lg p-6 min-w-[340px] relative">
+                  <button
+                    className="absolute top-2 right-2 text-gray-500 hover:text-gray-800 text-xl"
+                    onClick={() => setShowAmountsModal(false)}
+                    aria-label="Close"
+                  >×</button>
+                  <h3 className="text-lg font-bold mb-4">Finance</h3>
+                  <AmountTabs
+                    deposit={selectedBooking.deposit_amount || 0}
+                    total={selectedBooking.total_amount || 0}
+                    due={selectedBooking.due_amount || 0}
+                    paid={selectedBooking.paid_amount || 0}
+                    onAmountChange={async (field, value) => {
+                      setSelectedBooking(prev => prev ? { ...prev, [`${field}_amount`]: value } : prev);
+                      setBookings(prev => prev.map(b => b.id === selectedBooking.id ? { ...b, [`${field}_amount`]: value } : b));
+                      // Persist to backend
+                      await fetch('https://koh-tao-dive-dreams.vercel.app/api/bookings', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                          id: selectedBooking.id,
+                          [`${field}_amount`]: value
+                        })
+                      });
+                    }}
+                  />
+                  <div className="flex gap-2 mt-6 justify-center">
+                    <button
+                      className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600"
+                      style={{ fontSize: '0.9rem' }}
+                      onClick={() => {
+                        const amount = selectedBooking.paypalAmount !== undefined ? selectedBooking.paypalAmount : selectedBooking.total_payable_now;
+                        const isNumber = !isNaN(parseFloat(amount)) && isFinite(amount);
+                        const paypalUrl = isNumber && parseFloat(amount) > 0
+                          ? `https://paypal.me/prodivingasia/${parseFloat(amount).toFixed(2)}`
+                          : 'https://paypal.me/prodivingasia';
+                        window.open(paypalUrl, '_blank');
+                      }}
+                    >Pay with PayPal</button>
+                    <button
+                      className="bg-gray-500 text-white px-3 py-1 rounded hover:bg-gray-600"
+                      style={{ fontSize: '0.9rem' }}
+                      onClick={() => {
+                        const doc = new jsPDF();
+                        doc.setFontSize(18);
+                        doc.text('Dive Booking Invoice', 20, 20);
+                        doc.setFontSize(12);
+                        doc.text(`Name: ${selectedBooking.name || ''}`, 20, 40);
+                        doc.text(`Email: ${selectedBooking.email || ''}`, 20, 50);
+                        doc.text(`Course: ${selectedBooking.course_title || ''}`, 20, 60);
+                        let amountText = '';
+                        if (typeof selectedBooking.total_payable_now === 'number') {
+                          amountText = `฿${selectedBooking.total_payable_now.toFixed(2)}`;
+                        } else if (typeof selectedBooking.total_payable_now === 'string') {
+                          amountText = selectedBooking.total_payable_now;
+                        } else {
+                          amountText = 'N/A';
+                        }
+                        doc.text(`Amount: ${amountText}`, 20, 70);
+                        doc.text(`Date: ${selectedBooking.created_at ? new Date(selectedBooking.created_at).toLocaleString() : ''}`, 20, 80);
+                        doc.text(`Booking ID: ${selectedBooking.id}`, 20, 90);
+                        doc.text('Thank you for booking with us!', 20, 110);
+                        doc.save(`invoice-${selectedBooking.id}.pdf`);
+                      }}
+                    >Download Invoice</button>
+                  </div>
+                </div>
+              </div>
+            )}
         <div className="bg-white rounded shadow p-2">
           <h2 className="text-base font-semibold mb-2">Bookings Management</h2>
           {loading ? (
@@ -318,8 +282,80 @@ const Admin = () => {
           )}
         </div>
       )}
+      {/* Finance Modal (single, inside main return) */}
+      {showAmountsModal && selectedBooking && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+          <div className="bg-white rounded-lg shadow-lg p-6 min-w-[340px] relative">
+            <button
+              className="absolute top-2 right-2 text-gray-500 hover:text-gray-800 text-xl"
+              onClick={() => setShowAmountsModal(false)}
+              aria-label="Close"
+            >×</button>
+            <h3 className="text-lg font-bold mb-4">Finance</h3>
+            <AmountTabs
+              deposit={selectedBooking.deposit_amount || 0}
+              total={selectedBooking.total_amount || 0}
+              due={selectedBooking.due_amount || 0}
+              paid={selectedBooking.paid_amount || 0}
+              onAmountChange={async (field, value) => {
+                setSelectedBooking(prev => prev ? { ...prev, [`${field}_amount`]: value } : prev);
+                setBookings(prev => prev.map(b => b.id === selectedBooking.id ? { ...b, [`${field}_amount`]: value } : b));
+                // Persist to backend
+                await fetch('https://koh-tao-dive-dreams.vercel.app/api/bookings', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    id: selectedBooking.id,
+                    [`${field}_amount`]: value
+                  })
+                });
+              }}
+            />
+            <div className="flex gap-2 mt-6 justify-center">
+              <button
+                className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600"
+                style={{ fontSize: '0.9rem' }}
+                onClick={() => {
+                  const amount = selectedBooking.paypalAmount !== undefined ? selectedBooking.paypalAmount : selectedBooking.total_payable_now;
+                  const isNumber = !isNaN(parseFloat(amount)) && isFinite(amount);
+                  const paypalUrl = isNumber && parseFloat(amount) > 0
+                    ? `https://paypal.me/prodivingasia/${parseFloat(amount).toFixed(2)}`
+                    : 'https://paypal.me/prodivingasia';
+                  window.open(paypalUrl, '_blank');
+                }}
+              >Pay with PayPal</button>
+              <button
+                className="bg-gray-500 text-white px-3 py-1 rounded hover:bg-gray-600"
+                style={{ fontSize: '0.9rem' }}
+                onClick={() => {
+                  const doc = new jsPDF();
+                  doc.setFontSize(18);
+                  doc.text('Dive Booking Invoice', 20, 20);
+                  doc.setFontSize(12);
+                  doc.text(`Name: ${selectedBooking.name || ''}`, 20, 40);
+                  doc.text(`Email: ${selectedBooking.email || ''}`, 20, 50);
+                  doc.text(`Course: ${selectedBooking.course_title || ''}`, 20, 60);
+                  let amountText = '';
+                  if (typeof selectedBooking.total_payable_now === 'number') {
+                    amountText = `฿${selectedBooking.total_payable_now.toFixed(2)}`;
+                  } else if (typeof selectedBooking.total_payable_now === 'string') {
+                    amountText = selectedBooking.total_payable_now;
+                  } else {
+                    amountText = 'N/A';
+                  }
+                  doc.text(`Amount: ${amountText}`, 20, 70);
+                  doc.text(`Date: ${selectedBooking.created_at ? new Date(selectedBooking.created_at).toLocaleString() : ''}`, 20, 80);
+                  doc.text(`Booking ID: ${selectedBooking.id}`, 20, 90);
+                  doc.text('Thank you for booking with us!', 20, 110);
+                  doc.save(`invoice-${selectedBooking.id}.pdf`);
+                }}
+              >Download Invoice</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
-  )
+  );
 }
 
 export default Admin;
