@@ -337,7 +337,7 @@ const Admin = () => {
                   amount = typeof amount === 'string' ? amount.replace(/[^\d.]/g, '') : amount;
                   const isNumber = !isNaN(parseFloat(amount)) && isFinite(amount);
                   const paypalUrl = isNumber && parseFloat(amount) > 0
-                    ? `https://paypal.me/prodivingasia/${parseFloat(amount).toFixed(2)}THB`
+                    ? `https://paypal.me/prodivingasia/${parseFloat(amount).toFixed(0)}`
                     : 'https://paypal.me/prodivingasia';
                   window.open(paypalUrl, '_blank');
                 }}

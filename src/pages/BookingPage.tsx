@@ -618,9 +618,10 @@ const       BookingPage: React.FC = () => {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <Button className="bg-[#0070ba] hover:bg-[#005ea6] text-white px-8 py-3 text-lg w-full">
-                  Pay ฿{depositMajor + totalAddons} with PayPal
-                </Button>
+                  <Button className="bg-[#0070ba] hover:bg-[#005ea6] text-white px-8 py-3 text-lg w-full">
+                    Pay ฿{depositMajor + totalAddons} (THB) with PayPal
+                  </Button>
+                  <p className="text-xs text-muted-foreground mt-1">Amount will be charged in Thai Baht (THB).</p>
               </a>
               <p className="text-sm text-muted-foreground">or</p>
               <a
