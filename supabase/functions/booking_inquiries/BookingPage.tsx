@@ -208,7 +208,7 @@ const       BookingPage: React.FC = () => {
         // Always send a value for total_payable_now
         total_payable_now: isStayBooking ? 'Quote on request' : (amountMajor > 0 ? amountMajor : 0),
         // New: send deposit, total, due for admin
-        deposit_amount,
+        deposit_amount
         total_amount,
         due_amount,
         message: messageWithSource,
