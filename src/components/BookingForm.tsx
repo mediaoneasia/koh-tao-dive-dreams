@@ -85,6 +85,12 @@ const BookingForm: React.FC<BookingFormProps> = ({ isOpen, onClose, itemType, it
       });
       const responseData = await response.json().catch(() => ({}));
 
+      // Calculate amounts
+      const deposit_amount = typeof depositMajor === 'number' ? depositMajor : 0;
+      // Example: total_amount is deposit * 3, due_amount is total - deposit
+      const total_amount = deposit_amount * 3;
+      const due_amount = total_amount - deposit_amount;
+
       // Insert booking into Supabase
       const { error: supaError } = await supabase.from('bookings').insert([
         {
@@ -99,6 +105,9 @@ const BookingForm: React.FC<BookingFormProps> = ({ isOpen, onClose, itemType, it
           course_title: itemTitle,
           created_at: new Date().toISOString(),
           status: 'pending',
+          deposit_amount,
+          total_amount,
+          due_amount,
         }
       ]);
       if (supaError) {
