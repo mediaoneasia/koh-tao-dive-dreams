@@ -7,38 +7,18 @@ import { supabase } from '@/integrations/supabase/client';
 import { hasAdminAccess } from '@/lib/adminAccess';
 import { Badge } from '@/components/ui/badge';
 
-const Navigation = () => {
+const Navigation = ({ user, isAdmin, isAdminRoute }: { user?: any, isAdmin?: boolean, isAdminRoute?: boolean }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [coursesOpen, setCoursesOpen] = useState(false);
   const [funDivingOpen, setFunDivingOpen] = useState(false);
   const [diveSitesOpen, setDiveSitesOpen] = useState(false);
   const [marineLifeOpen, setMarineLifeOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
-  const [user, setUser] = useState<any>(null);
-  const [isAdmin, setIsAdmin] = useState(false);
+  // user, isAdmin, isAdminRoute now come from props
   const navigate = useNavigate();
   const location = useLocation();
 
-  useEffect(() => {
-    const checkAuth = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      setUser(user);
-      setIsAdmin(user ? hasAdminAccess(user) : false);
-    };
-    
-    checkAuth();
-
-    // Listen for auth state changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      const user = session?.user ?? null;
-      setUser(user);
-      setIsAdmin(user ? hasAdminAccess(user) : false);
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, []);
+  // Auth logic moved to Layout, props used here
 
   const handleAnchorClick = (e: React.MouseEvent, href: string) => {
     e.preventDefault();
@@ -184,6 +164,11 @@ const Navigation = () => {
     { name: t('nav.contact'), href: '/#contact' },
   ];
 
+  if (isAdminRoute && isAdmin) {
+    // Hide main menu for admins on admin pages
+    return null;
+  }
+  // Standard/main navigation for all other users/routes
   return (
     <nav className="fixed top-0 w-full bg-background/70 backdrop-blur-md z-50 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -191,7 +176,6 @@ const Navigation = () => {
           <div className="flex items-center">
             <img src="/images/logo.avif" alt="Pro Diving Asia Logo" className="h-14 w-auto" />
           </div>
-
           {/* Desktop nav */}
           <div className="hidden md:flex items-center space-x-8">
             <Link to="/" className="text-gray-700 hover:text-blue-600 transition-colors duration-200 font-medium">

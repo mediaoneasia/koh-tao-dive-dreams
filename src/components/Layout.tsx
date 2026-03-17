@@ -194,6 +194,27 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const isAdminRoute = location.pathname.startsWith('/admin') && location.pathname !== '/admin/login';
+  const [user, setUser] = React.useState<any>(null);
+  const [isAdmin, setIsAdmin] = React.useState(false);
+
+  React.useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+      // Import here to avoid circular dependency
+      const { hasAdminAccess } = await import('@/lib/adminAccess');
+      setIsAdmin(user ? hasAdminAccess(user) : false);
+    };
+    checkAuth();
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      const user = session?.user ?? null;
+      setUser(user);
+      import('@/lib/adminAccess').then(({ hasAdminAccess }) => {
+        setIsAdmin(user ? hasAdminAccess(user) : false);
+      });
+    });
+    return () => { subscription.unsubscribe(); };
+  }, []);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -203,7 +224,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <Navigation />
+      <Navigation user={user} isAdmin={isAdmin} isAdminRoute={isAdminRoute} />
       {isAdminRoute && (
         {!isAdminRoute && <Navigation />}
         {isAdminRoute && (
