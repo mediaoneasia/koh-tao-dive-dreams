@@ -27,7 +27,7 @@ const Index = () => {
   // Removed auto-scroll logic for normal homepage behavior
   return (
     <div className="min-h-screen bg-background">
-      // ...removed PageContentEditor and related admin modal...
+      // ...removed PageContentEditor and related admin modal..soom
       <Hero />
       <About />
       <DiveSites />
