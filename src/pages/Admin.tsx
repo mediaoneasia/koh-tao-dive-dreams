@@ -13,27 +13,11 @@ import enUS from 'date-fns/locale/en-US';
 
 const Admin = () => {
   const [activeTab, setActiveTab] = useState('bookings');
-  const [contentRows, setContentRows] = useState([]);
-  const [contentSearch, setContentSearch] = useState('');
-  const [showContentModal, setShowContentModal] = useState(false);
-  const [contentModalRow, setContentModalRow] = useState(null); // { id, page_slug, locale, content }
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showAmountsModal, setShowAmountsModal] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState(null);
-  // --- Page editing modal state ---
-  const [editModal, setEditModal] = useState(null); // { page, lang } or null
-  const [editContent, setEditContent] = useState('');
-  const [priceModal, setPriceModal] = useState(null); // { page, lang } or null
-  const [editPrice1, setEditPrice1] = useState('');
-  const [editPrice2, setEditPrice2] = useState('');
-  const [amenities, setAmenities] = useState([
-    { key: 'photography', label: 'Photography', price: '', enabled: false },
-    { key: 'lunch', label: 'Lunch', price: '', enabled: false },
-    { key: 'luxury_room', label: 'Luxury Room', price: '', enabled: false },
-    { key: 'tours', label: 'Tours', price: '', enabled: false },
-    // Add more amenities as needed
-  ]);
+  // ...removed page/content editing state...
 
   const locales = {
     'en-US': enUS,
@@ -59,75 +43,7 @@ const Admin = () => {
   }, [activeTab]);
 
   // Optionally: Reset modal fields when opening
-  useEffect(() => {
-    if (editModal) setEditContent('');
-  }, [editModal]);
-  useEffect(() => {
-    if (priceModal) {
-      setEditPrice1('');
-      setEditPrice2('');
-    }
-  }, [priceModal]);
-
-  // Fetch current content for modal
-  useEffect(() => {
-    const fetchContent = async () => {
-      if (editModal) {
-        const { data, error } = await supabase
-          .from('page_content')
-          .select('content')
-          .eq('page_slug', editModal.page.toLowerCase().replace(/ /g, '-'))
-          .eq('locale', editModal.lang)
-          .single();
-        setEditContent(data?.content || '');
-      }
-    };
-    fetchContent();
-  }, [editModal]);
-
-  useEffect(() => {
-    const fetchPrices = async () => {
-      if (priceModal) {
-        const { data, error } = await supabase
-          .from('page_prices')
-          .select('price1, price2')
-          .eq('page_slug', priceModal.page.toLowerCase().replace(/ /g, '-'))
-          .eq('locale', priceModal.lang)
-          .single();
-        setEditPrice1(data?.price1 || '');
-        setEditPrice2(data?.price2 || '');
-      }
-    };
-    fetchPrices();
-  }, [priceModal]);
-
-  useEffect(() => {
-    const fetchAmenities = async () => {
-      if (priceModal) {
-        const { data, error } = await supabase
-          .from('page_amenities')
-          .select('amenity_key, price, enabled')
-          .eq('page_slug', priceModal.page.toLowerCase().replace(/ /g, '-'))
-          .eq('locale', priceModal.lang);
-        if (data) {
-          setAmenities(prev => prev.map(a => {
-            const found = data.find(d => d.amenity_key === a.key);
-            return found ? { ...a, price: found.price || '', enabled: !!found.enabled } : { ...a, price: '', enabled: false };
-          }));
-        }
-      }
-    };
-    fetchAmenities();
-  }, [priceModal]);
-
-  // Fetch all page_content rows when Content tab is active
-  useEffect(() => {
-    if (activeTab === 'content') {
-      supabase.from('page_content').select('*').then(({ data }) => {
-        setContentRows(data || []);
-      });
-    }
-  }, [activeTab]);
+  // ...removed all page/content editing effects...
 
   return (
     <>
@@ -138,116 +54,12 @@ const Admin = () => {
           onClick={() => setActiveTab('bookings')}
         >Bookings</button>
         <button
-          className={`px-3 py-1 rounded font-semibold transition-colors duration-150 ${activeTab === 'content' ? 'bg-blue-600 text-white shadow' : 'bg-gray-100 text-gray-800 hover:bg-gray-200'}`}
-          onClick={() => setActiveTab('content')}
-        >Content</button>
-        <button
           className={`px-3 py-1 rounded font-semibold transition-colors duration-150 ${activeTab === 'calendar' ? 'bg-blue-600 text-white shadow' : 'bg-gray-100 text-gray-800 hover:bg-gray-200'}`}
           onClick={() => setActiveTab('calendar')}
         >Calendar</button>
       </div>
 
-            {/* Content Tab */}
-            {activeTab === 'content' && (
-              <div className="bg-white rounded shadow p-4">
-                <h2 className="text-base font-semibold mb-2">Page Content Management</h2>
-                <div className="flex gap-2 mb-2">
-                  <input
-                    className="border rounded px-2 py-1 flex-1"
-                    placeholder="Search by page, locale, or content..."
-                    value={contentSearch}
-                    onChange={e => setContentSearch(e.target.value)}
-                  />
-                  <button
-                    className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700"
-                    onClick={() => { setContentModalRow({ id: null, page_slug: '', locale: '', content: '' }); setShowContentModal(true); }}
-                  >Add New</button>
-                </div>
-                <div className="overflow-x-auto">
-                  <table className="w-full border border-gray-200 rounded-lg mb-4" style={{ fontSize: '0.9rem', borderCollapse: 'collapse' }}>
-                    <thead className="bg-gray-100">
-                      <tr>
-                        <th className="p-2">Page Slug</th>
-                        <th className="p-2">Locale</th>
-                        <th className="p-2">Content Preview</th>
-                        <th className="p-2">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {contentRows && contentRows.filter(row =>
-                        row.page_slug.toLowerCase().includes(contentSearch.toLowerCase()) ||
-                        row.locale.toLowerCase().includes(contentSearch.toLowerCase()) ||
-                        (row.content && row.content.toLowerCase().includes(contentSearch.toLowerCase()))
-                      ).map(row => (
-                        <tr key={row.id} className="border-t border-gray-200 hover:bg-gray-50">
-                          <td className="p-2">{row.page_slug}</td>
-                          <td className="p-2">{row.locale}</td>
-                          <td className="p-2" style={{ maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{row.content?.slice(0, 60) || ''}{row.content && row.content.length > 60 ? '…' : ''}</td>
-                          <td className="p-2 flex gap-2">
-                            <button className="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600" onClick={() => { setContentModalRow(row); setShowContentModal(true); }}>Edit</button>
-                            <button className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600" onClick={async () => {
-                              if (window.confirm('Delete this content row?')) {
-                                await supabase.from('page_content').delete().eq('id', row.id);
-                                setContentRows(contentRows.filter(r => r.id !== row.id));
-                              }
-                            }}>Delete</button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-                {/* Modal for editing/adding content */}
-                {showContentModal && (
-                  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-                    <div className="bg-white rounded-lg shadow-lg p-6 min-w-[400px] max-w-[90vw] relative">
-                      <button className="absolute top-2 right-2 text-gray-500 hover:text-gray-800 text-xl" onClick={() => setShowContentModal(false)} aria-label="Close">×</button>
-                      <h3 className="text-lg font-bold mb-4">{contentModalRow.id ? 'Edit' : 'Add'} Page Content</h3>
-                      <div className="mb-4">
-                        <label className="block mb-2 font-medium">Page Slug</label>
-                        <input className="w-full border rounded p-2 mb-2" value={contentModalRow.page_slug} onChange={e => setContentModalRow({ ...contentModalRow, page_slug: e.target.value })} />
-                        <label className="block mb-2 font-medium">Locale</label>
-                        <input className="w-full border rounded p-2 mb-2" value={contentModalRow.locale} onChange={e => setContentModalRow({ ...contentModalRow, locale: e.target.value })} />
-                        <label className="block mb-2 font-medium">Content</label>
-                        <RichTextEditor value={contentModalRow.content} onChange={val => setContentModalRow({ ...contentModalRow, content: val })} placeholder="Page content..." />
-                        {contentModalRow.content && (
-                          <div className="mt-2 p-2 border rounded bg-gray-50">
-                            <div className="text-xs text-gray-500 mb-1">Preview:</div>
-                            <div dangerouslySetInnerHTML={{ __html: contentModalRow.content }} />
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex gap-2 justify-end mt-4">
-                        <button className="bg-gray-500 text-white px-3 py-1 rounded hover:bg-gray-600" onClick={() => setShowContentModal(false)}>Cancel</button>
-                        <button className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700" onClick={async () => {
-                          if (!contentModalRow.page_slug || !contentModalRow.locale) return alert('Page slug and locale are required');
-                          if (contentModalRow.id) {
-                            // Update
-                            await supabase.from('page_content').update({
-                              page_slug: contentModalRow.page_slug,
-                              locale: contentModalRow.locale,
-                              content: contentModalRow.content
-                            }).eq('id', contentModalRow.id);
-                          } else {
-                            // Insert
-                            const { data } = await supabase.from('page_content').insert({
-                              page_slug: contentModalRow.page_slug,
-                              locale: contentModalRow.locale,
-                              content: contentModalRow.content
-                            }).select();
-                            if (data && data[0]) setContentRows([...contentRows, data[0]]);
-                          }
-                          // Refresh list
-                          const { data } = await supabase.from('page_content').select('*');
-                          setContentRows(data || []);
-                          setShowContentModal(false);
-                        }}>{contentModalRow.id ? 'Save' : 'Add'}</button>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
+      // ...removed Content tab and all content/page editing UI...
       <h1 className="text-xl font-bold mb-4">Admin Dashboard</h1>
 
       {/* Bookings Table */}
