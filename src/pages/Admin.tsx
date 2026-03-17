@@ -28,7 +28,7 @@ const Admin = () => {
   return (
     <>
       {/* Admin Tabs */}
-      <div className="flex gap-2 mb-4">
+      <div className="flex gap-2 mb-4 sticky top-0 z-10 bg-white py-2">
         <button
           className={`px-3 py-1 rounded ${activeTab === 'bookings' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-800'}`}
           onClick={() => setActiveTab('bookings')}
