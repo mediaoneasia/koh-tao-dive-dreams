@@ -85,7 +85,8 @@ const AdminBookings: React.FC = () => {
             <th className="border px-2 py-1">Subtotal</th>
             <th className="border px-2 py-1">Status</th>
             <th className="border px-2 py-1">Admin Notes</th>
-            <th className="border px-2 py-1">Created</th>
+              <th className="border px-2 py-1">Created</th>
+              <th className="border px-2 py-1">Debug</th>
           </tr>
         </thead>
         <tbody>
@@ -121,12 +122,13 @@ const AdminBookings: React.FC = () => {
                   </>
                 ) : (
                   <>
-                    {b.internal_notes}
+                    <span style={{whiteSpace: 'pre-line'}}>{b.internal_notes || ''}</span>
                     <button onClick={() => handleEditNotes(b.id, b.internal_notes || '')} className="ml-1 text-blue-600">Edit</button>
                   </>
                 )}
               </td>
-              <td className="border px-2 py-1">{new Date(b.created_at).toLocaleString()}</td>
+                <td className="border px-2 py-1">{new Date(b.created_at).toLocaleString()}</td>
+                <td className="border px-2 py-1" style={{maxWidth: 200, fontSize: '0.7em', wordBreak: 'break-all'}}><pre>{JSON.stringify(b, null, 2)}</pre></td>
             </tr>
           ))}
         </tbody>

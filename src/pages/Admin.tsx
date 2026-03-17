@@ -154,7 +154,9 @@ const Admin = () => {
             {activeTab === 'pricelist' && (
               <PricelistTab />
             )}
+
             // --- PricelistTab component ---
+            import React, { useState, useEffect } from 'react';
             const PricelistTab = () => {
               const [prices, setPrices] = useState([]);
               const [loading, setLoading] = useState(true);
@@ -175,17 +177,17 @@ const Admin = () => {
               // Import PAGE_REGISTRY from PageManager
               // (If not possible, copy the registry here or move to a shared file)
               const PAGE_REGISTRY = [
-                { slug: 'open-water', title: 'PADI Open Water', category: 'course' },
-                { slug: 'advanced', title: 'PADI Advanced', category: 'course' },
-                { slug: 'rescue', title: 'PADI Rescue Diver', category: 'course' },
-                { slug: 'efr', title: 'Emergency First Response', category: 'course' },
-                { slug: 'divemaster', title: 'PADI Divemaster', category: 'course' },
-                { slug: 'instructor', title: 'PADI Instructor (IDC)', category: 'course' },
-                { slug: 'discover-scuba', title: 'Discover Scuba Diving', category: 'course' },
-                { slug: 'scuba-diver', title: 'PADI Scuba Diver', category: 'course' },
-                { slug: 'scuba-review', title: 'Scuba Review/ReActivate', category: 'course' },
-                { slug: 'discover-scuba-deluxe', title: 'DSD Deluxe', category: 'course' },
-                { slug: 'msdt-program', title: 'MSDT Program', category: 'course' },
+                { slug: 'discover-scuba', title: 'Discover Scuba Diving', category: 'beginner' },
+                { slug: 'scuba-diver', title: 'PADI Scuba Diver', category: 'beginner' },
+                { slug: 'open-water', title: 'PADI Open Water', category: 'beginner' },
+                { slug: 'scuba-review', title: 'Scuba Review/ReActivate', category: 'beginner' },
+                { slug: 'advanced', title: 'PADI Advanced', category: 'advanced' },
+                { slug: 'rescue', title: 'PADI Rescue Diver', category: 'advanced' },
+                { slug: 'efr', title: 'Emergency First Response', category: 'advanced' },
+                { slug: 'divemaster', title: 'PADI Divemaster', category: 'pro' },
+                { slug: 'instructor', title: 'PADI Instructor (IDC)', category: 'pro' },
+                { slug: 'discover-scuba-deluxe', title: 'DSD Deluxe', category: 'beginner' },
+                { slug: 'msdt-program', title: 'MSDT Program', category: 'pro' },
                 { slug: 'specialty/night-diver', title: 'Night Diver Specialty', category: 'specialty' },
                 { slug: 'specialty/deep-diver', title: 'Deep Diver Specialty', category: 'specialty' },
                 { slug: 'specialty/wreck-diver', title: 'Wreck Diver Specialty', category: 'specialty' },
