@@ -95,6 +95,14 @@ const Admin = () => {
         </div>
       )}
 
+      {/* Pages Tab Content */}
+      {activeTab === 'pages' && (
+        <div className="bg-white rounded shadow p-4">
+          <h2 className="text-base font-semibold mb-2">Pages Management</h2>
+          <p className="text-gray-600">This is where you can manage your site pages. (Add your page management UI here.)</p>
+        </div>
+      )}
+
       {/* Amounts Modal with Tabs */}
       {showAmountsModal && selectedBooking && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
