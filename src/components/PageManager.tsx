@@ -89,25 +89,17 @@ export const PageManager: React.FC = () => {
   const [seoPage, setSeoPage] = useState<string | null>(null);
   const [securityPage, setSecurityPage] = useState<string | null>(null);
 
+
+  // Optionally, you can still fetch metadata and merge it, but always show all pages from PAGE_REGISTRY
   useEffect(() => {
-    loadPageMetadata();
-  }, []);
+    const loadPageMetadata = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('page_metadata')
+          .select('page_slug, has_seo, is_secured, draft_status, updated_at');
 
-  useEffect(() => {
-    if (!editingPage) {
-      loadPageMetadata();
-    }
-  }, [editingPage]);
-
-  const loadPageMetadata = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('page_metadata')
-        .select('page_slug, has_seo, is_secured, draft_status, updated_at');
-
-      if (!error && data) {
-        setPages(prevPages =>
-          prevPages.map(page => {
+        if (!error && data) {
+          setPages(PAGE_REGISTRY.map(page => {
             const meta = data.find((d: any) => d.page_slug === page.slug);
             if (meta !== null && typeof meta === 'object' && !('message' in meta)) {
               return {
@@ -119,13 +111,17 @@ export const PageManager: React.FC = () => {
               };
             }
             return page;
-          })
-        );
+          }));
+        } else {
+          setPages(PAGE_REGISTRY);
+        }
+      } catch (err) {
+        setPages(PAGE_REGISTRY);
+        console.error('Failed to load page metadata:', err);
       }
-    } catch (err) {
-      console.error('Failed to load page metadata:', err);
-    }
-  };
+    };
+    loadPageMetadata();
+  }, [editingPage]);
 
   const filteredPages = pages.filter(page => {
     const matchesSearch = page.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
