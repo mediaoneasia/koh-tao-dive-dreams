@@ -86,6 +86,10 @@ const Admin = () => {
             total_payable_now: b.total_payable_now
           }));
           setBookings(mapped);
+        })
+        .catch(err => {
+          alert('Error saving');
+        });
     } catch (err) {
       alert('Error saving');
     }
