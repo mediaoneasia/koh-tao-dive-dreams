@@ -165,27 +165,30 @@ const Admin = () => {
                     <td className="p-1">
                       <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                         <input
-                          type="number"
-                          min="0"
-                          step="0.01"
-                          value={typeof booking.paypalAmount === 'number' ? booking.paypalAmount : (typeof booking.total_payable_now === 'number' ? booking.total_payable_now : 0)}
+                          type="text"
+                          value={
+                            booking.paypalAmount !== undefined
+                              ? booking.paypalAmount
+                              : (booking.total_payable_now !== undefined ? booking.total_payable_now : '')
+                          }
                           onChange={e => {
-                            const val = parseFloat(e.target.value);
-                            setBookings(bookings.map(b => b.id === booking.id ? { ...b, paypalAmount: isNaN(val) ? 0 : val } : b));
+                            const val = e.target.value;
+                            setBookings(bookings.map(b => b.id === booking.id ? { ...b, paypalAmount: val } : b));
                           }}
-                          style={{ width: 60, fontSize: '0.8rem', marginRight: 4 }}
+                          style={{ width: 80, fontSize: '0.8rem', marginRight: 4 }}
                         />
                         <button
                           className="bg-green-500 text-white px-2 py-0.5 rounded hover:bg-green-600"
                           style={{ fontSize: '0.8rem', minWidth: 80 }}
                           onClick={() => {
-                            const amount = typeof booking.paypalAmount === 'number' ? booking.paypalAmount : (typeof booking.total_payable_now === 'number' ? booking.total_payable_now : 0);
-                            const paypalUrl = amount > 0
-                              ? `https://paypal.me/prodivingasia/${amount.toFixed(2)}`
+                            const amount = booking.paypalAmount !== undefined ? booking.paypalAmount : booking.total_payable_now;
+                            const isNumber = !isNaN(parseFloat(amount)) && isFinite(amount);
+                            const paypalUrl = isNumber && parseFloat(amount) > 0
+                              ? `https://paypal.me/prodivingasia/${parseFloat(amount).toFixed(2)}`
                               : 'https://paypal.me/prodivingasia';
                             window.open(paypalUrl, '_blank');
                           }}
-                        >{`Pay ฿${typeof booking.paypalAmount === 'number' ? booking.paypalAmount : (typeof booking.total_payable_now === 'number' ? booking.total_payable_now : 0)} with PayPal`}</button>
+                        >{`Pay ${booking.paypalAmount !== undefined ? booking.paypalAmount : (booking.total_payable_now !== undefined ? booking.total_payable_now : '')} with PayPal`}</button>
                       </div>
                     </td>
                     <td className="p-1">
@@ -200,7 +203,15 @@ const Admin = () => {
                           doc.text(`Name: ${booking.name || ''}`, 20, 40);
                           doc.text(`Email: ${booking.email || ''}`, 20, 50);
                           doc.text(`Course: ${booking.course_title || ''}`, 20, 60);
-                          doc.text(`Amount: ฿${typeof booking.total_payable_now === 'number' ? booking.total_payable_now.toFixed(2) : '0.00'}`, 20, 70);
+                          let amountText = '';
+                          if (typeof booking.total_payable_now === 'number') {
+                            amountText = `฿${booking.total_payable_now.toFixed(2)}`;
+                          } else if (typeof booking.total_payable_now === 'string') {
+                            amountText = booking.total_payable_now;
+                          } else {
+                            amountText = 'N/A';
+                          }
+                          doc.text(`Amount: ${amountText}`, 20, 70);
                           doc.text(`Date: ${booking.created_at ? new Date(booking.created_at).toLocaleString() : ''}`, 20, 80);
                           doc.text(`Booking ID: ${booking.id}`, 20, 90);
                           doc.text('Thank you for booking with us!', 20, 110);
