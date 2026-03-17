@@ -34,8 +34,50 @@ const getErrorMessage = (err: unknown) => {
 
 const PAGE_DEFINITIONS: Record<string, ContentItem[]> = {
   'home': [
+    // HERO SECTION
     { section_key: 'hero_title', content_value: 'Dive Koh Tao with Pro Diving Asia', content_type: 'text', label: 'Hero Title' },
-    // ...existing home fields...
+    { section_key: 'hero_subtitle', content_value: 'Your adventure starts here. Explore the best diving experiences on Koh Tao.', content_type: 'textarea', label: 'Hero Subtitle' },
+    { section_key: 'hero_cta', content_value: 'Book Now', content_type: 'text', label: 'Hero Call to Action' },
+
+    // CARDS SECTION
+    { section_key: 'card_courses_title', content_value: 'Courses', content_type: 'text', label: 'Courses Card Title' },
+    { section_key: 'card_courses_desc', content_value: 'Learn to dive or advance your skills with our certified instructors.', content_type: 'textarea', label: 'Courses Card Description' },
+    { section_key: 'card_special_offers_title', content_value: 'Special Offers', content_type: 'text', label: 'Special Offers Card Title' },
+    { section_key: 'card_special_offers_desc', content_value: 'Check out our latest promotions and discounts.', content_type: 'textarea', label: 'Special Offers Card Description' },
+    { section_key: 'card_fun_diving_title', content_value: 'Fun Diving', content_type: 'text', label: 'Fun Diving Card Title' },
+    { section_key: 'card_fun_diving_desc', content_value: 'Join daily trips to the best dive sites around Koh Tao.', content_type: 'textarea', label: 'Fun Diving Card Description' },
+
+    // TABS SECTION
+    { section_key: 'tab_overview_title', content_value: 'Overview', content_type: 'text', label: 'Overview Tab Title' },
+    { section_key: 'tab_overview_content', content_value: 'Discover why Koh Tao is the top diving destination in Thailand.', content_type: 'textarea', label: 'Overview Tab Content' },
+    { section_key: 'tab_trips_programs_title', content_value: 'Trips & Programs', content_type: 'text', label: 'Trips & Programs Tab Title' },
+    { section_key: 'tab_trips_programs_content', content_value: 'Explore our daily dive trips and special programs for all levels.', content_type: 'textarea', label: 'Trips & Programs Tab Content' },
+    { section_key: 'tab_booking_title', content_value: 'Booking', content_type: 'text', label: 'Booking Tab Title' },
+    { section_key: 'tab_booking_content', content_value: 'Book your diving adventure easily online or contact us for custom packages.', content_type: 'textarea', label: 'Booking Tab Content' },
+
+    // CONTACT SECTION (ENGLISH)
+    { section_key: 'contact_title_en', content_value: 'Contact Us', content_type: 'text', label: 'Contact Section Title (EN)' },
+    { section_key: 'contact_subtitle_en', content_value: 'Get in touch for questions or bookings.', content_type: 'textarea', label: 'Contact Section Subtitle (EN)' },
+    { section_key: 'contact_email_en', content_value: 'info@divinginasia.com', content_type: 'text', label: 'Contact Email (EN)' },
+    { section_key: 'contact_phone_en', content_value: '+66 77 456 789', content_type: 'text', label: 'Contact Phone (EN)' },
+
+    // CONTACT SECTION (DUTCH)
+    { section_key: 'contact_title_nl', content_value: 'Neem Contact Op', content_type: 'text', label: 'Contact Section Title (NL)' },
+    { section_key: 'contact_subtitle_nl', content_value: 'Neem contact met ons op voor vragen of boekingen.', content_type: 'textarea', label: 'Contact Section Subtitle (NL)' },
+    { section_key: 'contact_email_nl', content_value: 'info@divinginasia.com', content_type: 'text', label: 'Contact Email (NL)' },
+    { section_key: 'contact_phone_nl', content_value: '+66 77 456 789', content_type: 'text', label: 'Contact Phone (NL)' },
+
+    // BEGINNER COURSES
+    { section_key: 'beginner_courses_title', content_value: 'Beginner Courses', content_type: 'text', label: 'Beginner Courses Title' },
+    { section_key: 'beginner_courses_desc', content_value: 'Start your diving journey with our entry-level courses.', content_type: 'textarea', label: 'Beginner Courses Description' },
+
+    // ADVANCED COURSES
+    { section_key: 'advanced_courses_title', content_value: 'Advanced Courses', content_type: 'text', label: 'Advanced Courses Title' },
+    { section_key: 'advanced_courses_desc', content_value: 'Take your skills to the next level with advanced certifications.', content_type: 'textarea', label: 'Advanced Courses Description' },
+
+    // PRO COURSES
+    { section_key: 'pro_courses_title', content_value: 'Pro Courses', content_type: 'text', label: 'Pro Courses Title' },
+    { section_key: 'pro_courses_desc', content_value: 'Become a professional diver and start your career in diving.', content_type: 'textarea', label: 'Pro Courses Description' },
   ],
   'all-prices': [
     { section_key: 'open_water_price_thb', content_value: '11000', content_type: 'text', label: 'Open Water Price (THB)' },
