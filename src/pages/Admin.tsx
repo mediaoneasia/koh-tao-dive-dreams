@@ -17,7 +17,8 @@ const Admin = () => {
         .then(res => res.json())
         .then(data => {
           console.log('Bookings API response:', data);
-          setBookings(data || []);
+          // Map amounts and other fields for consistency
+          const mapped = (data || []);
           setLoading(false);
         })
         .catch(err => {
