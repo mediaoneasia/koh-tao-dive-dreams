@@ -461,16 +461,12 @@ const PageContentEditor: React.FC<PageContentEditorProps> = ({ pageSlug, locale 
   useEffect(() => {
     const loadContent = async () => {
       const template = PAGE_DEFINITIONS[pageSlug] || [];
-      
       try {
-        const { data, error } = await supabase
-          .from('page_content')
-          .select('section_key, content_value, content_type')
-          .eq('page_slug', pageSlug)
-          .eq('locale', locale);
-        if (error) throw error;
+        const res = await fetch(`/functions/v1/page_content?id=${encodeURIComponent(pageSlug)}&locale=${encodeURIComponent(locale)}`);
+        if (!res.ok) throw new Error('Failed to fetch page content');
+        const data = await res.json();
         const loadedItems = template.map((item) => {
-          const dbItem = data?.find((d: any) => d.section_key === item.section_key);
+          const dbItem = Array.isArray(data) ? data.find((d: any) => d.section_key === item.section_key) : undefined;
           return {
             ...item,
             content_value: dbItem?.content_value || item.content_value,
@@ -485,7 +481,6 @@ const PageContentEditor: React.FC<PageContentEditorProps> = ({ pageSlug, locale 
         setIsLoading(false);
       }
     };
-
     loadContent();
   }, [pageSlug, locale]);
 
@@ -494,19 +489,26 @@ const PageContentEditor: React.FC<PageContentEditorProps> = ({ pageSlug, locale 
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      // Optionally, get user email for updated_by
+      let updated_by = null;
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        updated_by = user?.email || null;
+      } catch {}
       const upserts = contentItems.map((item) => ({
         page_slug: pageSlug,
         locale,
         section_key: item.section_key,
         content_type: item.content_type,
         content_value: item.content_value,
-        updated_by: user?.email || null,
+        updated_by,
       }));
-      const { error } = await supabase
-        .from('page_content')
-        .upsert(upserts, { onConflict: 'page_slug,locale,section_key' });
-      if (error) throw error;
+      const res = await fetch('/functions/v1/page_content', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(upserts),
+      });
+      if (!res.ok) throw new Error('Failed to save content');
       toast.success('Content saved successfully');
     } catch (err) {
       console.error('Failed to save content:', err);
