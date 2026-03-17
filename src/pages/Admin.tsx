@@ -161,34 +161,38 @@ const Admin = () => {
                     <td className="p-1">
                       <input
                         type="text"
-                        value={booking.internal_notes || ''}
-                        onChange={e => handleNoteChange(booking.id, e.target.value)}
-                        onKeyDown={e => {
-                          if (e.key === 'Enter' && !e.shiftKey) {
-                            e.preventDefault();
-                            handleSave(booking.id, booking.internal_notes || '', booking.status || 'pending');
-                          }
-                        }}
-                        className="border rounded p-1"
-                        style={{ fontSize: '0.8rem', minWidth: 60 }}
-                        placeholder="Notes"
-                      />
+                          id={`internal-notes-${booking.id}`}
+                          name={`internal_notes_${booking.id}`}
+                          value={booking.internal_notes || ''}
+                          onChange={e => handleNoteChange(booking.id, e.target.value)}
+                          onKeyDown={e => {
+                            if (e.key === 'Enter' && !e.shiftKey) {
+                              e.preventDefault();
+                              handleSave(booking.id, booking.internal_notes || '', booking.status || 'pending');
+                            }
+                          }}
+                          className="border rounded p-1"
+                          style={{ fontSize: '0.8rem', minWidth: 60 }}
+                          placeholder="Notes"
+                        />
                     </td>
                     <td className="p-1">
                       <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                         <input
-                          type="text"
-                          value={
-                            booking.paypalAmount !== undefined
-                              ? booking.paypalAmount
-                              : (booking.total_payable_now !== undefined ? booking.total_payable_now : '')
-                          }
-                          onChange={e => {
-                            const val = e.target.value;
-                            setBookings(bookings.map(b => b.id === booking.id ? { ...b, paypalAmount: val } : b));
-                          }}
-                          style={{ width: 80, fontSize: '0.8rem', marginRight: 4 }}
-                        />
+                            id={`paypal-amount-${booking.id}`}
+                            name={`paypal_amount_${booking.id}`}
+                            type="text"
+                            value={
+                              booking.paypalAmount !== undefined
+                                ? booking.paypalAmount
+                                : (booking.total_payable_now !== undefined ? booking.total_payable_now : '')
+                            }
+                            onChange={e => {
+                              const val = e.target.value;
+                              setBookings(bookings.map(b => b.id === booking.id ? { ...b, paypalAmount: val } : b));
+                            }}
+                            style={{ width: 80, fontSize: '0.8rem', marginRight: 4 }}
+                          />
                         <button
                           className="bg-green-500 text-white px-2 py-0.5 rounded hover:bg-green-600"
                           style={{ fontSize: '0.8rem', minWidth: 80 }}
