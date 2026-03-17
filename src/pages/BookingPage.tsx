@@ -34,7 +34,7 @@ const bookingSchema = z.object({
 
 type BookingFormData = z.infer<typeof bookingSchema>;
 
-const PAYPAL_LINK = 'https://paypal.me/prodivingasia';
+const PAYPAL_LINK = 'https://paypal.me/divinginasia';
 const COURSE_DEPOSIT_RATE = 0.2;
 const SKIP_PAYMENT_MESSAGE = 'You have chosen not to pay right now, no problem! We will contact you soon to arrange bookings and payment. Thank You, Pro Diving Asia Team.';
 
@@ -204,7 +204,10 @@ const       BookingPage: React.FC = () => {
         total_payable_now: amountMajor > 0 ? amountMajor : null,
         message: messageWithSource,
         status: 'pending',
-      };
+      deposit_amount: depositMajor,
+  total_amount: totalItemCostMajor,
+  due_amount: totalItemCostMajor - depositMajor,
+  // ...other fields};
 
       let persisted = false;
       try {
@@ -626,7 +629,7 @@ const       BookingPage: React.FC = () => {
                 rel="noopener noreferrer"
               >
                 <Button variant="outline" className="px-8 py-3 text-lg w-full">
-                  Open PayPal.me/prodivingasia
+                  Open PayPal.me/divinginasia
                 </Button>
               </a>
             </div>
