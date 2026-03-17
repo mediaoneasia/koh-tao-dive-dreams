@@ -20,10 +20,23 @@ serve(async (req) => {
 
   if (req.method === 'GET') {
     try {
-      // Fetch all or a single page_content row by id
+      // Support filtering by id, page_slug, and locale
+      const urlParams = new URL(req.url).searchParams;
       let fetchUrl = `${SUPABASE_URL}/rest/v1/page_content`;
+      const filters = [];
       if (id) {
-        fetchUrl += `?id=eq.${id}`;
+        filters.push(`id=eq.${id}`);
+      }
+      const pageSlug = urlParams.get('page_slug') || urlParams.get('id');
+      const locale = urlParams.get('locale');
+      if (pageSlug) {
+        filters.push(`page_slug=eq.${pageSlug}`);
+      }
+      if (locale) {
+        filters.push(`locale=eq.${locale}`);
+      }
+      if (filters.length > 0) {
+        fetchUrl += '?' + filters.join('&');
       }
       const res = await fetch(fetchUrl, {
         method: 'GET',
