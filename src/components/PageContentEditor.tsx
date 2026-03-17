@@ -458,7 +458,19 @@ const PageContentEditor: React.FC<PageContentEditorProps> = ({ pageSlug, locale 
     checkAdmin();
   }, []);
 
+  // Only allow editing for course-related pages
+  const EDITABLE_PAGES = [
+    'home', 'all-prices',
+    'open-water', 'advanced', 'rescue', 'efr', 'divemaster', 'instructor',
+    'discover-scuba', 'scuba-diver', 'scuba-review', 'discover-scuba-deluxe', 'msdt-program'
+  ];
+
   useEffect(() => {
+    if (!EDITABLE_PAGES.includes(pageSlug)) {
+      setContentItems([]);
+      setIsLoading(false);
+      return;
+    }
     const loadContent = async () => {
       const template = PAGE_DEFINITIONS[pageSlug] || [];
       try {
@@ -526,7 +538,11 @@ const PageContentEditor: React.FC<PageContentEditorProps> = ({ pageSlug, locale 
     );
   };
 
+
   if (!isAdmin) return null;
+  if (!EDITABLE_PAGES.includes(pageSlug)) {
+    return <div className="p-4">Content editing only enabled for home, all-prices, and course pages.</div>;
+  }
   if (isLoading) return <div className="p-4">Loading editor...</div>;
 
   return (
