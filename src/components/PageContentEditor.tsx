@@ -64,7 +64,6 @@ const PAGE_DEFINITIONS: Record<string, ContentItem[]> = {
     { section_key: 'scuba_diver_price_eur', content_value: '225', content_type: 'text', label: 'Scuba Diver Price (EUR)' },
     // Add more prices as needed
   ],
-  ],
   'contact': [
     { section_key: 'section_title', content_value: 'Get in Touch', content_type: 'text', label: 'Section Title' },
     { section_key: 'section_subtitle', content_value: 'Ready to explore the underwater world? Contact Bas to book your diving adventure on Koh Tao.', content_type: 'textarea', label: 'Section Subtitle' },
@@ -351,11 +350,12 @@ const PAGE_DEFINITIONS: Record<string, ContentItem[]> = {
     { section_key: 'hero_title', content_value: 'Accommodation on Koh Tao', content_type: 'text', label: 'Hero Title' },
     { section_key: 'hero_subtitle', content_value: 'Find the perfect place to stay during your diving holiday.', content_type: 'text', label: 'Hero Subtitle' },
     { section_key: 'intro', content_value: 'Koh Tao offers a wide range of accommodation from budget bungalows to luxury resorts, many right on the beach.', content_type: 'textarea', label: 'Introduction' },
-    },
-    'contact': [
+  ],
+  'koh-tao-info': [
     { section_key: 'hero_title', content_value: 'Koh Tao Island Guide', content_type: 'text', label: 'Hero Title' },
     { section_key: 'hero_subtitle', content_value: 'Everything you need to know about the Dive Capital of Thailand.', content_type: 'text', label: 'Hero Subtitle' },
     { section_key: 'intro', content_value: 'Koh Tao is a small island in the Gulf of Thailand, world-famous for its affordable diving courses and stunning marine life.', content_type: 'textarea', label: 'Introduction' },
+  ],
   ],
   'how-to-get-here': [
     { section_key: 'hero_title', content_value: 'How to Get to Koh Tao', content_type: 'text', label: 'Hero Title' },
