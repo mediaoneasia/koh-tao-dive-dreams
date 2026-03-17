@@ -7,7 +7,7 @@ import AmountTabs from '@/components/AmountTabs';
 import { supabase } from '@/integrations/supabase/client';
 
 const Admin = () => {
-  const [activeTab, setActiveTab] = useState('pages');
+  const [activeTab, setActiveTab] = useState('bookings');
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showAmountsModal, setShowAmountsModal] = useState(false);
