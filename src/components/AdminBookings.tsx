@@ -89,7 +89,6 @@ const AdminBookings: React.FC = () => {
             <th className="border px-2 py-1">Deposit</th>
             <th className="border px-2 py-1">To Be Paid</th>
             <th className="border px-2 py-1">PayPal</th>
-            <th className="border px-2 py-1">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -115,9 +114,6 @@ const AdminBookings: React.FC = () => {
                     PayPal
                   </a>
                 )}
-              </td>
-              <td className="border px-2 py-1">
-                <button onClick={() => setShowDetails(show => ({...show, [b.id]: !show[b.id]}))} className="ml-2 text-gray-600">Details</button>
               </td>
             </tr>
           ))}
