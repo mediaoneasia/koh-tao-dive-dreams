@@ -101,6 +101,13 @@ const PAGE_FIELDS = {
     { key: 'faq_4_question', label: 'FAQ 4 Question' },
     { key: 'faq_4_answer', label: 'FAQ 4 Answer' },
   ],
+  'dive-sites/sail-rock': [
+    { key: 'overview', label: 'Overview' },
+    { key: 'marine_life_highlights', label: 'Marine life highlights' },
+    { key: 'diving_tips', label: 'Diving tips' },
+    { key: 'quick_facts', label: 'Quick facts' },
+    { key: 'ready_to_dive', label: 'Ready to dive?' },
+  ],
 };
 
 function MultiFieldPageEditor({ pageSlug, locale, onSaveStatus }) {
