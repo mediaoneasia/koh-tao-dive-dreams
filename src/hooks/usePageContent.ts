@@ -18,26 +18,19 @@ export function usePageContent({ pageSlug, locale, fallbackContent }: UsePageCon
   useEffect(() => {
     const fetchContent = async () => {
       try {
-        // @ts-expect-error - page_content table will be available after migration
-        const { data, error } = await supabase
-          .from('page_content')
-          .select('section_key, content_value')
-          .eq('page_slug', pageSlug)
-          .eq('locale', locale);
-
-        if (error) {
-          console.error('Error fetching page content:', error);
+        const res = await fetch(`/api/get-page-content?page_slug=${encodeURIComponent(pageSlug)}&locale=${encodeURIComponent(locale)}`);
+        if (!res.ok) {
+          console.error('Error fetching page content:', res.statusText);
           setContent(fallbackContent);
           return;
         }
-
+        const result = await res.json();
+        const data = result.content;
         if (data && data.length > 0) {
           const dbContent: PageContent = {};
           data.forEach((row: any) => {
             dbContent[row.section_key] = row.content_value;
           });
-
-          // Merge DB content with fallback (DB takes precedence)
           setContent({ ...fallbackContent, ...dbContent });
         } else {
           setContent(fallbackContent);
@@ -49,7 +42,6 @@ export function usePageContent({ pageSlug, locale, fallbackContent }: UsePageCon
         setIsLoading(false);
       }
     };
-
     fetchContent();
   }, [pageSlug, locale, fallbackContent]);
 
