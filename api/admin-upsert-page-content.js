@@ -11,13 +11,12 @@ export default async function handler(req, res) {
   const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
   const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SERVICE_ROLE_KEY;
   const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
-  const { error } = await supabase.from('page_content').upsert({
-    page_slug,
-    locale,
-    section_key,
-    content_type,
-    content_value,
-  });
+  const { error } = await supabase
+    .from('page_content')
+    .upsert(
+      { page_slug, locale, section_key, content_type, content_value },
+      { onConflict: ['page_slug', 'locale', 'section_key'] }
+    );
   if (error) {
     return res.status(500).json({ error: error.message });
   }
