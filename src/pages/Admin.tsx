@@ -176,16 +176,18 @@ const Admin = () => {
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">Section</label>
-              <select
+              <input
                 className="border rounded px-2 py-1"
+                list="section-keys"
                 value={selectedSection}
                 onChange={e => setSelectedSection(e.target.value)}
-                disabled={sectionKeyList.length === 0}
-              >
+                placeholder="Type or select section key"
+              />
+              <datalist id="section-keys">
                 {sectionKeyList.map(key => (
-                  <option key={key} value={key}>{key}</option>
+                  <option key={key} value={key} />
                 ))}
-              </select>
+              </datalist>
             </div>
           </div>
           {pageLoading ? (
