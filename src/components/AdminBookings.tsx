@@ -25,10 +25,9 @@ const AdminBookings: React.FC = () => {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [editingNotesId, setEditingNotesId] = useState<string | null>(null);
-  const [notesDraft, setNotesDraft] = useState('');
-  const [editingStatusId, setEditingStatusId] = useState<string | null>(null);
-  const [statusDraft, setStatusDraft] = useState('');
+  const [showModal, setShowModal] = useState(false);
+  const [modalBookingId, setModalBookingId] = useState<string | null>(null);
+  const [commentDraft, setCommentDraft] = useState('');
 
   useEffect(() => {
     fetch('/api/bookings')
@@ -74,6 +73,23 @@ const AdminBookings: React.FC = () => {
     setStatusDraft('');
     setBookings((prev) => prev.map(b => b.id === id ? { ...b, status: statusDraft } : b));
   };
+  const handleOpenModal = (id: string) => {
+    setModalBookingId(id);
+    setShowModal(true);
+    setCommentDraft('');
+  };
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setModalBookingId(null);
+    setCommentDraft('');
+  };
+  const handleSaveComment = () => {
+    // Here you would save the comment to your backend or state
+    // For now, just close the modal
+    setShowModal(false);
+    setModalBookingId(null);
+    setCommentDraft('');
+  };
 
   if (loading) return <div>Loading bookings...</div>;
   if (error) return <div>Error: {error}</div>;
@@ -93,6 +109,7 @@ const AdminBookings: React.FC = () => {
             <th className="border px-2 py-1">Deposit</th>
             <th className="border px-2 py-1">To Be Paid</th>
             <th className="border px-2 py-1">PayPal</th>
+            <th className="border px-2 py-1">Comments</th>
           </tr>
         </thead>
         <tbody>
@@ -119,10 +136,31 @@ const AdminBookings: React.FC = () => {
                   </a>
                 )}
               </td>
+              <td className="border px-2 py-1">
+                <button onClick={() => handleOpenModal(b.id)} className="text-blue-600 underline">Add Comment</button>
+              </td>
             </tr>
           ))}
         </tbody>
       </table>
+      {showModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
+          <div className="bg-white p-6 rounded shadow-lg w-80">
+            <h3 className="text-lg font-bold mb-2">Add Comment</h3>
+            <textarea
+              className="w-full border rounded p-2 mb-4"
+              rows={4}
+              value={commentDraft}
+              onChange={e => setCommentDraft(e.target.value)}
+              placeholder="Enter your comment..."
+            />
+            <div className="flex justify-end gap-2">
+              <button onClick={handleCloseModal} className="px-3 py-1 bg-gray-200 rounded">Cancel</button>
+              <button onClick={handleSaveComment} className="px-3 py-1 bg-blue-600 text-white rounded">Save</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
