@@ -13,12 +13,21 @@ const languageList = [
   { code: 'nl', label: 'Dutch' },
 ];
 
+
+const sectionKeyList = [
+  { key: 'course_overview', label: 'Course Overview' },
+  { key: 'hero_title', label: 'Hero Title' },
+  { key: 'hero_subtitle', label: 'Hero Subtitle' },
+  { key: 'main', label: 'Main (Custom)' },
+];
+
 const Admin = () => {
   const [activeTab, setActiveTab] = useState('bookings');
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedPage, setSelectedPage] = useState(pageList[0].slug);
   const [selectedLang, setSelectedLang] = useState(languageList[0].code);
+  const [selectedSection, setSelectedSection] = useState(sectionKeyList[0].key);
   const [pageContent, setPageContent] = useState('');
   const [pageLoading, setPageLoading] = useState(false);
   const [pageSaveStatus, setPageSaveStatus] = useState('');
@@ -51,7 +60,7 @@ const Admin = () => {
         .select('content_value')
         .eq('page_slug', selectedPage)
         .eq('locale', selectedLang)
-        .eq('section_key', 'main')
+        .eq('section_key', selectedSection)
         .single()
         .then(({ data, error }) => {
           setPageContent(data?.content_value || '');
@@ -59,7 +68,7 @@ const Admin = () => {
           if (error) setPageSaveStatus('Error loading content.');
         });
     }
-  }, [activeTab, selectedPage, selectedLang]);
+  }, [activeTab, selectedPage, selectedLang, selectedSection]);
 
   return (
     <>
@@ -148,6 +157,18 @@ const Admin = () => {
                 ))}
               </select>
             </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Section</label>
+              <select
+                className="border rounded px-2 py-1"
+                value={selectedSection}
+                onChange={e => setSelectedSection(e.target.value)}
+              >
+                {sectionKeyList.map(s => (
+                  <option key={s.key} value={s.key}>{s.label}</option>
+                ))}
+              </select>
+            </div>
           </div>
           {pageLoading ? (
             <div className="text-gray-500 text-sm mb-2">Loading content...</div>
@@ -166,7 +187,7 @@ const Admin = () => {
                     const { error } = await supabase.from('page_content').upsert({
                       page_slug: selectedPage,
                       locale: selectedLang,
-                      section_key: 'main',
+                      section_key: selectedSection,
                       content_type: 'html',
                       content_value: pageContent
                     });
