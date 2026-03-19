@@ -1,3 +1,5 @@
+import AdminBookings from '../components/AdminBookings';
+
 // Field definitions for multi-field info pages
 const PAGE_FIELDS = {
   home: [
