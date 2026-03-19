@@ -14,12 +14,8 @@ const languageList = [
 ];
 
 
-const sectionKeyList = [
-  { key: 'course_overview', label: 'Course Overview' },
-  { key: 'hero_title', label: 'Hero Title' },
-  { key: 'hero_subtitle', label: 'Hero Subtitle' },
-  { key: 'main', label: 'Main (Custom)' },
-];
+
+// Remove static sectionKeyList, use dynamic fetching
 
 const Admin = () => {
   const [activeTab, setActiveTab] = useState('bookings');
@@ -27,7 +23,28 @@ const Admin = () => {
   const [loading, setLoading] = useState(false);
   const [selectedPage, setSelectedPage] = useState(pageList[0].slug);
   const [selectedLang, setSelectedLang] = useState(languageList[0].code);
-  const [selectedSection, setSelectedSection] = useState(sectionKeyList[0].key);
+  const [sectionKeyList, setSectionKeyList] = useState([]);
+  const [selectedSection, setSelectedSection] = useState('');
+    // Fetch all section_keys for the selected page and language
+    useEffect(() => {
+      if (activeTab === 'pages') {
+        supabase
+          .from('page_content')
+          .select('section_key')
+          .eq('page_slug', selectedPage)
+          .eq('locale', selectedLang)
+          .then(({ data }) => {
+            const keys = (data || []).map(row => row.section_key);
+            setSectionKeyList(keys);
+            // If the current selectedSection is not in the new list, select the first one
+            if (keys.length > 0) {
+              setSelectedSection(prev => keys.includes(prev) ? prev : keys[0]);
+            } else {
+              setSelectedSection('');
+            }
+          });
+      }
+    }, [activeTab, selectedPage, selectedLang]);
   const [pageContent, setPageContent] = useState('');
   const [pageLoading, setPageLoading] = useState(false);
   const [pageSaveStatus, setPageSaveStatus] = useState('');
@@ -163,9 +180,10 @@ const Admin = () => {
                 className="border rounded px-2 py-1"
                 value={selectedSection}
                 onChange={e => setSelectedSection(e.target.value)}
+                disabled={sectionKeyList.length === 0}
               >
-                {sectionKeyList.map(s => (
-                  <option key={s.key} value={s.key}>{s.label}</option>
+                {sectionKeyList.map(key => (
+                  <option key={key} value={key}>{key}</option>
                 ))}
               </select>
             </div>
