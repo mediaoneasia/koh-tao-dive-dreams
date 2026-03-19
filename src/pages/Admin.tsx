@@ -174,27 +174,32 @@ const Admin = () => {
                 ))}
               </select>
             </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Section</label>
-              <input
-                className="border rounded px-2 py-1"
-                list="section-keys"
-                value={selectedSection}
-                onChange={e => {
-                  const val = e.target.value;
-                  // If new section, clear content
-                  setSelectedSection(val);
-                  if (!sectionKeyList.includes(val)) {
+            <div className="flex items-end gap-2">
+              <div>
+                <label className="block text-sm font-medium mb-1">Section</label>
+                <select
+                  className="border rounded px-2 py-1"
+                  value={selectedSection}
+                  onChange={e => setSelectedSection(e.target.value)}
+                  disabled={sectionKeyList.length === 0}
+                >
+                  {sectionKeyList.map(key => (
+                    <option key={key} value={key}>{key}</option>
+                  ))}
+                </select>
+              </div>
+              <button
+                type="button"
+                className="ml-2 px-2 py-1 bg-green-600 text-white rounded hover:bg-green-700 text-xs"
+                onClick={() => {
+                  const newKey = window.prompt('Enter new section name:');
+                  if (newKey && !sectionKeyList.includes(newKey)) {
+                    setSectionKeyList(prev => [...prev, newKey]);
+                    setSelectedSection(newKey);
                     setPageContent('');
                   }
                 }}
-                placeholder="Type or select section key"
-              />
-              <datalist id="section-keys">
-                {sectionKeyList.map(key => (
-                  <option key={key} value={key} />
-                ))}
-              </datalist>
+              >Add Section</button>
             </div>
           </div>
           {pageLoading ? (
