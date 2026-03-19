@@ -154,11 +154,6 @@ const pageList = [
   { slug: 'divemaster', label: 'Divemaster (Pro)' },
   { slug: 'scuba-diver', label: 'Scuba Diver' },
   { slug: 'discover-scuba-deluxe', label: 'Discover Scuba Deluxe' },
-  { slug: 'accommodation', label: 'Accommodation' },
-  { slug: 'koh-tao-info', label: 'Koh Tao Info' },
-  { slug: 'food-drink', label: 'Food & Drink' },
-  { slug: 'medical-services', label: 'Medical Services' },
-  { slug: 'marine-life', label: 'Marine Life' },
   { slug: 'home', label: 'Home/About' },
 ];
 
