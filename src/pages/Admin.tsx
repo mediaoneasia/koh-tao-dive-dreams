@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import RichTextEditor from '@/components/RichTextEditor';
+// import RichTextEditor from '@/components/RichTextEditor';
 
 const pageList = [
   { slug: 'open-water', label: 'Open Water' },
@@ -174,9 +174,10 @@ const Admin = () => {
             <div className="text-gray-500 text-sm mb-2">Loading content...</div>
           ) : (
             <>
-              <RichTextEditor
+              <textarea
+                className="w-full min-h-[120px] border rounded p-2 text-base"
                 value={pageContent}
-                onChange={setPageContent}
+                onChange={e => setPageContent(e.target.value)}
                 placeholder="Edit page content..."
               />
               <div className="flex gap-2 mt-4 justify-end">
@@ -192,7 +193,7 @@ const Admin = () => {
                         page_slug: selectedPage,
                         locale: selectedLang,
                         section_key: selectedSection,
-                        content_type: 'html',
+                        content_type: 'text',
                         content_value: pageContent
                       })
                     });
