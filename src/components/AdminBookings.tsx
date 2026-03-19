@@ -14,6 +14,7 @@ interface Booking {
   phone?: string;
   deposit_amount?: number | null;
   total_amount?: number | null;
+  due_amount?: number | null;
 }
 
 const AdminBookings: React.FC = () => {
@@ -85,7 +86,8 @@ const AdminBookings: React.FC = () => {
             <th className="border px-2 py-1">Course</th>
             <th className="border px-2 py-1">Date</th>
             <th className="border px-2 py-1">Amount</th>
-            <th className="border px-2 py-1">Status</th>
+            <th className="border px-2 py-1">Deposit</th>
+            <th className="border px-2 py-1">To Be Paid</th>
             <th className="border px-2 py-1">PayPal</th>
             <th className="border px-2 py-1">Actions</th>
           </tr>
@@ -101,26 +103,12 @@ const AdminBookings: React.FC = () => {
               <td className="border px-2 py-1">
                 {typeof b.total_payable_now === 'number' ? b.total_payable_now : (typeof b.deposit_amount === 'number' ? b.deposit_amount : (typeof b.total_amount === 'number' ? b.total_amount : '-'))}
               </td>
+              <td className="border px-2 py-1">{typeof b.deposit_amount === 'number' ? b.deposit_amount : '-'}</td>
+              <td className="border px-2 py-1">{typeof b.due_amount === 'number' ? b.due_amount : (typeof b.total_amount === 'number' && typeof b.deposit_amount === 'number' ? b.total_amount - b.deposit_amount : '-')}</td>
               <td className="border px-2 py-1">
-                {editingStatusId === b.id ? (
-                  <>
-                    <input value={statusDraft} onChange={e => setStatusDraft(e.target.value)} className="border px-1 py-0.5" placeholder="Status" />
-                    <button onClick={() => handleSaveStatus(b.id)} className="ml-1 text-blue-600">Save</button>
-                    <button onClick={() => setEditingStatusId(null)} className="ml-1 text-gray-600">Cancel</button>
-                  </>
-                ) : (
-                  <>
-                    {b.status}
-                    <button onClick={() => handleEditStatus(b.id, b.status)} className="ml-1 text-blue-600">Edit</button>
-                  </>
-                )}
-              </td>
-              <td className="border px-2 py-1">
-                {(b.total_payable_now || b.deposit_amount || b.total_amount) && b.email && (
+                {(b.total_payable_now || b.deposit_amount || b.total_amount) && (
                   <a
-                    href={`https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=YOUR_PAYPAL_EMAIL&item_name=Booking+${encodeURIComponent(
-                      b.course_title || 'Course'
-                    )}&amount=${b.total_payable_now || b.deposit_amount || b.total_amount}&currency_code=USD&custom=${b.id}`}
+                    href={`https://paypal.me/prodivingasia/${b.total_payable_now || b.deposit_amount || b.total_amount}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-blue-600 underline"
@@ -130,7 +118,6 @@ const AdminBookings: React.FC = () => {
                 )}
               </td>
               <td className="border px-2 py-1">
-                <button onClick={() => handleEditNotes(b.id, b.internal_notes || '')} className="text-blue-600">Notes</button>
                 <button onClick={() => setShowDetails(show => ({...show, [b.id]: !show[b.id]}))} className="ml-2 text-gray-600">Details</button>
               </td>
             </tr>
