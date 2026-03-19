@@ -273,15 +273,6 @@ const Admin = () => {
                   </>
                 )}
 
-              // HomePageEditor component for editing all home/about fields
-              const HOME_FIELDS = [
-                { key: 'about_headline', label: 'Headline' },
-                { key: 'about_sites_line', label: 'Sites Line' },
-                { key: 'about_map_alt', label: 'Map Alt Text' },
-                { key: 'about_title', label: 'Title' },
-                { key: 'about_paragraph_1', label: 'Paragraph 1' },
-                { key: 'about_paragraph_2', label: 'Paragraph 2' },
-              ];
 
               function HomePageEditor({ locale, onSaveStatus }) {
                 const [fields, setFields] = React.useState({});
