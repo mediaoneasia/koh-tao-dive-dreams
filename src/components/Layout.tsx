@@ -172,7 +172,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   >
     {isDutch ? 'Boek nu' : 'Book now'}
   </Link>
-)}
+)}  
       <Link
         to="/booking?source=mobile-sticky"
         onClick={() => trackBookingWidgetClick('mobile-sticky')}
