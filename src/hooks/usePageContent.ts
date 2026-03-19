@@ -18,7 +18,7 @@ export function usePageContent({ pageSlug, locale, fallbackContent }: UsePageCon
   useEffect(() => {
     const fetchContent = async () => {
       try {
-        const res = await fetch(`/api/get-page-content?page_slug=${encodeURIComponent(pageSlug)}&locale=${encodeURIComponent(locale)}`);
+        const res = await fetch(`/api/get-page-content?page_slug=${encodeURIComponent(pageSlug)}&locale=${encodeURIComponent(locale)}&t=${Date.now()}`);
         if (!res.ok) {
           console.error('Error fetching page content:', res.statusText);
           setContent(fallbackContent);
