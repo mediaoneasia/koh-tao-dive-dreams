@@ -1,10 +1,7 @@
-import AdminBookings from '../components/AdminBookings';
+
 import AdminBookings from '../components/AdminBookings';
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-  { code: 'en', label: 'English' },
-  { code: 'nl', label: 'Dutch' },
-];
 
 
 
