@@ -47,12 +47,6 @@ const Admin = () => {
     if (!selectedBookingId) return;
     setSavingComment(true);
     try {
-      const res = await fetch(`/api/bookings/${selectedBookingId}/`, {
-        method: 'PATCH',
-  const handleSaveComment = async () => {
-    if (!selectedBookingId) return;
-    setSavingComment(true);
-    try {
       const res = await fetch(`/api/booking_inquiries?id=${selectedBookingId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
