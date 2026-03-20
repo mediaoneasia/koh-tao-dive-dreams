@@ -62,6 +62,8 @@ const AdminBookings: React.FC = () => {
             <th className="border px-2 py-1">Phone</th>
             <th className="border px-2 py-1">Course</th>
             <th className="border px-2 py-1">Date</th>
+            <th className="border px-2 py-1">Finance</th>
+            <th className="border px-2 py-1">PayPal</th>
           </tr>
         </thead>
         <tbody>
@@ -72,6 +74,23 @@ const AdminBookings: React.FC = () => {
               <td className="border px-2 py-1">{b.phone || '-'}</td>
               <td className="border px-2 py-1">{b.course_title}</td>
               <td className="border px-2 py-1">{b.preferred_date || '-'}</td>
+              <td className="border px-2 py-1">
+                <div><strong>Total:</strong> {typeof b.total_amount === 'number' ? b.total_amount : '-'}</div>
+                <div><strong>Deposit:</strong> {typeof b.deposit_amount === 'number' ? b.deposit_amount : '-'}</div>
+                <div><strong>To Be Paid:</strong> {typeof b.due_amount === 'number' ? b.due_amount : (typeof b.total_amount === 'number' && typeof b.deposit_amount === 'number' ? b.total_amount - b.deposit_amount : '-')}</div>
+              </td>
+              <td className="border px-2 py-1">
+                {(b.total_payable_now || b.deposit_amount || b.total_amount) && (
+                  <a
+                    href={`https://paypal.me/prodivingasia/${b.total_payable_now || b.deposit_amount || b.total_amount}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 underline"
+                  >
+                    PayPal
+                  </a>
+                )}
+              </td>
             </tr>
           ))}
         </tbody>
