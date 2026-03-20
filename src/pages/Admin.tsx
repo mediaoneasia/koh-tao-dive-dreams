@@ -185,6 +185,7 @@ const pageList = [
   { slug: 'scuba-diver', label: 'Scuba Diver' },
   { slug: 'discover-scuba-deluxe', label: 'Discover Scuba Deluxe' },
   { slug: 'home', label: 'Home/About' },
+  { slug: 'dive-sites/sail-rock', label: 'Sail Rock (Dive Site)' },
 ];
 
 const COURSE_SLUGS = [
