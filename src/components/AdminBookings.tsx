@@ -53,7 +53,28 @@ const AdminBookings: React.FC = () => {
   return (
     <div className="overflow-x-auto">
       <h2 className="text-xl font-bold mb-4">Bookings</h2>
-      <button className="mb-4 px-4 py-2 bg-blue-600 text-white rounded" onClick={() => alert('Export to Jira coming soon!')}>Export to Jira</button>
+      <button
+        className="mb-4 px-4 py-2 bg-blue-600 text-white rounded disabled:opacity-60"
+        onClick={async () => {
+          setExporting(true);
+          setExportResult(null);
+          try {
+            const res = await fetch('/api/export-bookings-to-jira', { method: 'POST' });
+            const data = await res.json();
+            setExportResult(data.message || 'Export complete.');
+          } catch (e) {
+            setExportResult('Export failed.');
+          } finally {
+            setExporting(false);
+          }
+        }}
+        disabled={exporting}
+      >
+        {exporting ? 'Exporting...' : 'Export to Jira'}
+      </button>
+      {exportResult && <div className="mb-4 text-green-700">{exportResult}</div>}
+        const [exporting, setExporting] = useState(false);
+        const [exportResult, setExportResult] = useState<string | null>(null);
       <table className="min-w-full border">
         <thead>
           <tr>
