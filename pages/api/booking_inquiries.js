@@ -1,10 +1,5 @@
-// Vercel/Next.js API config to allow PATCH method
-export const config = {
-  api: {
-    bodyParser: true,
-    externalResolver: true,
-  },
-};
+// PATCH method is supported locally and on platforms that allow all HTTP methods for API routes.
+// If deploying to Vercel and PATCH is not allowed, consider using POST with an action parameter instead.
 // import { NextApiRequest, NextApiResponse } from 'next';
 import { createClient } from '@supabase/supabase-js';
 
