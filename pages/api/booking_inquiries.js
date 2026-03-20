@@ -1,3 +1,10 @@
+// Vercel/Next.js API config to allow PATCH method
+export const config = {
+  api: {
+    bodyParser: true,
+    externalResolver: true,
+  },
+};
 // import { NextApiRequest, NextApiResponse } from 'next';
 import { createClient } from '@supabase/supabase-js';
 
