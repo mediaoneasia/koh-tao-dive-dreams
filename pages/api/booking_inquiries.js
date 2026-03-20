@@ -43,10 +43,14 @@ export default async function handler(req, res) {
       const body = req.body;
       const { error, data } = await supabase.from(BOOKING_TABLE).update(body).eq('id', id).select();
       if (error) {
-        return res.status(500).json({ error: error.message || 'Update failed' });
+        // Log error details for debugging
+        console.error('Supabase update error:', error, 'id:', id, 'body:', body);
+        return res.status(500).json({ error: error.message || 'Update failed', details: error.details || null });
       }
       return res.status(200).json(data);
     } catch (err) {
+      // Log unexpected error
+      console.error('Unexpected PATCH error:', err);
       return res.status(500).json({ error: err.message });
     }
   }
