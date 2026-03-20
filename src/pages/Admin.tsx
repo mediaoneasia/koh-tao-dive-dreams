@@ -75,19 +75,6 @@ const Admin = () => {
         <div className="bg-white rounded shadow p-4">Calendar view coming soon.</div>
       )}
 // ...existing code...
-                  <option value="">-- Select section --</option>
-                  {sectionKeyList.map(key => (
-                    <option key={key} value={key}>{key}</option>
-                  ))}
-                </select>
-                <button
-                  type="button"
-                  className="px-2 py-1 bg-green-600 text-white rounded hover:bg-green-700 text-xs"
-                  onClick={() => {
-                    const newKey = window.prompt('Enter new section name:');
-                    if (newKey && !sectionKeyList.includes(newKey)) {
-                      setSectionKeyList(prev => [...prev, newKey]);
-                      setSelectedSection(newKey);
                       setPageContent('');
                     }
                   }}
