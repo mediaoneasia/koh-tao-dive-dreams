@@ -49,6 +49,12 @@ const Admin = () => {
     try {
       const res = await fetch(`/api/bookings/${selectedBookingId}/`, {
         method: 'PATCH',
+  const handleSaveComment = async () => {
+    if (!selectedBookingId) return;
+    setSavingComment(true);
+    try {
+      const res = await fetch(`/api/booking_inquiries?id=${selectedBookingId}`, {
+        method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ internal_notes: commentDraft }),
       });
@@ -60,12 +66,6 @@ const Admin = () => {
       setSavingComment(false);
     }
   };
-
-
-
-  return (
-    <>
-      <div className="flex gap-2 mb-4 sticky top-0 z-50 bg-white py-2 border-b border-gray-200 shadow-sm">
         <button
           className={`px-3 py-1 rounded font-semibold transition-colors duration-150 ${activeTab === 'bookings' ? 'bg-blue-600 text-white shadow' : 'bg-gray-100 text-gray-800 hover:bg-gray-200'}`}
           onClick={() => setActiveTab('bookings')}
