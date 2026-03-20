@@ -1,6 +1,8 @@
 // API route: POST /api/export-bookings-to-jira
 // Triggers export of all bookings to Jira as a single issue
 
+
+import fetch from 'node-fetch';
 import { createClient } from '@supabase/supabase-js';
 
 const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
@@ -14,11 +16,9 @@ const JIRA_USER_EMAIL = process.env.JIRA_USER_EMAIL || 'your-email@domain.com';
 
 const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
 
-async function createJiraIssue(bookings) {
-  const summary = `[Bookings Export] ${bookings.length} bookings exported`;
-  const description = bookings.map((b, i) =>
-    `Booking #${i+1}\nName: ${b.name}\nEmail: ${b.email}\nPhone: ${b.phone}\nCourse: ${b.course_title}\nPreferred Date: ${b.preferred_date}\nTotal: ${b.total_amount}\nDeposit: ${b.deposit_amount}\nTo Be Paid: ${b.due_amount}\nStatus: ${b.status}\nID: ${b.id}\n---`
-  ).join('\n\n');
+async function createJiraIssue(booking) {
+  const summary = `[Booking] ${booking.course_title} for ${booking.name}`;
+  const description = `Booking Details:\n\nName: ${booking.name}\nEmail: ${booking.email}\nPhone: ${booking.phone}\nCourse: ${booking.course_title}\nPreferred Date: ${booking.preferred_date}\nTotal: ${booking.total_amount}\nDeposit: ${booking.deposit_amount}\nTo Be Paid: ${booking.due_amount}\nStatus: ${booking.status}\nID: ${booking.id}`;
   const payload = {
     fields: {
       project: { key: JIRA_PROJECT_KEY },
@@ -55,8 +55,16 @@ export default async function handler(req, res) {
     const { data, error } = await supabase.from(BOOKING_TABLE).select('*');
     if (error) throw new Error(error.message);
     if (!data || !data.length) throw new Error('No bookings found');
-    await createJiraIssue(data);
-    res.status(200).json({ message: 'Exported bookings to Jira.' });
+    let success = 0, failed = 0;
+    for (const booking of data) {
+      try {
+        await createJiraIssue(booking);
+        success++;
+      } catch (e) {
+        failed++;
+      }
+    }
+    res.status(200).json({ message: `Exported ${success} bookings to Jira. ${failed ? failed + ' failed.' : ''}` });
   } catch (e) {
     res.status(500).json({ message: 'Export failed: ' + (e.message || e) });
   }
