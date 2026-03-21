@@ -61,6 +61,10 @@ const DiveSiteDetail: React.FC<DiveSiteDetailProps> = ({
   const confirmBooking = () => {
     navigate(`/booking?item=${encodeURIComponent('Fun Dive')}&type=dive&price=1800&currency=THB&dives=2`);
   };
+
+  const contactInstead = () => {
+    navigate('/contact');
+  };
   
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
@@ -118,9 +122,9 @@ const DiveSiteDetail: React.FC<DiveSiteDetailProps> = ({
   // ...existing code...
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background py-8">
       {/* Hero Section */}
-      <section className={`relative flex items-center justify-center overflow-hidden ${fullHeightHero ? 'min-h-[calc(100vh-4rem)]' : 'h-96'}`}>
+      <section className={`relative flex items-center justify-center overflow-hidden rounded-xl shadow-lg mb-8 ${fullHeightHero ? 'min-h-[calc(60vh)]' : 'h-72'}`}>
         <img src={hero} alt={name} className="absolute inset-0 w-full h-full object-cover" />
         {!noOverlay && <div className="absolute inset-0 bg-black/35" />}
         <div className={`relative z-10 text-center px-4 ${noOverlay ? 'bg-black/30 rounded-xl py-6' : 'text-white'}`}>
@@ -132,51 +136,22 @@ const DiveSiteDetail: React.FC<DiveSiteDetailProps> = ({
         </div>
       </section>
 
-      {/* Tips Section */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-2xl">{labels.tips}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ul className="space-y-2">
-            {divingTips.map((tip, index) => (
-              <li key={index} className="flex items-start gap-2">
-                <div className="w-2 h-2 bg-blue-600 rounded-full mt-2 flex-shrink-0" />
-                <span className="text-muted-foreground">{tip}</span>
-              </li>
-            ))}
-          </ul>
-        </CardContent>
-      </Card>
-
-      <div className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         {/* Quick Facts */}
-        <Card>
+        <Card className="h-full flex flex-col justify-between">
           <CardHeader>
             <CardTitle>{labels.quickFacts}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            <div>
-              <span className="font-medium text-sm">{labels.depthRange}:</span>
-              <p className="text-sm text-muted-foreground">{quickFacts.depth}</p>
-            </div>
-            <div>
-              <span className="font-medium text-sm">{labels.level}:</span>
-              <p className="text-sm text-muted-foreground">{quickFacts.difficulty}</p>
-            </div>
-            <div>
-              <span className="font-medium text-sm">{labels.location}:</span>
-              <p className="text-sm text-muted-foreground">{quickFacts.location}</p>
-            </div>
-            <div>
-              <span className="font-medium text-sm">{labels.bestTime}:</span>
-              <p className="text-sm text-muted-foreground">{quickFacts.bestTime}</p>
-            </div>
+            <div><span className="font-medium text-sm">{labels.depthRange}:</span> <span className="text-sm text-muted-foreground">{quickFacts.depth}</span></div>
+            <div><span className="font-medium text-sm">{labels.level}:</span> <span className="text-sm text-muted-foreground">{quickFacts.difficulty}</span></div>
+            <div><span className="font-medium text-sm">{labels.location}:</span> <span className="text-sm text-muted-foreground">{quickFacts.location}</span></div>
+            <div><span className="font-medium text-sm">{labels.bestTime}:</span> <span className="text-sm text-muted-foreground">{quickFacts.bestTime}</span></div>
           </CardContent>
         </Card>
 
         {/* What You Can See */}
-        <Card>
+        <Card className="h-full flex flex-col justify-between">
           <CardHeader>
             <CardTitle>{labels.whatToSee}</CardTitle>
           </CardHeader>
@@ -190,60 +165,96 @@ const DiveSiteDetail: React.FC<DiveSiteDetailProps> = ({
         </Card>
 
         {/* Book Now */}
-        <Card>
+        <Card className="h-full flex flex-col justify-between border-blue-400 border-2 bg-blue-50">
           <CardHeader>
-            <CardTitle>{labels.ready}</CardTitle>
+            <CardTitle className="text-blue-700">{labels.ready}</CardTitle>
           </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground mb-4">
-              {labels.readyBody}
-            </p>
-            <Button className="w-full" size="lg" onClick={handleBookingClick}>
-              {labels.bookSite}
+          <CardContent className="flex flex-col flex-1 justify-between">
+            <p className="text-sm text-muted-foreground mb-4">{labels.readyBody}</p>
+            <Button className="w-full mt-auto bg-blue-600 text-white hover:bg-blue-700" size="lg" onClick={handleBookingClick}>
+              {labels.bookSite || 'Book Now'}
             </Button>
           </CardContent>
         </Card>
       </div>
 
-      {/* Gallery Section */}
-      <section className="mt-16">
-        <h2 className="text-3xl font-bold text-center mb-8">{labels.gallery}</h2>
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {images.map((image, index) => (
-            <div key={index} className="aspect-video bg-muted rounded-lg overflow-hidden">
-              <img
-                src={image}
-                alt={`${labels.imageAlt} ${index + 1}`}
-                className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-              />
-            </div>
-          ))}
-        </div>
-      </section>
+      {/* Overview & Tips Section */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <Card>
+          <CardHeader>
+            <CardTitle>{labels.overview}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground text-base">{overview}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>{labels.tips}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ul className="space-y-2">
+              {divingTips.map((tip, index) => (
+                <li key={index} className="flex items-start gap-2">
+                  <div className="w-2 h-2 bg-blue-600 rounded-full mt-2 flex-shrink-0" />
+                  <span className="text-muted-foreground">{tip}</span>
+                </li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
+      </div>
 
-      {/* Booking Section */}
-      <section className="mt-16">
-        <div className="text-center">
-          <h2 className="text-3xl font-bold mb-4">{labels.bookTitle}</h2>
-          <p className="text-muted-foreground mb-8 max-w-2xl mx-auto">
-            {labels.bookBody}
-          </p>
-          <Button onClick={handleBookingClick} className="px-6 py-3 bg-blue-600 text-white rounded-lg">{labels.bookPage}</Button>
-        </div>
-      </section>
+      {/* Gallery Section */}
+      <Card className="mb-8">
+        <CardHeader>
+          <CardTitle>{labels.gallery || 'Gallery'}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {images.map((image, index) => (
+              <div key={index} className="aspect-video bg-muted rounded-lg overflow-hidden">
+                <img
+                  src={image}
+                  alt={`${labels.imageAlt || name} ${index + 1}`}
+                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                />
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Booking Section (bottom) */}
+      <Card className="mb-8 border-blue-400 border-2 bg-blue-50">
+        <CardHeader>
+          <CardTitle className="text-blue-700">{labels.bookTitle || 'Book Now'}</CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-col items-center">
+          <p className="text-muted-foreground mb-4 max-w-2xl text-center">{labels.bookBody || labels.readyBody}</p>
+          <Button onClick={handleBookingClick} className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700" size="lg">
+            {labels.bookPage || 'Book Now'}
+          </Button>
+        </CardContent>
+      </Card>
 
       {/* Booking Warning Dialog */}
       <AlertDialog open={showBookingWarning} onOpenChange={setShowBookingWarning}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{labels.warningTitle}</AlertDialogTitle>
+            <AlertDialogTitle>{labels.warningTitle || 'Ready to book?'}</AlertDialogTitle>
             <AlertDialogDescription>
-              {labels.warningMessage}
+              {labels.warningMessage || 'Would you like to book now or contact us for more information?'}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>{labels.cancel}</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmBooking}>{labels.continueBooking}</AlertDialogAction>
+            <AlertDialogCancel>{labels.cancel || 'Cancel'}</AlertDialogCancel>
+            <a href="/contact" tabIndex={0} className="mr-2">
+              <Button variant="outline" asChild>
+                <span>Contact</span>
+              </Button>
+            </a>
+            <AlertDialogAction onClick={confirmBooking}>{labels.continueBooking || 'Book Now'}</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
