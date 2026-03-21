@@ -244,7 +244,7 @@ const Navigation = ({ user, isAdmin, isAdminRoute }: { user?: any, isAdmin?: boo
                   <ul className="space-y-1">
                     <li>
                       <Link
-                        to="/koh-tao-dive-sites"
+                        to="/DiveSitesPage"
                         className="block py-1.5 text-sm text-gray-300 hover:text-white hover:pl-1 transition-all duration-150"
                       >
                         {labels.diveSitesOverview}
@@ -252,7 +252,7 @@ const Navigation = ({ user, isAdmin, isAdminRoute }: { user?: any, isAdmin?: boo
                     </li>
                     <li>
                       <Link
-                        to="/dive-sites/sail-rock"
+                        to="/SailRock"
                         className="block py-1.5 text-sm text-gray-300 hover:text-white hover:pl-1 transition-all duration-150"
                       >
                         Sail Rock
@@ -260,7 +260,7 @@ const Navigation = ({ user, isAdmin, isAdminRoute }: { user?: any, isAdmin?: boo
                     </li>
                     <li>
                       <Link
-                        to="/dive-sites/chumphon-pinnacle"
+                        to="/ChumphonPinnacle"
                         className="block py-1.5 text-sm text-gray-300 hover:text-white hover:pl-1 transition-all duration-150"
                       >
                         Chumphon Pinnacle
@@ -268,34 +268,10 @@ const Navigation = ({ user, isAdmin, isAdminRoute }: { user?: any, isAdmin?: boo
                     </li>
                     <li>
                       <Link
-                        to="/dive-sites/japanese-gardens"
+                        to="/JapaneseGardens"
                         className="block py-1.5 text-sm text-gray-300 hover:text-white hover:pl-1 transition-all duration-150"
                       >
                         Japanese Gardens
-                      </Link>
-                    </li>
-                    <li>
-                      <Link
-                        to="/dive-sites/htms-sattakut"
-                        className="block py-1.5 text-sm text-gray-300 hover:text-white hover:pl-1 transition-all duration-150"
-                      >
-                        HTMS Sattakut
-                      </Link>
-                    </li>
-                    <li>
-                      <Link
-                        to="/dive-sites/twins-pinnacle"
-                        className="block py-1.5 text-sm text-gray-300 hover:text-white hover:pl-1 transition-all duration-150"
-                      >
-                        Twins Pinnacle
-                      </Link>
-                    </li>
-                    <li>
-                      <Link
-                        to="/dive-sites/shark-island"
-                        className="block py-1.5 text-sm text-gray-300 hover:text-white hover:pl-1 transition-all duration-150"
-                      >
-                        Shark Island
                       </Link>
                     </li>
                     <li>
