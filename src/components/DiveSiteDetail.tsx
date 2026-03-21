@@ -130,18 +130,7 @@ const DiveSiteDetail: React.FC<DiveSiteDetailProps> = ({
           </Link>
           <h1 className="text-4xl md:text-6xl font-bold mb-4 text-white drop-shadow-lg">{name}</h1>
         </div>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>{labels.warningTitle}</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    {labels.warningMessage}
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>{labels.cancel}</AlertDialogCancel>
-                  <AlertDialogAction onClick={confirmBooking}>{labels.continueBooking}</AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+      </section>
                   <Card>
                     <CardHeader>
                       <CardTitle className="text-2xl">{labels.tips}</CardTitle>
@@ -158,6 +147,21 @@ const DiveSiteDetail: React.FC<DiveSiteDetailProps> = ({
                     </CardContent>
                   </Card>
                 </div>
+      {/* Booking Warning Dialog */}
+      <AlertDialog open={showBookingWarning} onOpenChange={setShowBookingWarning}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{labels.warningTitle}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {labels.warningMessage}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{labels.cancel}</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmBooking}>{labels.continueBooking}</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
                 {/* Sidebar */}
                 <div className="space-y-6">
