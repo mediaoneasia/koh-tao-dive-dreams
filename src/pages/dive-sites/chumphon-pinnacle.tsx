@@ -1,10 +1,54 @@
 import React from 'react';
+import DiveSiteDetail from '@/components/DiveSiteDetail';
+import { useTranslation } from 'react-i18next';
 
-const ChumphonPinnacle = () => (
-  <div className="min-h-screen bg-background p-8">
-    <h1 className="text-4xl font-bold mb-4">Chumphon Pinnacle</h1>
-    <p>Granite pinnacle with excellent whale shark sightings and large schools of trevally. Depth: 15-30m. Highlights: Whale sharks, Trevally schools, Eagle rays, Chevron barracuda. Difficulty: Advanced. Location: 30 minutes offshore.</p>
-  </div>
-);
+const ChumphonPinnacle = () => {
+  const { i18n } = useTranslation();
+  const isDutch = i18n.language.startsWith('nl');
+
+  const content = {
+    en: {
+      overview: 'Your new overview content here',
+      quickFacts: {
+        depth: '15-30m',
+        difficulty: 'Advanced',
+        location: '30 minutes offshore',
+        bestTime: 'May–September',
+      },
+      whatYouCanSee: ['Whale sharks', 'Trevally schools', 'Eagle rays', 'Chevron barracuda'],
+      marineLifeHighlights: ['test'],
+      divingTips: ['test'],
+      images: ['/images/photo-1682686580849-3e7f67df4015.avif'],
+    },
+    nl: {
+      overview: 'Dutch overview content here',
+      quickFacts: {
+        depth: '15-30m',
+        difficulty: 'Gevorderd',
+        location: '30 minuten offshore',
+        bestTime: 'Mei–September',
+      },
+      whatYouCanSee: ['Walvishaaien', 'Trevally-scholen', 'Adelaarsroggen', 'Chevron-barracuda'],
+      marineLifeHighlights: ['Dutch marine life highlights here'],
+      divingTips: ['Dutch quick facts here'],
+      images: ['/images/photo-1682686580849-3e7f67df4015.avif'],
+    },
+  };
+
+  const locale = isDutch ? 'nl' : 'en';
+  const data = content[locale];
+
+  return (
+    <DiveSiteDetail
+      name="Chumphon Pinnacle"
+      overview={data.overview}
+      quickFacts={data.quickFacts}
+      whatYouCanSee={data.whatYouCanSee}
+      marineLifeHighlights={data.marineLifeHighlights}
+      divingTips={data.divingTips}
+      images={data.images}
+    />
+  );
+};
 
 export default ChumphonPinnacle;

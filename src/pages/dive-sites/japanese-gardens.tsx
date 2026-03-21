@@ -1,10 +1,54 @@
 import React from 'react';
+import DiveSiteDetail from '@/components/DiveSiteDetail';
+import { useTranslation } from 'react-i18next';
 
-const JapaneseGardens = () => (
-  <div className="min-h-screen bg-background p-8">
-    <h1 className="text-4xl font-bold mb-4">Japanese Gardens</h1>
-    <p>Varied coral reefs with colorful marine life and swim-throughs. Depth: 12-25m. Highlights: Pink-tailed triggerfish, Ocellated eagle ray, Colorful coral, Marbled octopus. Difficulty: Intermediate. Location: Near Koh Nang Yuan.</p>
-  </div>
-);
+const JapaneseGardens = () => {
+  const { i18n } = useTranslation();
+  const isDutch = i18n.language.startsWith('nl');
+
+  const content = {
+    en: {
+      overview: 'Your new overview content here',
+      quickFacts: {
+        depth: '12-25m',
+        difficulty: 'Intermediate',
+        location: 'Near Koh Nang Yuan',
+        bestTime: 'May–September',
+      },
+      whatYouCanSee: ['Pink-tailed triggerfish', 'Ocellated eagle ray', 'Colorful coral', 'Marbled octopus'],
+      marineLifeHighlights: ['test'],
+      divingTips: ['test'],
+      images: ['/images/photo-1682686580849-3e7f67df4015.avif'],
+    },
+    nl: {
+      overview: 'Dutch overview content here',
+      quickFacts: {
+        depth: '12-25m',
+        difficulty: 'Gemiddeld',
+        location: 'Bij Koh Nang Yuan',
+        bestTime: 'Mei–September',
+      },
+      whatYouCanSee: ['Pink-tailed triggerfish', 'Ocellated adelaarsrog', 'Kleurrijk koraal', 'Gemarmerde octopus'],
+      marineLifeHighlights: ['Dutch marine life highlights here'],
+      divingTips: ['Dutch quick facts here'],
+      images: ['/images/photo-1682686580849-3e7f67df4015.avif'],
+    },
+  };
+
+  const locale = isDutch ? 'nl' : 'en';
+  const data = content[locale];
+
+  return (
+    <DiveSiteDetail
+      name="Japanese Gardens"
+      overview={data.overview}
+      quickFacts={data.quickFacts}
+      whatYouCanSee={data.whatYouCanSee}
+      marineLifeHighlights={data.marineLifeHighlights}
+      divingTips={data.divingTips}
+      images={data.images}
+    />
+  );
+};
 
 export default JapaneseGardens;
