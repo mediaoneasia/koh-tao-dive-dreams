@@ -120,6 +120,7 @@ export default function PagesEditor() {
                     rows={3}
                     value={editContent.overview}
                     onChange={(e) => setEditContent({ ...editContent, overview: e.target.value })}
+                    placeholder="Overview of the dive site"
                   />
                 </div>
                 <div className="mb-2">
@@ -128,6 +129,7 @@ export default function PagesEditor() {
                     className="w-full border border-green-300 rounded p-2 mb-2 focus:ring-2 focus:ring-green-200"
                     value={editContent.quickFacts.join(', ')}
                     onChange={(e) => setEditContent({ ...editContent, quickFacts: e.target.value.split(',').map(f => f.trim()) })}
+                    placeholder="e.g. Max depth, Visibility, Level"
                   />
                 </div>
                 <div className="mb-2">
@@ -137,6 +139,7 @@ export default function PagesEditor() {
                     rows={2}
                     value={editContent.whatYouCanSee}
                     onChange={(e) => setEditContent({ ...editContent, whatYouCanSee: e.target.value })}
+                    placeholder="Describe what divers can see"
                   />
                 </div>
                 <div className="mb-2">
@@ -145,6 +148,7 @@ export default function PagesEditor() {
                     className="w-full border border-green-300 rounded p-2 mb-2 focus:ring-2 focus:ring-green-200"
                     value={editContent.marineLifeHighlights.join(', ')}
                     onChange={(e) => setEditContent({ ...editContent, marineLifeHighlights: e.target.value.split(',').map(f => f.trim()) })}
+                    placeholder="e.g. Whale shark, Barracuda, Turtle"
                   />
                 </div>
                 <div className="mb-4">
@@ -154,6 +158,7 @@ export default function PagesEditor() {
                     rows={2}
                     value={editContent.divingTips}
                     onChange={(e) => setEditContent({ ...editContent, divingTips: e.target.value })}
+                    placeholder="Tips for diving this site"
                   />
                 </div>
                 <button
