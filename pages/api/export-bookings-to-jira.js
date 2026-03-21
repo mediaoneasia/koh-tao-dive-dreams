@@ -52,6 +52,16 @@ export default async function handler(req, res) {
     return res.status(500).json({ message: 'Supabase not configured' });
   }
   try {
+    // If a booking object is provided in the body, export just that one
+    if (req.body && Object.keys(req.body).length) {
+      try {
+        const result = await createJiraIssue(req.body);
+        return res.status(200).json({ message: 'Exported booking to Jira.', jira: result });
+      } catch (e) {
+        return res.status(500).json({ message: 'Export failed: ' + (e.message || e) });
+      }
+    }
+    // Otherwise, export all bookings as before
     const { data, error } = await supabase.from(BOOKING_TABLE).select('*');
     if (error) throw new Error(error.message);
     if (!data || !data.length) throw new Error('No bookings found');
