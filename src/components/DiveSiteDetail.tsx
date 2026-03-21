@@ -95,29 +95,50 @@ const DiveSiteDetail: React.FC<DiveSiteDetailProps> = ({
         depthRange: 'Dieptebereik',
         whatToSee: 'Wat kun je zien',
         ready: 'Klaar om te duiken?',
-        readyBody: `Ervaar ${name} met onze ervaren gidsen en premium materiaal.`,
-        return (
-          <div className="min-h-screen bg-background">
-            {/* Hero Section */}
-            <section className={`relative flex items-center justify-center overflow-hidden ${fullHeightHero ? 'min-h-[calc(100vh-4rem)]' : 'h-96'}`}>
-              <img src={hero} alt={name} className="absolute inset-0 w-full h-full object-cover" />
-              {!noOverlay && <div className="absolute inset-0 bg-black/35" />}
-              <div className={`relative z-10 text-center px-4 ${noOverlay ? 'bg-black/30 rounded-xl py-6' : 'text-white'}`}>
-                <Link to="/koh-tao-dive-sites" className="inline-flex items-center text-white/80 hover:text-white mb-4 transition-colors">
-                  <ArrowLeft className="w-4 h-4 mr-2" />
-                  {labels.back}
-                </Link>
-                <h1 className="text-4xl md:text-6xl font-bold mb-4 text-white drop-shadow-lg">{name}</h1>
-              </div>
-            </section>
+        readyBody: `Ervaar ${name} met onze ervaren gidsen en premium materiaal.`
+      }
+    : {
+        back: 'Back to dive sites',
+        overview: 'Overview',
+        depth: 'Depth',
+        location: 'Location',
+        visibility: 'Visibility',
+        current: 'Current',
+        level: 'Level',
+        bestTime: 'Best time',
+        marineLife: 'Marine life highlights',
+        tips: 'Diving tips',
+        quickFacts: 'Quick facts',
+        depthRange: 'Depth range',
+        whatToSee: 'What you can see',
+        ready: 'Ready to dive?',
+        readyBody: `Experience ${name} with our experienced guides and premium equipment.`
+      };
 
-            {secondaryImage && (
-              <div className="w-full pt-4">
-                <img src={secondaryImage} alt={`${name} reef`} className="w-full object-cover" />
-              </div>
-            )}
+  // ...existing code...
 
-            {/* Main Content */}
+  return (
+    <div className="min-h-screen bg-background">
+      {/* Hero Section */}
+      <section className={`relative flex items-center justify-center overflow-hidden ${fullHeightHero ? 'min-h-[calc(100vh-4rem)]' : 'h-96'}`}>
+        <img src={hero} alt={name} className="absolute inset-0 w-full h-full object-cover" />
+        {!noOverlay && <div className="absolute inset-0 bg-black/35" />}
+        <div className={`relative z-10 text-center px-4 ${noOverlay ? 'bg-black/30 rounded-xl py-6' : 'text-white'}`}>
+          <Link to="/koh-tao-dive-sites" className="inline-flex items-center text-white/80 hover:text-white mb-4 transition-colors">
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            {labels.back}
+          </Link>
+          <h1 className="text-4xl md:text-6xl font-bold mb-4 text-white drop-shadow-lg">{name}</h1>
+        </div>
+      </section>
+
+      {secondaryImage && (
+        <div className="w-full pt-4">
+          <img src={secondaryImage} alt={`${name} reef`} className="w-full object-cover" />
+        </div>
+      )}
+
+      {/* Main Content */}
             <div className="max-w-6xl mx-auto px-4 py-16">
               <div className="grid lg:grid-cols-3 gap-8">
                 {/* Site Information */}
