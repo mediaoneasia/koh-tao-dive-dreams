@@ -130,47 +130,18 @@ const DiveSiteDetail: React.FC<DiveSiteDetailProps> = ({
           </Link>
           <h1 className="text-4xl md:text-6xl font-bold mb-4 text-white drop-shadow-lg">{name}</h1>
         </div>
-      </section>
-
-      {secondaryImage && (
-        <div className="w-full pt-4">
-          <img src={secondaryImage} alt={`${name} reef`} className="w-full object-cover" />
-        </div>
-      )}
-
-      {/* Main Content */}
-            <div className="max-w-6xl mx-auto px-4 py-16">
-              <div className="grid lg:grid-cols-3 gap-8">
-                {/* Site Information */}
-                <div className="lg:col-span-2 space-y-8">
-                  {/* Overview */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-2xl">{labels.overview}</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-muted-foreground mb-6">{overview}</p>
-                    </CardContent>
-                  </Card>
-
-                  {/* Marine Life Highlights */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-2xl">{labels.marineLife}</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="grid md:grid-cols-2 gap-4">
-                        {marineLifeHighlights.map((animal, index) => (
-                          <div key={index} className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
-                            <Fish className="w-5 h-5 text-blue-600 flex-shrink-0" />
-                            <span className="text-sm">{animal}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  {/* Diving Tips */}
+                <AlertDialogHeader>
+                  <AlertDialogTitle>{labels.warningTitle}</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    {labels.warningMessage}
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>{labels.cancel}</AlertDialogCancel>
+                  <AlertDialogAction onClick={confirmBooking}>{labels.continueBooking}</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
                   <Card>
                     <CardHeader>
                       <CardTitle className="text-2xl">{labels.tips}</CardTitle>
