@@ -1,5 +1,5 @@
 import React from 'react';
-import DiveSiteDetail from '../components/DiveSiteDetail';
+// import DiveSiteDetail from '../components/DiveSiteDetail';
 import { useTranslation } from 'react-i18next';
 
 const JapaneseGardens = () => {
@@ -69,7 +69,7 @@ const JapaneseGardens = () => {
       };
 
   return (
-    <DiveSiteDetail
+    {/* <DiveSiteDetail
       name="Japanese Gardens"
       description={content.description}
       depth="12-25m"
@@ -90,7 +90,7 @@ const JapaneseGardens = () => {
         "/images/photo-1659518893171-b15e20a8e201.avif",
         "/images/photo-1682686580849-3e7f67df4015.avif"
       ]}
-    />
+    /> */}
   );
 };
 

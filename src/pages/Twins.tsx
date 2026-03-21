@@ -1,5 +1,5 @@
 import React from 'react';
-import DiveSiteDetail from '../components/DiveSiteDetail';
+// import DiveSiteDetail from '../components/DiveSiteDetail';
 import { useTranslation } from 'react-i18next';
 
 const Twins = () => {
@@ -103,7 +103,7 @@ const Twins = () => {
       };
 
   return (
-    <DiveSiteDetail
+    {/* <DiveSiteDetail
       name="Twins Pinnacle"
       description={content.description}
       depth="5-20m"
@@ -124,7 +124,7 @@ const Twins = () => {
         "/images/photo-1682687982423-295485af248a.avif",
         "/images/photo-1618865181016-a80ad83a06d3.avif"
       ]}
-    />
+    /> */}
   );
 };
 

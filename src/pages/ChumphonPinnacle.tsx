@@ -1,5 +1,5 @@
 import React from 'react';
-import DiveSiteDetail from '../components/DiveSiteDetail';
+// import DiveSiteDetail from '../components/DiveSiteDetail';
 import { useTranslation } from 'react-i18next';
 
 const ChumphonPinnacle = () => {
@@ -70,7 +70,7 @@ const ChumphonPinnacle = () => {
       };
 
   return (
-    <DiveSiteDetail
+    {/* <DiveSiteDetail
       name="Chumphon Pinnacle"
       description={content.description}
       depth="15-30m"
@@ -92,7 +92,7 @@ const ChumphonPinnacle = () => {
         "/images/photo-1659518893171-b15e20a8e201.avif",
         "/images/photo-1682687982423-295485af248a.avif"
       ]}
-    />
+    /> */}
   );
 };
 

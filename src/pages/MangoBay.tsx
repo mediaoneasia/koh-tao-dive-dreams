@@ -1,5 +1,5 @@
 import React from 'react';
-import DiveSiteDetail from '../components/DiveSiteDetail';
+// import DiveSiteDetail from '../components/DiveSiteDetail';
 import { useTranslation } from 'react-i18next';
 
 const MangoBay = () => {
@@ -67,7 +67,7 @@ const MangoBay = () => {
       };
 
   return (
-    <DiveSiteDetail
+    {/* <DiveSiteDetail
       name="Mango Bay"
       description={content.description}
       depth="5-18m"
@@ -91,7 +91,7 @@ const MangoBay = () => {
         "/images/photo-1682686580849-3e7f67df4015.avif",
         "/images/photo-1682687982423-295485af248a.avif"
       ]}
-    />
+    /> */}
   );
 };
 

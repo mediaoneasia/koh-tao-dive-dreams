@@ -1,5 +1,5 @@
 import React from 'react';
-import DiveSiteDetail from '../components/DiveSiteDetail';
+// import DiveSiteDetail from '../components/DiveSiteDetail';
 import { useTranslation } from 'react-i18next';
 
 const HTMSSattakut = () => {
@@ -71,7 +71,7 @@ const HTMSSattakut = () => {
       };
 
   return (
-    <DiveSiteDetail
+    {/* <DiveSiteDetail
       name="HTMS Sattakut"
       description={content.description}
       depth="18-30m"
@@ -92,7 +92,7 @@ const HTMSSattakut = () => {
         "/images/photo-1682686580849-3e7f67df4015.avif",
         "/images/photo-1682687982423-295485af248a.avif"
       ]}
-    />
+    /> */}
   );
 };
 
