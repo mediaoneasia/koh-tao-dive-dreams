@@ -63,7 +63,7 @@ const DiveSiteDetail: React.FC<DiveSiteDetailProps> = ({
   };
 
   const contactInstead = () => {
-    navigate('/contact');
+    window.location.href = 'https://www.divinginasia.com/#contact';
   };
   
   const getDifficultyColor = (difficulty: string) => {
@@ -249,7 +249,7 @@ const DiveSiteDetail: React.FC<DiveSiteDetailProps> = ({
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>{labels.cancel || 'Cancel'}</AlertDialogCancel>
-            <a href="/contact" tabIndex={0} className="mr-2">
+            <a href="https://www.divinginasia.com/#contact" tabIndex={0} className="mr-2">
               <Button variant="outline" asChild>
                 <span>Contact</span>
               </Button>
