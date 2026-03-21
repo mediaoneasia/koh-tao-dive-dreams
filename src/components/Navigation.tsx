@@ -290,6 +290,14 @@ const Navigation = ({ user, isAdmin, isAdminRoute }: { user?: any, isAdmin?: boo
                         Mango Bay
                       </Link>
                     </li>
+                    <li>
+                      <Link
+                        to="/dive-sites/south-west-pinnacle"
+                        className="block py-1.5 text-sm text-gray-300 hover:text-white hover:pl-1 transition-all duration-150"
+                      >
+                        South West Pinnacle
+                      </Link>
+                    </li>
                   </ul>
                 </div>
               </div>
@@ -618,6 +626,9 @@ const Navigation = ({ user, isAdmin, isAdminRoute }: { user?: any, isAdmin?: boo
                     </Link>
                     <Link to="/dive-sites/mango-bay" className="block px-3 py-1.5 text-sm text-gray-600 hover:text-blue-600" onClick={() => setIsOpen(false)}>
                       Mango Bay
+                    </Link>
+                    <Link to="/dive-sites/south-west-pinnacle" className="block px-3 py-1.5 text-sm text-gray-600 hover:text-blue-600" onClick={() => setIsOpen(false)}>
+                      South West Pinnacle
                     </Link>
                   </div>
                 )}
