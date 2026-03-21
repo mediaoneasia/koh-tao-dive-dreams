@@ -248,6 +248,7 @@ const App = () => (
             <Route path="/dive-sites/twins-pinnacle" element={<Twins />} />
             <Route path="/dive-sites/shark-island" element={<SharkIsland />} />
             <Route path="/dive-sites/mango-bay" element={<MangoBay />} />
+            <Route path="/dive-sites/south-west-pinnacle" element={<SouthWestPinnacle />} />
 
             <Route path="/marine-life" element={<MarineLifePage />} />
             <Route path="/marine-life/whaleshark" element={<Whaleshark />} />
