@@ -21,6 +21,7 @@ export default function RootLayout({
             <div className="flex items-center gap-6">
               <Link href="/" className="text-xl font-bold text-blue-700 hover:text-blue-900 transition">Admin Home</Link>
               <Link href="/pages-editor" className="text-blue-600 hover:text-blue-800 font-medium transition">Pages Editor</Link>
+              <Link href="/pages-content" className="text-blue-600 hover:text-blue-800 font-medium transition">Pages Content</Link>
             </div>
             <span className="text-xs text-gray-400">Simple CMS</span>
           </div>
