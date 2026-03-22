@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import DOMPurify from 'dompurify';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -43,14 +44,17 @@ const WPPageDetail: React.FC<{ slug: string }> = ({ slug }) => {
   const [sections, setSections] = useState<Section[]>([]);
   const [loading, setLoading] = useState(true);
   const [showBookingWarning, setShowBookingWarning] = useState(false);
+  const { i18n } = useTranslation();
+  const isDutch = i18n.language.startsWith('nl');
 
   // Optionally, you can set a default hero image or parse from content
   const hero = '/images/photo-1682686580849-3e7f67df4015.avif';
 
   useEffect(() => {
     setLoading(true);
-    // Fetch page data from WordPress REST API
-    fetch(`https://admin.prodiving.asia/wp-json/wp/v2/pages?slug=${slug}`)
+    // Use Dutch slug if language is nl, otherwise default
+    const pageSlug = isDutch ? `nl-${slug}` : slug;
+    fetch(`https://admin.prodiving.asia/wp-json/wp/v2/pages?slug=${pageSlug}`)
       .then(res => res.json())
       .then(data => {
         if (data && data.length > 0) {
@@ -67,7 +71,7 @@ const WPPageDetail: React.FC<{ slug: string }> = ({ slug }) => {
         setSections([]);
         setLoading(false);
       });
-  }, [slug]);
+  }, [slug, isDutch]);
 
   // Find sections by title
   const quickFacts = sections.find(s => /quick facts/i.test(s.title));
