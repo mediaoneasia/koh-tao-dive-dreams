@@ -32,8 +32,11 @@ export default function DiveSitePage() {
           return;
         }
         if (json.items && json.items.length > 0) {
-          // Filter for the entry with slug 'DIVE_SITE_NAME'
-          const item = json.items.find(item => item.fields.slug === 'DIVE_SITE_NAME');
+          // Log all available slugs for debugging
+          const slugs = json.items.map(item => item.fields.slug);
+          console.log('Available slugs:', slugs, 'Current locale:', locale);
+          // Filter for the entry with slug 'divesites'
+          const item = json.items.find(item => item.fields.slug === 'divesites');
           if (item) {
             const fields = item.fields;
             // Resolve images from includes
