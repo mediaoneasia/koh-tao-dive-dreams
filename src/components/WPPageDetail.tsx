@@ -1,10 +1,3 @@
-import React, { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import DOMPurify from 'dompurify';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -15,204 +8,182 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 
-interface WPPage {
-  id: number;
+interface WPContent {
   title: { rendered: string };
   content: { rendered: string };
-}
-
-interface Section {
-  title: string;
-  content: string;
-}
-
-function extractSections(html: string): Section[] {
-  const sectionRegex = /<h2[^>]*>(.*?)<\/h2>([\s\S]*?)(?=<h2|$)/gi;
-  const sections: Section[] = [];
-  let match;
-  while ((match = sectionRegex.exec(html)) !== null) {
-    sections.push({
-      title: match[1].trim(),
-      content: match[2].trim(),
-    });
-  }
-  return sections;
+  acf?: Record<string, any>;
 }
 
 const WPPageDetail: React.FC<{ slug: string }> = ({ slug }) => {
-  const [page, setPage] = useState<WPPage | null>(null);
-  const [sections, setSections] = useState<Section[]>([]);
+  const [content, setContent] = useState<WPContent | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [showBookingWarning, setShowBookingWarning] = useState(false);
   const { i18n } = useTranslation();
   const isDutch = i18n.language.startsWith('nl');
 
-  // Optionally, you can set a default hero image or parse from content
-  const hero = '/images/photo-1682686580849-3e7f67df4015.avif';
-
   useEffect(() => {
     setLoading(true);
-    // Use Dutch slug if language is nl, otherwise default
+    setError(null);
     const pageSlug = isDutch ? `nl-${slug}` : slug;
-    fetch(`https://admin.prodiving.asia/wp-json/wp/v2/pages?slug=${pageSlug}`)
+    fetch(`https://cms.divinginasia.com/wp-json/wp/v2/pages?slug=${pageSlug}`)
       .then(res => res.json())
       .then(data => {
         if (data && data.length > 0) {
-          setPage(data[0]);
-          setSections(extractSections(data[0].content.rendered));
+          setContent(data[0]);
         } else {
-          setPage(null);
-          setSections([]);
+          setContent(null);
+          setError('Page not found.');
         }
         setLoading(false);
       })
       .catch(() => {
-        setPage(null);
-        setSections([]);
+        setContent(null);
+        setError('Failed to load content.');
         setLoading(false);
       });
   }, [slug, isDutch]);
 
-  // Find sections by title
-  const quickFacts = sections.find(s => /quick facts/i.test(s.title));
-  const whatYouCanSee = sections.find(s => /what you can see/i.test(s.title));
-  const overview = sections.find(s => /overview/i.test(s.title));
-  const divingTips = sections.find(s => /diving tips/i.test(s.title));
-  const gallery = sections.find(s => /gallery/i.test(s.title));
-  const marineLifeHighlights = sections.find(s => /marine life highlights/i.test(s.title));
+  if (loading) return <div className="text-center py-8">Loading...</div>;
+  if (error) return <div className="text-center py-8 text-red-500">{error}</div>;
+  if (!content) return null;
+
+  // Gallery images from ACF or fallback
+  const gallery: string[] = content.acf?.gallery || [];
+  // Overview text from ACF or fallback to content
+  const overview: string = content.acf?.overview || content.content.rendered;
+  // Quick facts from ACF
+  const quickFacts = content.acf?.quick_facts || {};
+  // What you can see from ACF
+  const whatYouCanSee: string[] = content.acf?.what_you_can_see || [];
+  // Marine life highlights from ACF
+  const highlights: string[] = content.acf?.marine_life_highlights || [];
+  // Booking text from ACF
+  const bookingText: string = content.acf?.booking_text || '';
+  const bookingUrl: string = content.acf?.booking_url || '#';
 
   return (
-    <div className="min-h-screen bg-background py-8">
-      {/* Hero Section */}
-      <section className="relative flex items-center justify-center overflow-hidden rounded-xl shadow-lg mb-8 h-72">
-        <img src={hero} alt={page?.title?.rendered || ''} className="absolute inset-0 w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-black/35" />
-        <div className="relative z-10 text-center px-4 text-white">
-          <h1 className="text-4xl md:text-6xl font-bold mb-4 text-white drop-shadow-lg">{page?.title?.rendered}</h1>
-        </div>
-      </section>
+    <div className="bg-blue-100 min-h-screen py-8 px-2 md:px-8">
+      {/* Gallery */}
+      {gallery.length > 0 && (
+        <section className="mb-8">
+          <h2 className="text-3xl font-bold text-center mb-6">Gallery</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+            {gallery.map((img, i) => (
+              <img
+                key={i}
+                src={img}
+                alt="Gallery image"
+                className="rounded-xl object-cover w-full h-56"
+                loading="lazy"
+              />
+            ))}
+          </div>
+        </section>
+      )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-        {/* Quick Facts */}
-        <Card className="h-full flex flex-col justify-between">
-          <CardHeader>
-            <CardTitle>Quick Facts</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {quickFacts ? (
-              <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(quickFacts.content, {ALLOWED_TAGS: ['p','ul','ol','li','strong','em','a','img','br','span','b','i','u','h3','h4','h5','h6'], ALLOWED_ATTR: ['href','src','alt']}) }} />
-            ) : (
-              <span className="text-muted-foreground">No quick facts provided.</span>
+      {/* Main content grid */}
+      <div className="grid md:grid-cols-3 gap-6 mb-8">
+        {/* Overview */}
+        <section className="md:col-span-2 bg-blue-200 rounded-xl p-6 shadow">
+          <h2 className="text-2xl font-bold mb-4">Overview</h2>
+          <div
+            className="mb-4 text-blue-900"
+            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(overview) }}
+          />
+          <div className="flex flex-wrap gap-x-8 gap-y-2 text-blue-900">
+            {quickFacts.depth && (
+              <div className="flex items-center gap-2">
+                <span role="img" aria-label="Depth">🌊</span>
+                <span className="font-semibold">Depth:</span> {quickFacts.depth}
+              </div>
             )}
-          </CardContent>
-        </Card>
-
-        {/* What You Can See */}
-        <Card className="h-full flex flex-col justify-between">
-          <CardHeader>
-            <CardTitle>What You Can See</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {whatYouCanSee ? (
-              <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(whatYouCanSee.content, {ALLOWED_TAGS: ['p','ul','ol','li','strong','em','a','img','br','span','b','i','u','h3','h4','h5','h6'], ALLOWED_ATTR: ['href','src','alt']}) }} />
-            ) : (
-              <span className="text-muted-foreground">No details provided.</span>
+            {quickFacts.visibility && (
+              <div className="flex items-center gap-2">
+                <span role="img" aria-label="Visibility">👁️</span>
+                <span className="font-semibold">Visibility:</span> {quickFacts.visibility}
+              </div>
             )}
-          </CardContent>
-        </Card>
+            {quickFacts.level && (
+              <div className="flex items-center gap-2">
+                <span className="font-semibold">Level:</span>
+                <span className="bg-yellow-200 rounded px-2 py-0.5 text-sm font-semibold">{quickFacts.level}</span>
+              </div>
+            )}
+            {quickFacts.best_time && (
+              <div className="flex items-center gap-2">
+                <span className="font-semibold">Best time:</span> <span>{quickFacts.best_time}</span>
+              </div>
+            )}
+            {quickFacts.location && (
+              <div className="flex items-center gap-2">
+                <span role="img" aria-label="Location">🕒</span>
+                <span className="font-semibold">Location:</span> {quickFacts.location}
+              </div>
+            )}
+            {quickFacts.current && (
+              <div className="flex items-center gap-2">
+                <span role="img" aria-label="Current">🌀</span>
+                <span className="font-semibold">Current:</span> {quickFacts.current}
+              </div>
+            )}
+          </div>
+        </section>
 
-        {/* Book Now */}
-        <Card className="h-full flex flex-col justify-between border-blue-400 border-2 bg-blue-50">
-          <CardHeader>
-            <CardTitle className="text-blue-700">Ready to dive?</CardTitle>
-          </CardHeader>
-          <CardContent className="flex flex-col flex-1 justify-between">
-            <p className="text-sm text-muted-foreground mb-4">Experience {page?.title?.rendered} with our experienced guides and premium equipment.</p>
-            <Button className="w-full mt-auto bg-blue-600 text-white hover:bg-blue-700" size="lg" onClick={() => setShowBookingWarning(true)}>
-              Book Now
-            </Button>
-          </CardContent>
-        </Card>
+        {/* Quick facts */}
+        <aside className="bg-blue-200 rounded-xl p-6 shadow flex flex-col gap-4">
+          <h3 className="text-xl font-bold mb-2">Quick facts</h3>
+          {quickFacts.depth && <div><span className="font-semibold">Depth range:</span> {quickFacts.depth}</div>}
+          {quickFacts.level && <div><span className="font-semibold">Level:</span> {quickFacts.level}</div>}
+          {quickFacts.location && <div><span className="font-semibold">Location:</span> {quickFacts.location}</div>}
+          {quickFacts.best_time && <div><span className="font-semibold">Best time:</span> {quickFacts.best_time}</div>}
+        </aside>
+
+        {/* What you can see */}
+        <aside className="bg-blue-200 rounded-xl p-6 shadow flex flex-col gap-4 mt-6 md:mt-0">
+          <h3 className="text-xl font-bold mb-2">What you can see</h3>
+          <div className="flex flex-wrap gap-2">
+            {whatYouCanSee.map((item, i) => (
+              <span key={i} className="bg-blue-100 rounded-full px-3 py-1 text-sm font-semibold text-blue-900 border border-blue-300">
+                {item}
+              </span>
+            ))}
+          </div>
+        </aside>
       </div>
 
-      {/* Overview & Tips Section */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        <Card>
-          <CardHeader>
-            <CardTitle>Overview</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {overview ? (
-              <div className="text-muted-foreground text-base" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(overview.content, {ALLOWED_TAGS: ['p','ul','ol','li','strong','em','a','img','br','span','b','i','u','h3','h4','h5','h6'], ALLOWED_ATTR: ['href','src','alt']}) }} />
-            ) : (
-              <span className="text-muted-foreground">No overview provided.</span>
-            )}
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Diving Tips</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {divingTips ? (
-              <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(divingTips.content, {ALLOWED_TAGS: ['p','ul','ol','li','strong','em','a','img','br','span','b','i','u','h3','h4','h5','h6'], ALLOWED_ATTR: ['href','src','alt']}) }} />
-            ) : (
-              <span className="text-muted-foreground">No tips provided.</span>
-            )}
-          </CardContent>
-        </Card>
+      {/* Marine life highlights and booking */}
+      <div className="grid md:grid-cols-3 gap-6">
+        {/* Marine life highlights */}
+        <section className="md:col-span-2 bg-blue-200 rounded-xl p-6 shadow">
+          <h3 className="text-xl font-bold mb-4">Marine life highlights</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            {highlights.map((item, i) => (
+              <div key={i} className="flex items-center gap-2 bg-blue-100 rounded px-3 py-2 text-blue-900">
+                <span role="img" aria-label="Fish">🐟</span>
+                {item}
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Booking card */}
+        <aside className="bg-blue-200 rounded-xl p-6 shadow flex flex-col justify-between">
+          <h3 className="text-xl font-bold mb-2">Ready to dive?</h3>
+          <p className="mb-4">{bookingText}</p>
+          <a
+            href={bookingUrl}
+            className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded transition"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Book this dive site
+          </a>
+        </aside>
       </div>
-
-      {/* Gallery Section */}
-      <Card className="mb-8">
-        <CardHeader>
-          <CardTitle>Gallery</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {gallery ? (
-            <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(gallery.content, {ALLOWED_TAGS: ['p','ul','ol','li','strong','em','a','img','br','span','b','i','u','h3','h4','h5','h6'], ALLOWED_ATTR: ['href','src','alt']}) }} />
-          ) : (
-            <span className="text-muted-foreground">No gallery provided.</span>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Booking Section (bottom) */}
-      <Card className="mb-8 border-blue-400 border-2 bg-blue-50">
-        <CardHeader>
-          <CardTitle className="text-blue-700">Book Now</CardTitle>
-        </CardHeader>
-        <CardContent className="flex flex-col items-center">
-          <p className="text-muted-foreground mb-4 max-w-2xl text-center">Experience {page?.title?.rendered} with our experienced guides and premium equipment.</p>
-          <Button onClick={() => setShowBookingWarning(true)} className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700" size="lg">
-            Book Now
-          </Button>
-        </CardContent>
-      </Card>
-
-      {/* Booking Warning Dialog */}
-      <AlertDialog open={showBookingWarning} onOpenChange={setShowBookingWarning}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Ready to book?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Would you like to book now or contact us for more information?
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <a href="https://www.divinginasia.com/#contact" tabIndex={0} className="mr-2">
-              <Button variant="outline" asChild>
-                <span>Contact</span>
-              </Button>
-            </a>
-            <AlertDialogAction onClick={() => window.location.href = '/booking?item=Fun%20Dive&type=dive&price=1800&currency=THB&dives=2'}>Book Now</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 };
 
-    export default WPPageDetail;
+export default WPPageDetail;
                 <span>Contact</span>
