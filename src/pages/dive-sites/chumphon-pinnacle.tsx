@@ -69,10 +69,10 @@ export default function ChumphonPinnaclePage() {
           location: data.location,
           bestTime: data.bestTime,
         }}
-        whatYouCanSee={data.whatYouCanSee}
-        marineLifeHighlights={data.marineLifeHighlights}
-        divingTips={data.divingTips}
-        images={data.images}
+        whatYouCanSee={Array.isArray(data.whatYouCanSee) ? data.whatYouCanSee : []}
+        marineLifeHighlights={Array.isArray(data.marineLifeHighlights) ? data.marineLifeHighlights : []}
+        divingTips={Array.isArray(data.divingTips) ? data.divingTips : []}
+        images={Array.isArray(data.images) ? data.images : []}
       />
     </div>
   );
