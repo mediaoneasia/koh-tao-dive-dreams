@@ -132,7 +132,13 @@ const DiveSiteDetail: React.FC<DiveSiteDetailProps> = ({
             <ArrowLeft className="w-4 h-4 mr-2" />
             {labels.back}
           </Link>
-          <h1 className="text-4xl md:text-6xl font-bold mb-4 text-white drop-shadow-lg">{name}</h1>
+          <h1 className="text-4xl md:text-6xl font-bold mb-2 text-white drop-shadow-lg">{name}</h1>
+          {/* Best Time Badge */}
+          {quickFacts.bestTime && (
+            <span className="inline-block bg-blue-600 text-white text-xs md:text-sm font-semibold rounded-full px-4 py-1 mb-2 shadow-lg">
+              {labels.bestTime}: {quickFacts.bestTime}
+            </span>
+          )}
         </div>
       </section>
 
@@ -146,7 +152,6 @@ const DiveSiteDetail: React.FC<DiveSiteDetailProps> = ({
             <div><span className="font-medium text-sm">{labels.depthRange}:</span> <span className="text-sm text-muted-foreground">{quickFacts.depth}</span></div>
             <div><span className="font-medium text-sm">{labels.level}:</span> <span className="text-sm text-muted-foreground">{quickFacts.difficulty}</span></div>
             <div><span className="font-medium text-sm">{labels.location}:</span> <span className="text-sm text-muted-foreground">{quickFacts.location}</span></div>
-            <div><span className="font-medium text-sm">{labels.bestTime}:</span> <span className="text-sm text-muted-foreground">{quickFacts.bestTime}</span></div>
           </CardContent>
         </Card>
 

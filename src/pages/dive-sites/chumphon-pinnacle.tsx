@@ -25,19 +25,24 @@ export default function ChumphonPinnaclePage() {
           return;
         }
         if (json.items && json.items.length > 0) {
-          // If you add a slug field later, filter here: .find(item => item.fields.slug === 'chumphon-pinnacle')
-          const item = json.items[0];
-          const fields = item.fields;
-          // Resolve images from includes
-          const assets = {};
-          if (json.includes && json.includes.Asset) {
-            json.includes.Asset.forEach(asset => {
-              assets[asset.sys.id] = asset.fields.file.url;
-            });
+          // Filter for the entry with name 'Chumphon Pinnacle'
+          const item = json.items.find(item => item.fields.name === 'Chumphon Pinnacle');
+          if (item) {
+            const fields = item.fields;
+            // Resolve images from includes
+            const assets = {};
+            if (json.includes && json.includes.Asset) {
+              json.includes.Asset.forEach(asset => {
+                assets[asset.sys.id] = asset.fields.file.url;
+              });
+            }
+            const images = (fields.images || []).map(img => assets[img.sys.id]);
+            setData({ ...fields, images });
+            setError(null);
+          } else {
+            setData(null);
+            setError('No entry found with name "Chumphon Pinnacle".');
           }
-          const images = (fields.images || []).map(img => assets[img.sys.id]);
-          setData({ ...fields, images });
-          setError(null);
         } else {
           setData(null);
           setError('No items found. Check content type and locale.');
