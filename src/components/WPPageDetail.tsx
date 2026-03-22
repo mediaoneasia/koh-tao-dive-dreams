@@ -48,7 +48,24 @@ const WPPageDetail: React.FC<{ slug: string }> = ({ slug }) => {
 
   useEffect(() => {
     setLoading(true);
-    // Fetch page data and extract sections here (existing logic)
+    // Fetch page data from WordPress REST API
+    fetch(`https://your-wordpress-site.com/wp-json/wp/v2/pages?slug=${slug}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.length > 0) {
+          setPage(data[0]);
+          setSections(extractSections(data[0].content.rendered));
+        } else {
+          setPage(null);
+          setSections([]);
+        }
+        setLoading(false);
+      })
+      .catch(() => {
+        setPage(null);
+        setSections([]);
+        setLoading(false);
+      });
   }, [slug]);
 
   // Find sections by title
