@@ -49,7 +49,7 @@ const WPPageDetail: React.FC<{ slug: string }> = ({ slug }) => {
   useEffect(() => {
     setLoading(true);
     // Fetch page data from WordPress REST API
-    fetch(`https://your-wordpress-site.com/wp-json/wp/v2/pages?slug=${slug}`)
+    fetch(`https://admin.prodiving.asia/wp-json/wp/v2/pages?slug=${slug}`)
       .then(res => res.json())
       .then(data => {
         if (data && data.length > 0) {
