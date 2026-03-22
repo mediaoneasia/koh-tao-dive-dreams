@@ -39,15 +39,17 @@ const SouthWestPinnacle = () => {
   const data = content[locale];
 
   return (
-    <DiveSiteDetail
-      name="South West Pinnacle"
-      overview={data.overview}
-      quickFacts={data.quickFacts}
-      whatYouCanSee={data.whatYouCanSee}
-      marineLifeHighlights={data.marineLifeHighlights}
-      divingTips={data.divingTips}
-      images={data.images}
-    />
+    <div className="px-4 md:px-8">
+      <DiveSiteDetail
+        name="South West Pinnacle"
+        overview={data.overview}
+        quickFacts={data.quickFacts}
+        whatYouCanSee={data.whatYouCanSee}
+        marineLifeHighlights={data.marineLifeHighlights}
+        divingTips={data.divingTips}
+        images={data.images}
+      />
+    </div>
   );
 };
 

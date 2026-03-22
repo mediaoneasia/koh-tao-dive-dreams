@@ -80,15 +80,17 @@ const MangoBay = () => {
   const data = content;
 
   return (
-    <DiveSiteDetail
-      name={isDutch ? 'Mango Bay' : 'Mango Bay'}
-      overview={data.overview}
-      quickFacts={data.quickFacts}
-      whatYouCanSee={data.whatYouCanSee}
-      marineLifeHighlights={data.marineLifeHighlights}
-      divingTips={data.divingTips}
-      images={data.images}
-    />
+    <div className="px-4 md:px-8">
+      <DiveSiteDetail
+        name={isDutch ? 'Mango Bay' : 'Mango Bay'}
+        overview={data.overview}
+        quickFacts={data.quickFacts}
+        whatYouCanSee={data.whatYouCanSee}
+        marineLifeHighlights={data.marineLifeHighlights}
+        divingTips={data.divingTips}
+        images={data.images}
+      />
+    </div>
   );
 };
 
