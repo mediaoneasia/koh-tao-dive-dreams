@@ -15,6 +15,7 @@ export default function DiveSitePage() {
   const [loading, setLoading] = useState(false);
   const [lastFetched, setLastFetched] = useState(null);
 
+  const [apiResponse, setApiResponse] = useState(null);
   const fetchDiveSite = async () => {
     setLoading(true);
       // Use the current i18n.language directly as the Contentful locale, fallback to 'en-US' if not set
@@ -28,6 +29,7 @@ export default function DiveSitePage() {
       try {
         const res = await fetch(url);
         const json = await res.json();
+        setApiResponse(json); // Save full API response for debugging
         if (json.sys && json.sys.type === 'Error') {
           setError(`Contentful API error: ${json.message}`);
           setData(null);
@@ -126,7 +128,7 @@ export default function DiveSitePage() {
       {data && (
         <>
           <div style={{marginBottom:12, fontSize:13, color:'#888'}}>
-            <strong>Debug info:</strong> Locale: {i18n.language} | Name: {data.name || <span style={{color:'orange'}}>Missing</span>} | Slug: chumphon-pinnacle
+            <strong>Debug info:</strong> Locale: {i18n.language} | Name: {data.name || <span style={{color:'orange'}}>Missing</span>} | Slug: divinginasia
           </div>
           <DiveSiteDetail
             name={data.withFallback(data.name, 'Name')}
@@ -143,6 +145,12 @@ export default function DiveSitePage() {
             images={Array.isArray(data.images) ? data.images : []}
           />
         </>
+      )}
+      {apiResponse && (
+        <details style={{marginTop:24, fontSize:12}}>
+          <summary>Show raw Contentful API response</summary>
+          <pre style={{whiteSpace:'pre-wrap', wordBreak:'break-all', background:'#f6f8fa', padding:12, borderRadius:4, maxHeight:400, overflow:'auto'}}>{JSON.stringify(apiResponse, null, 2)}</pre>
+        </details>
       )}
     </div>
   );
