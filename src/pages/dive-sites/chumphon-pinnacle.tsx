@@ -13,7 +13,7 @@ export default function ChumphonPinnaclePage() {
   useEffect(() => {
     const fetchDiveSite = async () => {
       const locale = i18n.language.startsWith('nl') ? 'nl' : 'en-US';
-      const url = `https://cdn.contentful.com/spaces/${SPACE_ID}/environments/master/entries?access_token=${ACCESS_TOKEN}&content_type=diveSite&fields.slug=chumphon-pinacle&locale=${locale}&include=2`;
+      const url = `https://cdn.contentful.com/spaces/${SPACE_ID}/environments/master/entries?access_token=${ACCESS_TOKEN}&content_type=diveSite&fields.slug=chumphon-pinnacle&locale=${locale}&include=2`;
       try {
         const res = await fetch(url);
         const json = await res.json();
