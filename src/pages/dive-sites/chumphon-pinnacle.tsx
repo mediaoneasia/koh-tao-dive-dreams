@@ -17,7 +17,7 @@ export default function ChumphonPinnaclePage() {
       const locale = i18n.language.startsWith('nl') ? 'nl' : 'en-US';
       const entries = await client.getEntries({
         content_type: 'diveSite', // Use your Content Model ID
-        'fields.slug': 'chumphon-pinnacle', // Use your slug field value
+        'fields.slug': 'chumphon-pinacle', // Use your slug field value
         locale,
       });
       if (entries.items.length > 0) {
