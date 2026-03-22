@@ -15,7 +15,13 @@ export default function DiveSitePage() {
 
   useEffect(() => {
     const fetchDiveSite = async () => {
-      const locale = i18n.language.startsWith('nl') ? 'nl' : 'en-US';
+      // Use the current i18n.language directly as the Contentful locale, fallback to 'en-US' if not set
+      let locale = i18n.language || 'en-US';
+      // If Contentful doesn't have this locale, fallback to 'en-US'
+      const supportedLocales = ['en-US', 'nl']; // Add more as you add them in Contentful
+      if (!supportedLocales.includes(locale)) {
+        locale = 'en-US';
+      }
       const url = `https://cdn.contentful.com/spaces/${SPACE_ID}/environments/master/entries?access_token=${ACCESS_TOKEN}&content_type=diveSites&locale=${locale}&include=2`;
       try {
         const res = await fetch(url);
