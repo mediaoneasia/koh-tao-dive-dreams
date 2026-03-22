@@ -27,7 +27,7 @@ const WPPageDetail: React.FC<{ slug: string }> = ({ slug }) => {
     setLoading(true);
     setError(null);
     const pageSlug = isDutch ? `nl-${slug}` : slug;
-    fetch(`https://cms.divinginasia.com/wp-json/wp/v2/pages?slug=${pageSlug}`)
+    fetch(`https://admin.prodiving.asia/wp-json/wp/v2/pages?slug=${pageSlug}`)
       .then(res => res.json())
       .then(data => {
         if (data && data.length > 0) {
