@@ -67,18 +67,18 @@ const WPPageDetail: React.FC<{ slug: string }> = ({ slug }) => {
   const bookingUrl: string = content.acf?.booking_url || '#';
 
   return (
-    <div className="bg-blue-100 min-h-screen py-8 px-2 md:px-8">
+    <div className="bg-[#d4f0fc] min-h-screen py-8 px-2 md:px-8">
       {/* Gallery */}
       {gallery.length > 0 && (
-        <section className="mb-8">
-          <h2 className="text-3xl font-bold text-center mb-6">Gallery</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+        <section className="mb-10">
+          <h2 className="text-4xl font-bold text-center mb-8 text-blue-900">Gallery</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
             {gallery.map((img, i) => (
               <img
                 key={i}
                 src={img}
                 alt="Gallery image"
-                className="rounded-xl object-cover w-full h-56"
+                className="rounded-2xl object-cover w-full h-64 shadow-lg border border-blue-200"
                 loading="lazy"
               />
             ))}
@@ -87,68 +87,70 @@ const WPPageDetail: React.FC<{ slug: string }> = ({ slug }) => {
       )}
 
       {/* Main content grid */}
-      <div className="grid md:grid-cols-3 gap-6 mb-8">
+      <div className="grid md:grid-cols-3 gap-8 mb-10">
         {/* Overview */}
-        <section className="md:col-span-2 bg-blue-200 rounded-xl p-6 shadow">
-          <h2 className="text-2xl font-bold mb-4">Overview</h2>
+        <section className="md:col-span-2 bg-[#b3e0f7] rounded-2xl p-8 shadow-xl border border-blue-200">
+          <h2 className="text-2xl font-bold mb-4 text-blue-900">Overview</h2>
           <div
-            className="mb-4 text-blue-900"
+            className="mb-6 text-blue-900 text-lg"
             dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(overview) }}
           />
-          <div className="flex flex-wrap gap-x-8 gap-y-2 text-blue-900">
+          <div className="flex flex-wrap gap-x-10 gap-y-3 text-blue-900 text-base">
             {quickFacts.depth && (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 min-w-[180px]">
                 <span role="img" aria-label="Depth">🌊</span>
                 <span className="font-semibold">Depth:</span> {quickFacts.depth}
               </div>
             )}
-            {quickFacts.visibility && (
-              <div className="flex items-center gap-2">
-                <span role="img" aria-label="Visibility">👁️</span>
-                <span className="font-semibold">Visibility:</span> {quickFacts.visibility}
-              </div>
-            )}
-            {quickFacts.level && (
-              <div className="flex items-center gap-2">
-                <span className="font-semibold">Level:</span>
-                <span className="bg-yellow-200 rounded px-2 py-0.5 text-sm font-semibold">{quickFacts.level}</span>
-              </div>
-            )}
-            {quickFacts.best_time && (
-              <div className="flex items-center gap-2">
-                <span className="font-semibold">Best time:</span> <span>{quickFacts.best_time}</span>
-              </div>
-            )}
             {quickFacts.location && (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 min-w-[220px]">
                 <span role="img" aria-label="Location">🕒</span>
                 <span className="font-semibold">Location:</span> {quickFacts.location}
               </div>
             )}
+            {quickFacts.visibility && (
+              <div className="flex items-center gap-2 min-w-[220px]">
+                <span role="img" aria-label="Visibility">👁️</span>
+                <span className="font-semibold">Visibility:</span> {quickFacts.visibility}
+              </div>
+            )}
             {quickFacts.current && (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 min-w-[220px]">
                 <span role="img" aria-label="Current">🌀</span>
                 <span className="font-semibold">Current:</span> {quickFacts.current}
+              </div>
+            )}
+          </div>
+          <div className="flex flex-wrap gap-x-8 gap-y-2 mt-4 text-blue-900 text-base">
+            {quickFacts.level && (
+              <div className="flex items-center gap-2">
+                <span className="font-semibold">Level:</span>
+                <span className="bg-yellow-200 rounded-full px-3 py-1 text-sm font-semibold text-yellow-900 shadow border border-yellow-300">{quickFacts.level}</span>
+              </div>
+            )}
+            {quickFacts.best_time && (
+              <div className="flex items-center gap-2">
+                <span className="font-semibold">Best time:</span> <span className="text-blue-700">{quickFacts.best_time}</span>
               </div>
             )}
           </div>
         </section>
 
         {/* Quick facts */}
-        <aside className="bg-blue-200 rounded-xl p-6 shadow flex flex-col gap-4">
-          <h3 className="text-xl font-bold mb-2">Quick facts</h3>
-          {quickFacts.depth && <div><span className="font-semibold">Depth range:</span> {quickFacts.depth}</div>}
-          {quickFacts.level && <div><span className="font-semibold">Level:</span> {quickFacts.level}</div>}
-          {quickFacts.location && <div><span className="font-semibold">Location:</span> {quickFacts.location}</div>}
-          {quickFacts.best_time && <div><span className="font-semibold">Best time:</span> {quickFacts.best_time}</div>}
+        <aside className="bg-[#b3e0f7] rounded-2xl p-8 shadow-xl border border-blue-200 flex flex-col gap-4 h-fit">
+          <h3 className="text-xl font-bold mb-2 text-blue-900">Quick facts</h3>
+          {quickFacts.depth && <div><span className="font-semibold">Depth range:</span> <span className="text-blue-900">{quickFacts.depth}</span></div>}
+          {quickFacts.level && <div><span className="font-semibold">Level:</span> <span className="text-blue-900">{quickFacts.level}</span></div>}
+          {quickFacts.location && <div><span className="font-semibold">Location:</span> <span className="text-blue-900">{quickFacts.location}</span></div>}
+          {quickFacts.best_time && <div><span className="font-semibold">Best time:</span> <span className="text-blue-700">{quickFacts.best_time}</span></div>}
         </aside>
 
         {/* What you can see */}
-        <aside className="bg-blue-200 rounded-xl p-6 shadow flex flex-col gap-4 mt-6 md:mt-0">
-          <h3 className="text-xl font-bold mb-2">What you can see</h3>
+        <aside className="bg-[#b3e0f7] rounded-2xl p-8 shadow-xl border border-blue-200 flex flex-col gap-4 h-fit mt-6 md:mt-0">
+          <h3 className="text-xl font-bold mb-2 text-blue-900">What you can see</h3>
           <div className="flex flex-wrap gap-2">
             {whatYouCanSee.map((item, i) => (
-              <span key={i} className="bg-blue-100 rounded-full px-3 py-1 text-sm font-semibold text-blue-900 border border-blue-300">
+              <span key={i} className="bg-blue-100 rounded-full px-3 py-1 text-sm font-semibold text-blue-900 border border-blue-300 shadow-sm">
                 {item}
               </span>
             ))}
@@ -157,13 +159,13 @@ const WPPageDetail: React.FC<{ slug: string }> = ({ slug }) => {
       </div>
 
       {/* Marine life highlights and booking */}
-      <div className="grid md:grid-cols-3 gap-6">
+      <div className="grid md:grid-cols-3 gap-8">
         {/* Marine life highlights */}
-        <section className="md:col-span-2 bg-blue-200 rounded-xl p-6 shadow">
-          <h3 className="text-xl font-bold mb-4">Marine life highlights</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        <section className="md:col-span-2 bg-[#b3e0f7] rounded-2xl p-8 shadow-xl border border-blue-200">
+          <h3 className="text-xl font-bold mb-4 text-blue-900">Marine life highlights</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {highlights.map((item, i) => (
-              <div key={i} className="flex items-center gap-2 bg-blue-100 rounded px-3 py-2 text-blue-900">
+              <div key={i} className="flex items-center gap-2 bg-blue-100 rounded-xl px-4 py-3 text-blue-900 shadow border border-blue-200 text-base font-medium">
                 <span role="img" aria-label="Fish">🐟</span>
                 {item}
               </div>
@@ -172,12 +174,12 @@ const WPPageDetail: React.FC<{ slug: string }> = ({ slug }) => {
         </section>
 
         {/* Booking card */}
-        <aside className="bg-blue-200 rounded-xl p-6 shadow flex flex-col justify-between">
-          <h3 className="text-xl font-bold mb-2">Ready to dive?</h3>
-          <p className="mb-4">{bookingText}</p>
+        <aside className="bg-[#b3e0f7] rounded-2xl p-8 shadow-xl border border-blue-200 flex flex-col justify-between h-fit">
+          <h3 className="text-xl font-bold mb-2 text-blue-900">Ready to dive?</h3>
+          <p className="mb-4 text-blue-900">{bookingText}</p>
           <a
             href={bookingUrl}
-            className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded transition"
+            className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-4 rounded-lg transition text-center shadow"
             target="_blank"
             rel="noopener noreferrer"
           >
