@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import DiveSiteDetail from '@/components/DiveSiteDetail';
 
-const SPACE_ID = 'dxz3091tnbzu';
-const ACCESS_TOKEN = 'YArIMzW5Pl74W0-ODfe0MAwFGvwoIeRtAacuh4m2iII';
+const SPACE_ID = import.meta.env.VITE_CONTENTFUL_SPACE_ID;
+const ACCESS_TOKEN = import.meta.env.VITE_CONTENTFUL_ACCESS_TOKEN;
 
 // USAGE: Copy this file and rename it for your new dive site page.
 // Replace 'DIVE_SITE_NAME' and 'Dive Site Name' with the correct slug and display name.
