@@ -1,56 +1,50 @@
-import React from 'react';
-import DiveSiteDetail from '@/components/DiveSiteDetail';
+import React, { useEffect, useState } from 'react';
+import { createClient } from 'contentful';
 import { useTranslation } from 'react-i18next';
+import DiveSiteDetail from '@/components/DiveSiteDetail';
 
-const ChumphonPinnacle = () => {
+const client = createClient({
+  space: '5uphqssjz3hc',
+  accessToken: 'FychplmXWcmvE85YBhlKXGvFfR5sgJGWMyF9cirU--4',
+});
+
+export default function ChumphonPinnaclePage() {
   const { i18n } = useTranslation();
-  const isDutch = i18n.language.startsWith('nl');
+  const [data, setData] = useState(null);
 
-  const content = {
-    en: {
-      overview: 'Your new overview content here',
-      quickFacts: {
-        depth: '15-30m',
-        difficulty: 'Advanced',
-        location: '30 minutes offshore',
-        bestTime: 'May–September',
-      },
-      whatYouCanSee: ['Whale sharks', 'Trevally schools', 'Eagle rays', 'Chevron barracuda'],
-      marineLifeHighlights: ['test'],
-      divingTips: ['test'],
-      images: ['/images/whale-shark-snorkelling-fos-sustainable-certification-medium-1.webp'],
-    },
-    nl: {
-      overview: 'Dutch overview content here',
-      quickFacts: {
-        depth: '15-30m',
-        difficulty: 'Gevorderd',
-        location: '30 minuten offshore',
-        bestTime: 'Mei–September',
-      },
-      whatYouCanSee: ['Walvishaaien', 'Trevally-scholen', 'Adelaarsroggen', 'Chevron-barracuda'],
-      marineLifeHighlights: ['Dutch marine life highlights here'],
-      divingTips: ['Dutch quick facts here'],
-      images: ['/images/whale-shark-snorkelling-fos-sustainable-certification-medium-1.webp'],
-    },
-  };
+  useEffect(() => {
+    const fetchDiveSite = async () => {
+      const locale = i18n.language.startsWith('nl') ? 'nl' : 'en-US';
+      const entries = await client.getEntries({
+        content_type: 'diveSite', // Use your Content Model ID
+        'fields.slug': 'chumphon-pinnacle', // Use your slug field value
+        locale,
+      });
+      if (entries.items.length > 0) {
+        setData(entries.items[0].fields);
+      }
+    };
+    fetchDiveSite();
+  }, [i18n.language]);
 
-  const locale = isDutch ? 'nl' : 'en';
-  const data = content[locale];
+  if (!data) return <div>Loading…</div>;
 
   return (
     <div className="px-4 md:px-8">
       <DiveSiteDetail
-        name="Chumphon Pinnacle"
+        name={data.name}
         overview={data.overview}
-        quickFacts={data.quickFacts}
+        quickFacts={{
+          depth: data.depth,
+          difficulty: data.difficulty,
+          location: data.location,
+          bestTime: data.bestTime,
+        }}
         whatYouCanSee={data.whatYouCanSee}
         marineLifeHighlights={data.marineLifeHighlights}
         divingTips={data.divingTips}
-        images={data.images}
+        images={data.images.map(img => img.fields.file.url)}
       />
     </div>
   );
-};
-
-export default ChumphonPinnacle;
+}
