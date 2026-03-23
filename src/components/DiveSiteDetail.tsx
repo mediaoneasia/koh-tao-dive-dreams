@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -77,7 +76,7 @@ const DiveSiteDetail: React.FC<DiveSiteDetailProps> = ({
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         {/* Quick Facts */}
-        <Card className="h-full flex flex-col justify-between">
+        <Card className="h-full flex flex-col justify-between bg-[#0a2239] text-white">
           <CardHeader>
             <CardTitle>{labels.quickFacts}</CardTitle>
           </CardHeader>
@@ -89,7 +88,7 @@ const DiveSiteDetail: React.FC<DiveSiteDetailProps> = ({
         </Card>
 
         {/* What You Can See */}
-        <Card className="h-full flex flex-col justify-between">
+        <Card className="h-full flex flex-col justify-between bg-[#0a2239] text-white">
           <CardHeader>
             <CardTitle>{labels.whatToSee}</CardTitle>
           </CardHeader>
@@ -103,7 +102,7 @@ const DiveSiteDetail: React.FC<DiveSiteDetailProps> = ({
         </Card>
 
         {/* Marine Life Highlights */}
-        <Card className="h-full flex flex-col justify-between">
+        <Card className="h-full flex flex-col justify-between bg-[#0a2239] text-white">
           <CardHeader>
             <CardTitle>{labels.marineLife}</CardTitle>
           </CardHeader>
