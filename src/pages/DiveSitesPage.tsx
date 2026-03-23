@@ -89,6 +89,7 @@ const DiveSitesPage = () => {
         },
         {
           name: "Chumphon Pinnacle",
+          path: "/dive-sites/chumphon-pinnacle",
           description: "Granieten pinnacle met uitstekende kansen op walvishaaien en grote scholen trevally.",
           depth: "15-30m",
           highlights: ["Walvishaaien", "Trevally-scholen", "Adelaarsroggen", "Chevron-barracuda"],
@@ -97,6 +98,7 @@ const DiveSitesPage = () => {
         },
         {
           name: "South West Pinnacle",
+          path: "/dive-sites/south-west-pinnacle",
           description: "Diepe pinnacle, bekend om walvishaaien, brydevinvissen en grote pelagische vis.",
           depth: "15-35m",
           highlights: ["Walvishaaien", "Brydevinvissen", "Reuzenbarracuda", "Koningsmakreel"],
@@ -116,6 +118,7 @@ const DiveSitesPage = () => {
         },
         {
           name: "Chumphon Pinnacle",
+          path: "/dive-sites/chumphon-pinnacle",
           description: "Granite pinnacle with excellent whale shark sightings and large schools of trevally.",
           depth: "15-30m",
           highlights: ["Whale sharks", "Trevally schools", "Eagle rays", "Chevron barracuda"],
@@ -124,6 +127,7 @@ const DiveSitesPage = () => {
         },
         {
           name: "South West Pinnacle",
+          path: "/dive-sites/south-west-pinnacle",
           description: "Deep pinnacle known for whale sharks, Bryde’s whales, and large pelagic fish.",
           depth: "15-35m",
           highlights: ["Whale sharks", "Bryde’s whales", "Giant barracuda", "Spanish mackerel"],
@@ -321,7 +325,6 @@ const DiveSitesPage = () => {
 
   return (
     <div className="min-h-screen bg-background">
-
       {/* Hero Section */}
       <section className="relative h-screen flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 bg-[url('/images/whale.webp')] bg-cover bg-center" />
@@ -348,7 +351,6 @@ const DiveSitesPage = () => {
               {pageContent.overviewText}
             </p>
           </div>
-
           <div className="grid md:grid-cols-4 gap-6 mb-12">
             <Card className="text-center">
               <CardHeader>
@@ -359,7 +361,6 @@ const DiveSitesPage = () => {
                 <p>{pageContent.stat1Text}</p>
               </CardContent>
             </Card>
-
             <Card className="text-center">
               <CardHeader>
                 <Fish className="w-12 h-12 mx-auto mb-4 text-blue-600" />
@@ -369,7 +370,6 @@ const DiveSitesPage = () => {
                 <p>{pageContent.stat2Text}</p>
               </CardContent>
             </Card>
-
             <Card className="text-center">
               <CardHeader>
                 <Anchor className="w-12 h-12 mx-auto mb-4 text-blue-600" />
@@ -379,7 +379,6 @@ const DiveSitesPage = () => {
                 <p>{pageContent.stat3Text}</p>
               </CardContent>
             </Card>
-
             <Card className="text-center">
               <CardHeader>
                 <Eye className="w-12 h-12 mx-auto mb-4 text-blue-600" />
@@ -398,42 +397,45 @@ const DiveSitesPage = () => {
         <div className="max-w-6xl mx-auto">
           <h2 className="text-4xl font-bold text-center mb-12">{pageContent.deepTitle}</h2>
           <div className="grid md:grid-cols-1 lg:grid-cols-3 gap-8">
-            {deepDiveSites.map((site, index) => (
-              <Card key={index} className="overflow-hidden">
-                <CardHeader>
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <MapPin className="w-5 h-5 text-blue-600" />
-                      <CardTitle className="text-xl">
-                        {site.path ? (
-                          <Link to={site.path} className="hover:text-blue-600 underline-offset-4 hover:underline">
-                            {site.name}
-                          </Link>
-                        ) : (
-                          site.name
-                        )}
-                      </CardTitle>
+            {deepDiveSites.map((site, index) => {
+              const linkPath = site.path;
+              return (
+                <Card key={index} className="overflow-hidden">
+                  <CardHeader>
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <MapPin className="w-5 h-5 text-blue-600" />
+                        <CardTitle className="text-xl">
+                          {linkPath ? (
+                            <Link to={linkPath} className="hover:text-blue-600 underline-offset-4 hover:underline">
+                              {site.name}
+                            </Link>
+                          ) : (
+                            site.name
+                          )}
+                        </CardTitle>
+                      </div>
+                      <Badge className={getDifficultyColor(site.difficulty)}>{difficultyLabel(site.difficulty)}</Badge>
                     </div>
-                    <Badge className={getDifficultyColor(site.difficulty)}>{difficultyLabel(site.difficulty)}</Badge>
-                  </div>
-                  <div className="flex items-center gap-4 text-sm text-muted-foreground mb-2">
-                    <span>{pageContent.depth}: {site.depth}</span>
-                    <span className="flex items-center gap-1">
-                      <Clock className="w-4 h-4" />
-                      {site.location}
-                    </span>
-                  </div>
-                  <CardDescription>{site.description}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex flex-wrap gap-2">
-                    {site.highlights.map((highlight, i) => (
-                      <Badge key={i} variant="outline">{highlight}</Badge>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                    <div className="flex items-center gap-4 text-sm text-muted-foreground mb-2">
+                      <span>{pageContent.depth}: {site.depth}</span>
+                      <span className="flex items-center gap-1">
+                        <Clock className="w-4 h-4" />
+                        {site.location}
+                      </span>
+                    </div>
+                    <CardDescription>{site.description}</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex flex-wrap gap-2">
+                      {site.highlights.map((highlight, i) => (
+                        <Badge key={i} variant="outline">{highlight}</Badge>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         </div>
       </section>
