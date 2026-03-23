@@ -1,5 +1,5 @@
 import React from 'react';
-import DiveSiteDetail from '@/components/DiveSiteDeta';
+import DiveSiteDetail from '@/components/DiveSiteDetail';
 import { useTranslation } from 'react-i18next';
 
 const ChumphonPinnacle = () => {
