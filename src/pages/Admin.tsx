@@ -1,4 +1,3 @@
-
 import AdminBookings from '../components/AdminBookings';
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
@@ -10,9 +9,12 @@ import { supabase } from '@/integrations/supabase/client';
 
 const Admin = () => {
     // Tab navigation UI
-    // Only Bookings tab remains
+    // Add more admin tabs here
     const tabs = [
       { key: 'bookings', label: 'Bookings' },
+      { key: 'analytics', label: 'Analytics' },
+      { key: 'pages', label: 'Pages Manager' },
+      { key: 'users', label: 'Users' },
     ];
   const [activeTab, setActiveTab] = useState('bookings');
   const [bookings, setBookings] = useState([]);
@@ -70,17 +72,29 @@ const Admin = () => {
   return (
     <div className="p-4">
       <div className="flex gap-2 mb-6">
-        <button
-          className={`px-4 py-2 rounded-t ${activeTab === 'bookings' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'}`}
-          onClick={() => setActiveTab('bookings')}
-        >
-          Bookings
-        </button>
+        {tabs.map(tab => (
+          <button
+            key={tab.key}
+            className={`px-4 py-2 rounded-t ${activeTab === tab.key ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'}`}
+            onClick={() => setActiveTab(tab.key)}
+          >
+            {tab.label}
+          </button>
+        ))}
       </div>
       {activeTab === 'bookings' && (
         <div className="bg-white rounded shadow p-2">
           <AdminBookings />
         </div>
+      )}
+      {activeTab === 'analytics' && (
+        <div className="bg-white rounded shadow p-4">Analytics dashboard coming soon...</div>
+      )}
+      {activeTab === 'pages' && (
+        <div className="bg-white rounded shadow p-4">Pages Manager coming soon...</div>
+      )}
+      {activeTab === 'users' && (
+        <div className="bg-white rounded shadow p-4">User management coming soon...</div>
       )}
     </div>
   );
