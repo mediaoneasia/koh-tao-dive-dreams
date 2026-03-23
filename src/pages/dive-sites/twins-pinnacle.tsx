@@ -60,5 +60,3 @@ const TwinsPinnacle = () => {
 };
 
 export default TwinsPinnacle;
-
-export default TwinsPinnacle;
