@@ -1,6 +1,30 @@
 import React, { useState } from 'react';
 import DiveSiteDetail from '@/components/DiveSiteDetail';
 import { useTranslation } from 'react-i18next';
+import { useAdmin } from '@/lib/adminAccess'; // Ensure useAdmin is imported
+import { supabase } from '@/integrations/supabase/client';
+import { hasAdminAccess } from '@/lib/adminAccess';
+
+const useAdmin = () => {
+  const [user, setUser] = React.useState(null);
+  const [isAdmin, setIsAdmin] = React.useState(false);
+  React.useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+      setIsAdmin(user ? hasAdminAccess(user) : false);
+    };
+    checkAuth();
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      const { isAdmin } = useAdmin(); // Get isAdmin from useAdmin hook
+      const user = session?.user ?? null;
+      setUser(user);
+      setIsAdmin(user ? hasAdminAccess(user) : false);
+    });
+    return () => { subscription.unsubscribe(); };
+  }, []);
+  return { user, isAdmin };
+};
 
 const ChumphonPinnacle = () => {
   const { i18n } = useTranslation();
@@ -87,6 +111,7 @@ const ChumphonPinnacle = () => {
     divingTips: content.divingTips.join('\n'),
   });
 
+  const { user, isAdmin } = useAdmin();
   const handleEdit = () => setEditing(true);
   const handleCancel = () => setEditing(false);
   const handleChange = (e) => {
@@ -113,7 +138,7 @@ const ChumphonPinnacle = () => {
   return (
     <>
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
-        {!editing && (
+        {!editing && isAdmin && (
           <button onClick={handleEdit} style={{ background: '#2563eb', color: 'white', borderRadius: 6, padding: '8px 18px', fontWeight: 600 }}>
             Edit
           </button>
