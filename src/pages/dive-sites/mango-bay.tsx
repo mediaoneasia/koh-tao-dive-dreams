@@ -31,67 +31,48 @@ const MangoBay = () => {
         ],
         divingTips: [
           'Perfect voor beginners en trainingsduiken',
-          'Ook uitstekend geschikt om te snorkelen',
-          'Kijk uit naar grazers in zeegras en rifleven',
-          'Mooie plek voor onderwaterfotografie',
-          'Rustig water ideaal om drijfvermogen te leren',
-          'Meerdere koraalbommies om te verkennen',
-          'Geschikt voor langere duiken',
-          'Perfect voor Open Water-brevetduiken'
-        ],
-        images: ['/images/mango-bay.webp']
-      }
-    : {
-        overview: "Shallow coral reefs perfect for relaxed diving with thriving marine ecosystems.",
-        quickFacts: {
-          depth: '5-18m',
-          difficulty: 'Beginner',
-          location: 'West coast bay',
-          bestTime: 'Year-round, best during calm weather',
-        },
-        whatYouCanSee: [
-          'Colorful reef fish',
-          'Clownfish and anemones',
-          'Parrotfish and wrasse',
-          'Butterflyfish',
-          'Angelfish species',
-          'Small reef sharks'
-        ],
-        marineLifeHighlights: [
-          'Healthy reef ecosystem',
-          'Colorful hard and soft corals',
-          'Sea anemones',
-          'Abundant marine life'
-        ],
-        divingTips: [
-          'Perfect for beginner divers and training',
-          'Excellent for snorkeling as well',
-          'Look for seagrass grazers and reef life',
-          'Great for underwater photography',
-          'Calm waters ideal for learning buoyancy',
-          'Multiple coral bommies to explore',
-          'Good site for extended dives',
-          'Perfect for Open Water certification dives'
-        ],
-        images: ['/images/mango-bay.webp']
-      };
+          import React from 'react';
+          import DiveSiteDetail from '@/components/DiveSiteDetail';
 
-  const locale = isDutch ? 'nl' : 'en';
-  const data = content;
+          const MangoBay = () => {
+            return (
+              <DiveSiteDetail
+                name="Mango Bay"
+                overview="Shallow coral reefs perfect for relaxed diving with thriving marine ecosystems."
+                quickFacts={{
+                  depth: '5-18m',
+                  difficulty: 'Beginner',
+                  location: 'West coast bay',
+                  bestTime: 'Year-round, best during calm weather',
+                }}
+                whatYouCanSee={[
+                  'Colorful reef fish',
+                  'Clownfish and anemones',
+                  'Parrotfish and wrasse',
+                  'Butterflyfish',
+                  'Angelfish species',
+                  'Small reef sharks'
+                ]}
+                marineLifeHighlights={[
+                  'Healthy reef ecosystem',
+                  'Colorful hard and soft corals',
+                  'Sea anemones',
+                  'Abundant marine life'
+                ]}
+                divingTips={[
+                  'Perfect for beginners and training dives',
+                  'Also excellent for snorkeling',
+                  'Look for grazers in seagrass and reef life',
+                  'Great spot for underwater photography',
+                  'Calm water ideal for learning buoyancy',
+                  'Multiple coral bommies to explore',
+                  'Suitable for longer dives',
+                  'Perfect for Open Water certification dives'
+                ]}
+                images={['/images/mango-bay.webp']}
+              />
+            );
+          };
 
-  return (
-    <div className="px-4 md:px-8">
-      <DiveSiteDetail
-        name={isDutch ? 'Mango Bay' : 'Mango Bay'}
-        overview={data.overview}
-        quickFacts={data.quickFacts}
-        whatYouCanSee={data.whatYouCanSee}
-        marineLifeHighlights={data.marineLifeHighlights}
-        divingTips={data.divingTips}
-        images={data.images}
-      />
-    </div>
-  );
-};
+          export default MangoBay;
 
-export default MangoBay;
