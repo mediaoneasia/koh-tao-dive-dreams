@@ -91,7 +91,18 @@ const Admin = () => {
         <div className="bg-white rounded shadow p-4">Analytics dashboard coming soon...</div>
       )}
       {activeTab === 'pages' && (
-        <div className="bg-white rounded shadow p-4">Pages Manager coming soon...</div>
+        <div className="bg-white rounded shadow p-4">
+          <React.Suspense fallback={<div>Loading Pages Manager...</div>}>
+            {typeof window !== 'undefined' && (
+              <>
+                {(() => {
+                  const AdminPagesManager = require('../components/AdminPagesManager').default;
+                  return <AdminPagesManager />;
+                })()}
+              </>
+            )}
+          </React.Suspense>
+        </div>
       )}
       {activeTab === 'users' && (
         <div className="bg-white rounded shadow p-4">User management coming soon...</div>
