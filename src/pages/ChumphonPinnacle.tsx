@@ -1,5 +1,5 @@
 import React from 'react';
-// import DiveSiteDetail from '../components/DiveSiteDetail';
+import DiveSiteDetail from '@/components/DiveSiteDeta';
 import { useTranslation } from 'react-i18next';
 
 const ChumphonPinnacle = () => {
@@ -70,29 +70,30 @@ const ChumphonPinnacle = () => {
       };
 
   return (
-    {/* <DiveSiteDetail
-      name="Chumphon Pinnacle"
-      description={content.description}
-      depth="15-30m"
-      difficulty={content.difficulty}
-      location={content.location}
-      highlights={content.highlights}
-      detailedDescription={content.detailedDescription}
-      bestTime={content.bestTime}
-      current={content.current}
-      visibility={content.visibility}
-      marineLife={content.marineLife}
-      tips={content.tips}
-      images={[
-        "/images/chumphon-pinnacle-top.webp", // Primary top image for Chumphon Pinnacle
-        "/images/photo-1682686580849-3e7f67df4015.avif",
-        "/images/photo-1613853250147-2f73e55c1561.avif",
-        "/images/photo-1618865181016-a80ad83a06d3.avif",
-        "/images/photo-1647825194145-2d94e259c745.avif",
-        "/images/photo-1659518893171-b15e20a8e201.avif",
-        "/images/photo-1682687982423-295485af248a.avif"
-      ]}
-    /> */}
+    <div className="px-4 md:px-8">
+      <DiveSiteDetail
+        name="Chumphon Pinnacle"
+        overview={content.detailedDescription}
+        quickFacts={{
+          depth: "15-30m",
+          difficulty: content.difficulty,
+          location: content.location,
+          bestTime: content.bestTime
+        }}
+        whatYouCanSee={content.highlights}
+        marineLifeHighlights={content.marineLife}
+        divingTips={content.tips}
+        images={[
+          "/images/chumphon-pinnacle-top.webp",
+          "/images/photo-1682686580849-3e7f67df4015.avif",
+          "/images/photo-1613853250147-2f73e55c1561.avif",
+          "/images/photo-1618865181016-a80ad83a06d3.avif",
+          "/images/photo-1647825194145-2d94e259c745.avif",
+          "/images/photo-1659518893171-b15e20a8e201.avif",
+          "/images/photo-1682687982423-295485af248a.avif"
+        ]}
+      />
+    </div>
   );
 };
 
