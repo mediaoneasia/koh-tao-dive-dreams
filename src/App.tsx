@@ -38,7 +38,7 @@ import SpecialtyDetail from './pages/SpecialtyDetail';
 import FunDiving from './pages/FunDiving';
 import DiveSitesPage from './pages/DiveSitesPage';
 import SailRock from './pages/dive-sites/sail-rock';
-import ChumphonPinnacle from './pages/dive-sites/chumphon-pinnacle';
+import ChumphonPinnacle from './pages/dive-sites/ChumphonPinnacle';
 import JapaneseGardens from './pages/dive-sites/japanese-gardens';
 import HTMSSattakut from './pages/HTMSSattakut';
 import TwinsPinnacle from './pages/dive-sites/twins-pinnacle';
