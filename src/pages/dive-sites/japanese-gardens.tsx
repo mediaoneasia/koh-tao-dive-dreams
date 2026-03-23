@@ -1,5 +1,5 @@
 import React from 'react';
-import DiveSiteDetail from '@/components/DiveSiteDeta';
+import DiveSiteDetail from '@/components/DiveSiteDetail';
 
 const JapaneseGardens = () => {
   return (
