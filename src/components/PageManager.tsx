@@ -50,7 +50,7 @@ const PAGE_REGISTRY: PageInfo[] = [
 
   // DIVE SITES
   { slug: 'dive-sites/sail-rock', title: 'Sail Rock', category: 'dive-site', hasEnglish: true, hasDutch: true, hasSEO: false, isSecured: false },
-  { slug: 'dive-sites/chumphon-pinnacle', title: 'Chumphon Pinnacle', category: 'dive-site', hasEnglish: true, hasDutch: true, hasSEO: false, isSecured: false },
+  // { slug: 'dive-sites/chumphon-pinnacle', title: 'Chumphon Pinnacle', category: 'dive-site', hasEnglish: true, hasDutch: true, hasSEO: false, isSecured: false },
   { slug: 'dive-sites/japanese-gardens', title: 'Japanese Gardens', category: 'dive-site', hasEnglish: true, hasDutch: true, hasSEO: false, isSecured: false },
   { slug: 'dive-sites/htms-sattakut', title: 'HTMS Sattakut Wreck', category: 'dive-site', hasEnglish: true, hasDutch: true, hasSEO: false, isSecured: false },
   { slug: 'dive-sites/twins', title: 'The Twins', category: 'dive-site', hasEnglish: true, hasDutch: true, hasSEO: false, isSecured: false },
