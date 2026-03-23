@@ -1,5 +1,9 @@
 
-import React from 'react';
+import React, { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { useTranslation } from 'react-i18next';
 
 interface DiveSiteDetailProps {
   name: string;
@@ -25,45 +29,141 @@ const DiveSiteDetail: React.FC<DiveSiteDetailProps> = ({
   divingTips,
   images
 }) => {
+  const { i18n } = useTranslation();
+  const isDutch = i18n.language.startsWith('nl');
+  const hero = images && images.length > 0 ? images[0] : '/images/photo-1682686580849-3e7f67df4015.avif';
+
+  const labels = isDutch
+    ? {
+        overview: 'Overzicht',
+        quickFacts: 'Snelle feiten',
+        depthRange: 'Dieptebereik',
+        level: 'Niveau',
+        location: 'Locatie',
+        bestTime: 'Beste periode',
+        whatToSee: 'Wat kun je zien',
+        marineLife: 'Hoogtepunten marien leven',
+        tips: 'Duiktips',
+        gallery: 'Galerij',
+      }
+    : {
+        overview: 'Overview',
+        quickFacts: 'Quick facts',
+        depthRange: 'Depth range',
+        level: 'Level',
+        location: 'Location',
+        bestTime: 'Best time',
+        whatToSee: 'What you can see',
+        marineLife: 'Marine life highlights',
+        tips: 'Diving tips',
+        gallery: 'Gallery',
+      };
+
   return (
-    <div style={{ padding: 24 }}>
-      <h1>{name}</h1>
-      <p><strong>Overview:</strong> {overview}</p>
-      <div>
-        <strong>Quick Facts:</strong>
-        <ul>
-          <li>Depth: {quickFacts.depth}</li>
-          <li>Difficulty: {quickFacts.difficulty}</li>
-          <li>Location: {quickFacts.location}</li>
-          <li>Best Time: {quickFacts.bestTime}</li>
-        </ul>
-      </div>
-      <div>
-        <strong>What You Can See:</strong>
-        <ul>
-          {whatYouCanSee.map((item, idx) => <li key={idx}>{item}</li>)}
-        </ul>
-      </div>
-      <div>
-        <strong>Marine Life Highlights:</strong>
-        <ul>
-          {marineLifeHighlights.map((item, idx) => <li key={idx}>{item}</li>)}
-        </ul>
-      </div>
-      <div>
-        <strong>Diving Tips:</strong>
-        <ul>
-          {divingTips.map((item, idx) => <li key={idx}>{item}</li>)}
-        </ul>
-      </div>
-      <div>
-        <strong>Gallery:</strong>
-        <div style={{ display: 'flex', gap: 8 }}>
-          {images.map((img, idx) => (
-            <img key={idx} src={img} alt={name + ' ' + (idx + 1)} style={{ width: 180, height: 120, objectFit: 'cover', borderRadius: 8 }} />
-          ))}
+    <div className="min-h-screen bg-background py-8">
+      {/* Hero Section */}
+      <section className="relative flex items-center justify-center overflow-hidden rounded-xl shadow-lg mb-8 h-72">
+        <img src={hero} alt={name} className="absolute inset-0 w-full h-full object-cover" />
+        <div className="absolute inset-0 bg-black/35" />
+        <div className="relative z-10 text-center px-4 text-white">
+          <h1 className="text-4xl md:text-6xl font-bold mb-2 text-white drop-shadow-lg">{name}</h1>
+          {quickFacts.bestTime && (
+            <span className="inline-block bg-blue-600 text-white text-xs md:text-sm font-semibold rounded-full px-4 py-1 mb-2 shadow-lg">
+              {labels.bestTime}: {quickFacts.bestTime}
+            </span>
+          )}
         </div>
+      </section>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        {/* Quick Facts */}
+        <Card className="h-full flex flex-col justify-between">
+          <CardHeader>
+            <CardTitle>{labels.quickFacts}</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div><span className="font-medium text-sm">{labels.depthRange}:</span> <span className="text-sm text-muted-foreground">{quickFacts.depth}</span></div>
+            <div><span className="font-medium text-sm">{labels.level}:</span> <span className="text-sm text-muted-foreground">{quickFacts.difficulty}</span></div>
+            <div><span className="font-medium text-sm">{labels.location}:</span> <span className="text-sm text-muted-foreground">{quickFacts.location}</span></div>
+          </CardContent>
+        </Card>
+
+        {/* What You Can See */}
+        <Card className="h-full flex flex-col justify-between">
+          <CardHeader>
+            <CardTitle>{labels.whatToSee}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-wrap gap-2">
+              {whatYouCanSee.map((item, index) => (
+                <Badge key={index} variant="outline">{item}</Badge>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Marine Life Highlights */}
+        <Card className="h-full flex flex-col justify-between">
+          <CardHeader>
+            <CardTitle>{labels.marineLife}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ul className="space-y-2">
+              {marineLifeHighlights.map((item, index) => (
+                <li key={index} className="flex items-start gap-2">
+                  <span className="text-muted-foreground">{item}</span>
+                </li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
       </div>
+
+      {/* Overview & Tips Section */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <Card>
+          <CardHeader>
+            <CardTitle>{labels.overview}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground text-base">{overview}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>{labels.tips}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ul className="space-y-2">
+              {divingTips.map((tip, index) => (
+                <li key={index} className="flex items-start gap-2">
+                  <span className="text-muted-foreground">{tip}</span>
+                </li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Gallery Section */}
+      <Card className="mb-8">
+        <CardHeader>
+          <CardTitle>{labels.gallery}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {images.map((image, index) => (
+              <div key={index} className="aspect-video bg-muted rounded-lg overflow-hidden">
+                <img
+                  src={image}
+                  alt={`${name} ${index + 1}`}
+                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                />
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
