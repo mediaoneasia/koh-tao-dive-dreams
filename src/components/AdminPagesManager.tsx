@@ -1,9 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.REACT_APP_SUPABASE_URL || 'YOUR_SUPABASE_URL';
-const supabaseKey = process.env.REACT_APP_SUPABASE_ANON_KEY || 'YOUR_SUPABASE_ANON_KEY';
-const supabase = createClient(supabaseUrl, supabaseKey);
+const supabaseUrl =
+  (import.meta.env.VITE_SUPABASE_URL as string | undefined) ||
+  process.env.REACT_APP_SUPABASE_URL ||
+  '';
+const supabaseKey =
+  (import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string | undefined) ||
+  (import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined) ||
+  process.env.REACT_APP_SUPABASE_ANON_KEY ||
+  '';
+
+const supabase = supabaseUrl && supabaseKey ? createClient(supabaseUrl, supabaseKey) : null;
 
 interface PageContentRow {
   id: string;
@@ -25,6 +33,12 @@ const AdminPagesManager: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
+      if (!supabase) {
+        setError('Supabase is not configured for Admin Pages Manager. Set VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY.');
+        setLoading(false);
+        return;
+      }
+
       const { data, error } = await supabase
         .from('page_content')
         .select('*');
@@ -44,6 +58,11 @@ const AdminPagesManager: React.FC = () => {
   };
 
   const handleSave = async (row: PageContentRow) => {
+    if (!supabase) {
+      alert('Supabase is not configured.');
+      return;
+    }
+
     const { error } = await supabase
       .from('page_content')
       .update({ content: editContent })
@@ -60,50 +79,54 @@ const AdminPagesManager: React.FC = () => {
   if (error) return <div>Error: {error}</div>;
 
   return (
-    <div style={{ padding: 24 }}>
+    <div className="p-6">
       <h1>Pages Manager</h1>
-      <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: 8 }}>
+      <div className="mt-2 overflow-x-auto">
+      <table className="w-full border-collapse">
         <thead>
           <tr>
-            <th style={{ border: '1px solid #ccc', padding: 8 }}>ID</th>
-            <th style={{ border: '1px solid #ccc', padding: 8 }}>Section</th>
-            <th style={{ border: '1px solid #ccc', padding: 8 }}>Language</th>
-            <th style={{ border: '1px solid #ccc', padding: 8 }}>Content</th>
-            <th style={{ border: '1px solid #ccc', padding: 8 }}>Actions</th>
+            <th className="border border-gray-300 p-2 text-left">Actions</th>
+            <th className="border border-gray-300 p-2 text-left">ID</th>
+            <th className="border border-gray-300 p-2 text-left">Section</th>
+            <th className="border border-gray-300 p-2 text-left">Language</th>
+            <th className="border border-gray-300 p-2 text-left">Content</th>
           </tr>
         </thead>
         <tbody>
           {data.map((row) => (
             <tr key={row.id}>
-              <td style={{ border: '1px solid #ccc', padding: 8 }}>{row.id}</td>
-              <td style={{ border: '1px solid #ccc', padding: 8 }}>{row.section}</td>
-              <td style={{ border: '1px solid #ccc', padding: 8 }}>{row.language}</td>
-              <td style={{ border: '1px solid #ccc', padding: 8 }}>
+              <td className="whitespace-nowrap border border-gray-300 p-2">
+                {editingId === row.id ? (
+                  <>
+                    <button className="mr-2 font-semibold" onClick={() => handleSave(row)}>Save</button>
+                    <button onClick={() => setEditingId(null)}>Cancel</button>
+                  </>
+                ) : (
+                  <button className="font-semibold" onClick={() => handleEdit(row)}>Edit</button>
+                )}
+              </td>
+              <td className="border border-gray-300 p-2">{row.id}</td>
+              <td className="border border-gray-300 p-2">{row.section}</td>
+              <td className="border border-gray-300 p-2">{row.language}</td>
+              <td className="border border-gray-300 p-2">
                 {editingId === row.id ? (
                   <textarea
                     value={editContent}
                     onChange={(e) => setEditContent(e.target.value)}
                     rows={3}
-                    style={{ width: '100%' }}
+                    className="w-full rounded border border-gray-300 p-2"
+                    aria-label={`Edit content for ${row.section}`}
+                    placeholder="Edit content"
                   />
                 ) : (
                   row.content
-                )}
-              </td>
-              <td style={{ border: '1px solid #ccc', padding: 8 }}>
-                {editingId === row.id ? (
-                  <>
-                    <button onClick={() => handleSave(row)} style={{ marginRight: 8 }}>Save</button>
-                    <button onClick={() => setEditingId(null)}>Cancel</button>
-                  </>
-                ) : (
-                  <button onClick={() => handleEdit(row)}>Edit</button>
                 )}
               </td>
             </tr>
           ))}
         </tbody>
       </table>
+      </div>
     </div>
   );
 };
