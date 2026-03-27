@@ -47,7 +47,10 @@ const getPageGroup = (pageSlug: string) => {
     return 'Specialties';
   }
 
-  if (slug.startsWith('dive-sites/')) {
+  if (slug.startsWith('dive-sites/') || [
+    'sail-rock', 'shark-island', 'htms-sattakut', 'japanese-gardens',
+    'mango-bay', 'twins-pinnacle', 'south-west-pinnacle', 'chumphon-pinnacle'
+  ].includes(slug)) {
     return 'Dive Sites';
   }
 
