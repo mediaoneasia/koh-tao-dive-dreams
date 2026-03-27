@@ -16,6 +16,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { trackAffiliateClick } from '@/lib/affiliateTracking';
+import { usePageContent } from '@/hooks/usePageContent';
 
 const TRIP_ALLIANCE_ID = import.meta.env.VITE_TRIP_ALLIANCE_ID as string | undefined;
 const TRIP_SITE_ID = import.meta.env.VITE_TRIP_SITE_ID as string | undefined;
@@ -35,7 +36,7 @@ const Accommodation = () => {
   const navigate = useNavigate();
   const isDutch = i18n.language.startsWith('nl');
 
-  const labels = isDutch
+  const fallbackLabels = isDutch
     ? {
         heroTitle: 'Verblijf bij ons op Koh Tao',
         heroSubtitle:
@@ -94,6 +95,14 @@ const Accommodation = () => {
         details: 'Additional details',
         continueBooking: 'Continue to booking form',
       };
+
+  const locale = isDutch ? 'nl' : 'en';
+  const { content } = usePageContent({
+    pageSlug: 'accommodation',
+    locale,
+    fallbackContent: fallbackLabels,
+  });
+  const labels = { ...fallbackLabels, ...content } as typeof fallbackLabels;
 
   const roomCards: RoomCard[] = isDutch
     ? [

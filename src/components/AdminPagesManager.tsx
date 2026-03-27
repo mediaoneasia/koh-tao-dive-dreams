@@ -77,6 +77,12 @@ const AdminPagesManager: React.FC = () => {
   const [showIds, setShowIds] = useState(false);
   const [quickFilters, setQuickFilters] = useState<string[]>([]);
   const [recentlyEdited, setRecentlyEdited] = useState<Record<string, boolean>>({});
+  const [newPageSlug, setNewPageSlug] = useState('');
+  const [newSectionKey, setNewSectionKey] = useState('');
+  const [newLocale, setNewLocale] = useState<'en' | 'nl'>('en');
+  const [newContentType, setNewContentType] = useState('text');
+  const [newContentValue, setNewContentValue] = useState('');
+  const [isAddingRow, setIsAddingRow] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -131,6 +137,68 @@ const AdminPagesManager: React.FC = () => {
         });
       }, 2500);
       setEditingId(null);
+    }
+  };
+
+  const handleAddRow = async () => {
+    const page_slug = newPageSlug.trim();
+    const section_key = newSectionKey.trim();
+    const content_value = newContentValue;
+    const content_type = (newContentType || 'text').trim() || 'text';
+
+    if (!page_slug || !section_key) {
+      alert('Please enter both Page Slug and Section Key.');
+      return;
+    }
+
+    if (!supabase) {
+      alert('Supabase is not configured.');
+      return;
+    }
+
+    setIsAddingRow(true);
+
+    const { data: inserted, error } = await supabase
+      .from('page_content')
+      .insert({
+        page_slug,
+        section_key,
+        locale: newLocale,
+        content_type,
+        content_value,
+      })
+      .select('id,page_slug,section_key,locale,content_type,content_value,updated_at')
+      .single();
+
+    setIsAddingRow(false);
+
+    if (error) {
+      alert('Error adding row: ' + error.message);
+      return;
+    }
+
+    if (inserted) {
+      setData((prev) => {
+        const next = [inserted as PageContentRow, ...prev];
+        next.sort((a, b) => {
+          const pageCmp = a.page_slug.localeCompare(b.page_slug);
+          if (pageCmp !== 0) return pageCmp;
+          const sectionCmp = a.section_key.localeCompare(b.section_key);
+          if (sectionCmp !== 0) return sectionCmp;
+          return a.locale.localeCompare(b.locale);
+        });
+        return next;
+      });
+      setRecentlyEdited((prev) => ({ ...prev, [inserted.id]: true }));
+      setTimeout(() => {
+        setRecentlyEdited((prev) => {
+          const next = { ...prev };
+          delete next[inserted.id];
+          return next;
+        });
+      }, 2500);
+      setNewSectionKey('');
+      setNewContentValue('');
     }
   };
 
@@ -253,6 +321,58 @@ const AdminPagesManager: React.FC = () => {
             Clear chips
           </button>
         )}
+      </div>
+
+      <div className="mt-3 rounded border border-gray-200 p-3">
+        <div className="mb-2 text-sm font-semibold">Add Missing Row</div>
+        <div className="grid grid-cols-1 gap-2 md:grid-cols-5">
+          <input
+            value={newPageSlug}
+            onChange={(e) => setNewPageSlug(e.target.value)}
+            placeholder="page slug (e.g. accommodation)"
+            className="rounded border border-gray-300 px-3 py-2"
+            aria-label="New row page slug"
+          />
+          <input
+            value={newSectionKey}
+            onChange={(e) => setNewSectionKey(e.target.value)}
+            placeholder="section key (e.g. heroTitle)"
+            className="rounded border border-gray-300 px-3 py-2"
+            aria-label="New row section key"
+          />
+          <select
+            value={newLocale}
+            onChange={(e) => setNewLocale(e.target.value as 'en' | 'nl')}
+            className="rounded border border-gray-300 px-3 py-2"
+            aria-label="New row locale"
+          >
+            <option value="en">en</option>
+            <option value="nl">nl</option>
+          </select>
+          <input
+            value={newContentType}
+            onChange={(e) => setNewContentType(e.target.value)}
+            placeholder="content type (text)"
+            className="rounded border border-gray-300 px-3 py-2"
+            aria-label="New row content type"
+          />
+          <button
+            type="button"
+            onClick={handleAddRow}
+            className="rounded border border-gray-300 px-3 py-2 font-semibold disabled:cursor-not-allowed disabled:opacity-50"
+            disabled={isAddingRow}
+          >
+            {isAddingRow ? 'Adding...' : 'Add Row'}
+          </button>
+        </div>
+        <textarea
+          value={newContentValue}
+          onChange={(e) => setNewContentValue(e.target.value)}
+          placeholder="content value"
+          className="mt-2 w-full rounded border border-gray-300 p-2"
+          rows={3}
+          aria-label="New row content value"
+        />
       </div>
 
       <div className="mt-2 max-h-[70vh] overflow-auto">
