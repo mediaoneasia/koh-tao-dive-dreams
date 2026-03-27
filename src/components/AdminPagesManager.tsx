@@ -63,6 +63,8 @@ const getPageGroup = (pageSlug: string) => {
 };
 
 const GROUP_ORDER = ['Beginner', 'Advanced', 'Professional', 'Specialties', 'Dive Sites', 'Marine Life', 'Info', 'Other'];
+const LOCALE_FILTERS = ['en', 'nl'] as const;
+const CONTENT_FILTERS = ['hero', 'prices', 'faq'] as const;
 
 const AdminPagesManager: React.FC = () => {
   const [data, setData] = useState<PageContentRow[]>([]);
@@ -73,6 +75,8 @@ const AdminPagesManager: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [groupFilter, setGroupFilter] = useState('all');
   const [showIds, setShowIds] = useState(false);
+  const [quickFilters, setQuickFilters] = useState<string[]>([]);
+  const [recentlyEdited, setRecentlyEdited] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     const fetchData = async () => {
@@ -118,8 +122,22 @@ const AdminPagesManager: React.FC = () => {
       alert('Error saving: ' + error.message);
     } else {
       setData((prev) => prev.map((r) => (r.id === row.id ? { ...r, content_value: editContent } : r)));
+      setRecentlyEdited((prev) => ({ ...prev, [row.id]: true }));
+      setTimeout(() => {
+        setRecentlyEdited((prev) => {
+          const next = { ...prev };
+          delete next[row.id];
+          return next;
+        });
+      }, 2500);
       setEditingId(null);
     }
+  };
+
+  const toggleQuickFilter = (filter: string) => {
+    setQuickFilters((prev) =>
+      prev.includes(filter) ? prev.filter((item) => item !== filter) : [...prev, filter]
+    );
   };
 
   if (loading) return <div>Loading...</div>;
@@ -131,6 +149,25 @@ const AdminPagesManager: React.FC = () => {
     return data.filter((row) => {
       const group = getPageGroup(row.page_slug);
       if (groupFilter !== 'all' && group !== groupFilter) return false;
+
+      const selectedLocaleFilters = LOCALE_FILTERS.filter((filter) => quickFilters.includes(filter));
+      if (selectedLocaleFilters.length && !selectedLocaleFilters.includes(row.locale as 'en' | 'nl')) {
+        return false;
+      }
+
+      const selectedContentFilters = CONTENT_FILTERS.filter((filter) => quickFilters.includes(filter));
+      if (selectedContentFilters.length) {
+        const section = row.section_key.toLowerCase();
+        const isHero = section.includes('hero');
+        const isPrice = /(price|thb|usd|eur|amount|deposit)/i.test(section);
+        const isFaq = /(faq|question|answer)/i.test(section);
+        const contentMatch =
+          (selectedContentFilters.includes('hero') && isHero) ||
+          (selectedContentFilters.includes('prices') && isPrice) ||
+          (selectedContentFilters.includes('faq') && isFaq);
+
+        if (!contentMatch) return false;
+      }
 
       if (!q) return true;
 
@@ -187,10 +224,41 @@ const AdminPagesManager: React.FC = () => {
         </label>
       </div>
 
-      <div className="mt-2 overflow-x-auto">
+      <div className="mt-2 flex flex-wrap gap-2">
+        {[
+          { key: 'en', label: 'EN' },
+          { key: 'nl', label: 'NL' },
+          { key: 'hero', label: 'hero_title' },
+          { key: 'prices', label: 'prices' },
+          { key: 'faq', label: 'FAQ' },
+        ].map((chip) => {
+          const active = quickFilters.includes(chip.key);
+          return (
+            <button
+              key={chip.key}
+              type="button"
+              onClick={() => toggleQuickFilter(chip.key)}
+              className={`rounded-full border px-3 py-1 text-xs ${active ? 'border-blue-600 bg-blue-50 text-blue-700' : 'border-gray-300 text-gray-600'}`}
+            >
+              {chip.label}
+            </button>
+          );
+        })}
+        {quickFilters.length > 0 && (
+          <button
+            type="button"
+            onClick={() => setQuickFilters([])}
+            className="rounded-full border border-gray-300 px-3 py-1 text-xs text-gray-600"
+          >
+            Clear chips
+          </button>
+        )}
+      </div>
+
+      <div className="mt-2 max-h-[70vh] overflow-auto">
       <table className="w-full border-collapse">
         <thead>
-          <tr>
+          <tr className="sticky top-0 z-20 bg-white">
             <th className="border border-gray-300 p-2 text-left">Actions</th>
             <th className="border border-gray-300 p-2 text-left">Page</th>
             <th className="border border-gray-300 p-2 text-left">Section Key</th>
@@ -204,12 +272,12 @@ const AdminPagesManager: React.FC = () => {
           {groupedRows.map(([group, rows]) => (
             <React.Fragment key={group}>
               <tr className="bg-gray-100">
-                <td colSpan={showIds ? 7 : 6} className="border border-gray-300 p-2 font-semibold">
+                <td colSpan={showIds ? 7 : 6} className="sticky top-9 z-10 border border-gray-300 bg-gray-100 p-2 font-semibold">
                   {group} ({rows.length})
                 </td>
               </tr>
               {rows.map((row) => (
-            <tr key={row.id}>
+            <tr key={row.id} className={recentlyEdited[row.id] ? 'bg-emerald-50' : ''}>
               <td className="whitespace-nowrap border border-gray-300 p-2">
                 {editingId === row.id ? (
                   <>
@@ -219,6 +287,7 @@ const AdminPagesManager: React.FC = () => {
                 ) : (
                   <button className="font-semibold" onClick={() => handleEdit(row)}>Edit</button>
                 )}
+                {recentlyEdited[row.id] && <span className="ml-2 text-xs text-emerald-700">Edited</span>}
               </td>
               <td className="border border-gray-300 p-2">{row.page_slug}</td>
               <td className="border border-gray-300 p-2">{row.section_key}</td>
