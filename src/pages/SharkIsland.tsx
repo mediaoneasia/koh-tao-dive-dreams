@@ -1,5 +1,5 @@
 import React from 'react';
-// import DiveSiteDetail from '../components/DiveSiteDetail';
+import DiveSiteDetail from '@/components/DiveSiteDetail';
 import { useTranslation } from 'react-i18next';
 
 const SharkIsland = () => {
@@ -70,7 +70,24 @@ const SharkIsland = () => {
         ]
       };
 
-  return null;
+  return (
+    <div className="px-4 md:px-8">
+      <DiveSiteDetail
+        name="Shark Island"
+        overview={content.detailedDescription}
+        quickFacts={{
+          depth: '8-20m',
+          difficulty: content.difficulty,
+          location: content.location,
+          bestTime: content.bestTime,
+        }}
+        whatYouCanSee={content.highlights}
+        marineLifeHighlights={content.marineLife}
+        divingTips={content.tips}
+        images={['/images/sharkisand.jpg', '/images/blacktip-reef-shark.jpg']}
+      />
+    </div>
+  );
 };
 
 export default SharkIsland;

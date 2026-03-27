@@ -1,5 +1,5 @@
 import React from 'react';
-// import DiveSiteDetail from '../components/DiveSiteDetail';
+import DiveSiteDetail from '@/components/DiveSiteDetail';
 import { useTranslation } from 'react-i18next';
 
 const HTMSSattakut = () => {
@@ -70,7 +70,24 @@ const HTMSSattakut = () => {
         ]
       };
 
-  return null;
+  return (
+    <div className="px-4 md:px-8">
+      <DiveSiteDetail
+        name="HTMS Sattakut"
+        overview={content.detailedDescription}
+        quickFacts={{
+          depth: '18-30m',
+          difficulty: content.difficulty,
+          location: content.location,
+          bestTime: content.bestTime,
+        }}
+        whatYouCanSee={content.highlights}
+        marineLifeHighlights={content.marineLife}
+        divingTips={content.tips}
+        images={['/images/htms-sattakut.jpg', '/images/htms-sattakut-wreck.jpg', '/images/wreck.jpeg']}
+      />
+    </div>
+  );
 };
 
 export default HTMSSattakut;
