@@ -1,14 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
+const cleanEnv = (value: string | undefined) =>
+  String(value || '')
+    .replace(/\\n/g, '')
+    .trim();
+
 const supabaseUrl =
-  (import.meta.env.VITE_SUPABASE_URL as string | undefined) ||
-  process.env.REACT_APP_SUPABASE_URL ||
+  cleanEnv((import.meta.env.VITE_SUPABASE_URL as string | undefined)) ||
+  cleanEnv(process.env.REACT_APP_SUPABASE_URL) ||
   '';
 const supabaseKey =
-  (import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string | undefined) ||
-  (import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined) ||
-  process.env.REACT_APP_SUPABASE_ANON_KEY ||
+  cleanEnv((import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined)) ||
+  cleanEnv((import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string | undefined)) ||
+  cleanEnv(process.env.REACT_APP_SUPABASE_ANON_KEY) ||
   '';
 
 const supabase = supabaseUrl && supabaseKey ? createClient(supabaseUrl, supabaseKey) : null;
