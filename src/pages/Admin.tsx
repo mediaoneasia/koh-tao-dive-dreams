@@ -1,4 +1,5 @@
 import AdminBookings from '../components/AdminBookings';
+import AdminPagesManager from '../components/AdminPagesManager';
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -93,14 +94,7 @@ const Admin = () => {
       {activeTab === 'pages' && (
         <div className="bg-white rounded shadow p-4">
           <React.Suspense fallback={<div>Loading Pages Manager...</div>}>
-            {typeof window !== 'undefined' && (
-              <>
-                {(() => {
-                  const AdminPagesManager = require('../components/AdminPagesManager').default;
-                  return <AdminPagesManager />;
-                })()}
-              </>
-            )}
+            <AdminPagesManager />
           </React.Suspense>
         </div>
       )}
