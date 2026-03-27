@@ -1,22 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { createClient } from '@supabase/supabase-js';
-
-const cleanEnv = (value: string | undefined) =>
-  String(value || '')
-    .replace(/\\n/g, '')
-    .trim();
-
-const supabaseUrl =
-  cleanEnv((import.meta.env.VITE_SUPABASE_URL as string | undefined)) ||
-  cleanEnv(process.env.REACT_APP_SUPABASE_URL) ||
-  '';
-const supabaseKey =
-  cleanEnv((import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined)) ||
-  cleanEnv((import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string | undefined)) ||
-  cleanEnv(process.env.REACT_APP_SUPABASE_ANON_KEY) ||
-  '';
-
-const supabase = supabaseUrl && supabaseKey ? createClient(supabaseUrl, supabaseKey) : null;
+import { supabase } from '@/integrations/supabase/client';
 
 interface PageContentRow {
   id: string;

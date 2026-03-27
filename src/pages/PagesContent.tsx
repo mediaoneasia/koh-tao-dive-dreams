@@ -1,30 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { createClient } from '@supabase/supabase-js';
-
-const cleanEnv = (value: string | undefined) =>
-  String(value || '')
-    .replace(/\\n/g, '')
-    .trim();
-
-const supabaseUrl =
-  cleanEnv((import.meta.env.VITE_SUPABASE_URL as string | undefined)) ||
-  cleanEnv(process.env.REACT_APP_SUPABASE_URL) ||
-  '';
-const supabaseKey =
-  cleanEnv((import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined)) ||
-  cleanEnv((import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string | undefined)) ||
-  cleanEnv(process.env.REACT_APP_SUPABASE_ANON_KEY) ||
-  '';
-const supabase = createClient(supabaseUrl, supabaseKey);
+import { supabase } from '@/integrations/supabase/client';
 
 interface PageContentRow {
   id: string;
-  language: 'en' | 'nl';
-  seo: boolean;
-  dive_site?: string;
-  page?: string;
-  section: string;
-  content: string;
+  page_slug: string;
+  section_key: string;
+  locale: 'en' | 'nl' | string;
+  content_type?: string | null;
+  content_value: string;
+  updated_at?: string | null;
 }
 
 type GroupedContent = {
@@ -60,10 +44,12 @@ const PagesContent: React.FC = () => {
   // Group by dive_site or page, then by section
   const grouped: GroupedContent = {};
   data.forEach(row => {
-    const key = row.dive_site || row.page || 'Other';
+    const key = row.page_slug || 'Other';
     if (!grouped[key]) grouped[key] = {};
-    if (!grouped[key][row.section]) grouped[key][row.section] = {};
-    grouped[key][row.section][row.language] = row;
+    if (!grouped[key][row.section_key]) grouped[key][row.section_key] = {};
+    if (row.locale === 'en' || row.locale === 'nl') {
+      grouped[key][row.section_key][row.locale] = row;
+    }
   });
 
   if (loading) return <div>Loading...</div>;
@@ -81,17 +67,17 @@ const PagesContent: React.FC = () => {
                 <th className="border border-gray-300 p-2 text-left">Section</th>
                 <th className="border border-gray-300 p-2 text-left">EN Content</th>
                 <th className="border border-gray-300 p-2 text-left">NL Content</th>
-                <th className="border border-gray-300 p-2 text-left">SEO</th>
+                <th className="border border-gray-300 p-2 text-left">Type</th>
               </tr>
             </thead>
             <tbody>
               {Object.entries(sections).map(([section, langs]) => (
                 <tr key={section}>
                   <td className="border border-gray-300 p-2">{section}</td>
-                  <td className="border border-gray-300 p-2">{langs.en?.content || <em>—</em>}</td>
-                  <td className="border border-gray-300 p-2">{langs.nl?.content || <em>—</em>}</td>
+                  <td className="border border-gray-300 p-2">{langs.en?.content_value || <em>—</em>}</td>
+                  <td className="border border-gray-300 p-2">{langs.nl?.content_value || <em>—</em>}</td>
                   <td className="border border-gray-300 p-2">
-                    {langs.en?.seo || langs.nl?.seo ? '✅' : '—'}
+                    {langs.en?.content_type || langs.nl?.content_type || 'text'}
                   </td>
                 </tr>
               ))}
