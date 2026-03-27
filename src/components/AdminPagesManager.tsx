@@ -28,6 +28,28 @@ interface PageContentRow {
   updated_at?: string;
 }
 
+const DIVE_SITE_SLUGS = [
+  'sail-rock', 'shark-island', 'htms-sattakut', 'japanese-gardens',
+  'mango-bay', 'twins-pinnacle', 'south-west-pinnacle', 'chumphon-pinnacle',
+];
+
+const DIVE_SITE_SECTION_ORDER = [
+  'overview',
+  'quick_facts_depth',
+  'quick_facts_difficulty',
+  'quick_facts_location',
+  'quick_facts_best_time',
+  'what_you_can_see',
+  'marine_life_highlights',
+  'diving_tips',
+  'images',
+];
+
+const toSectionLabel = (sectionKey: string) =>
+  sectionKey
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, (char) => char.toUpperCase());
+
 const getPageGroup = (pageSlug: string) => {
   const slug = String(pageSlug || '').toLowerCase();
 
@@ -47,10 +69,7 @@ const getPageGroup = (pageSlug: string) => {
     return 'Specialties';
   }
 
-  if (slug.startsWith('dive-sites/') || [
-    'sail-rock', 'shark-island', 'htms-sattakut', 'japanese-gardens',
-    'mango-bay', 'twins-pinnacle', 'south-west-pinnacle', 'chumphon-pinnacle'
-  ].includes(slug)) {
+  if (slug.startsWith('dive-sites/') || DIVE_SITE_SLUGS.includes(slug)) {
     return 'Dive Sites';
   }
 
@@ -73,6 +92,13 @@ const AdminPagesManager: React.FC = () => {
   const [data, setData] = useState<PageContentRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [editorMode, setEditorMode] = useState<'page' | 'rows'>('page');
+
+  const [selectedPageSlug, setSelectedPageSlug] = useState('');
+  const [selectedLocale, setSelectedLocale] = useState<'en' | 'nl'>('en');
+  const [pageDraft, setPageDraft] = useState<Record<string, string>>({});
+  const [savingPage, setSavingPage] = useState(false);
+
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editContent, setEditContent] = useState('');
   const [editContentType, setEditContentType] = useState('');
@@ -88,30 +114,170 @@ const AdminPagesManager: React.FC = () => {
   const [newContentValue, setNewContentValue] = useState('');
   const [isAddingRow, setIsAddingRow] = useState(false);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      if (!supabase) {
-        setError('Supabase is not configured for Admin Pages Manager. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.');
-        setLoading(false);
-        return;
-      }
-
-      const { data, error } = await supabase
-        .from('page_content')
-        .select('id,page_slug,section_key,locale,content_type,content_value,updated_at')
-        .order('page_slug', { ascending: true })
-        .order('section_key', { ascending: true })
-        .order('locale', { ascending: true });
-      if (error) {
-        setError(error.message);
-      } else {
-        setData(data as PageContentRow[]);
-      }
+  const fetchData = async () => {
+    setLoading(true);
+    if (!supabase) {
+      setError('Supabase is not configured for Admin Pages Manager. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.');
       setLoading(false);
-    };
+      return;
+    }
+
+    const { data, error } = await supabase
+      .from('page_content')
+      .select('id,page_slug,section_key,locale,content_type,content_value,updated_at')
+      .order('page_slug', { ascending: true })
+      .order('section_key', { ascending: true })
+      .order('locale', { ascending: true });
+    if (error) {
+      setError(error.message);
+    } else {
+      setData(data as PageContentRow[]);
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
     fetchData();
   }, []);
+
+  const availablePageSlugs = useMemo(() => {
+    const unique = Array.from(new Set(data.map((row) => row.page_slug)));
+    unique.sort((a, b) => a.localeCompare(b));
+    return unique;
+  }, [data]);
+
+  const groupedPageSlugs = useMemo(() => {
+    const grouped = new Map<string, string[]>();
+
+    availablePageSlugs.forEach((slug) => {
+      const group = getPageGroup(slug);
+      if (!grouped.has(group)) grouped.set(group, []);
+      grouped.get(group)!.push(slug);
+    });
+
+    return GROUP_ORDER
+      .map((group) => ({ group, slugs: grouped.get(group) || [] }))
+      .filter((entry) => entry.slugs.length > 0);
+  }, [availablePageSlugs]);
+
+  useEffect(() => {
+    if (!selectedPageSlug && availablePageSlugs.length > 0) {
+      const preferredDiveSite = availablePageSlugs.find((slug) => DIVE_SITE_SLUGS.includes(slug));
+      setSelectedPageSlug(preferredDiveSite || availablePageSlugs[0]);
+    }
+  }, [availablePageSlugs, selectedPageSlug]);
+
+  const pageSectionKeys = useMemo(() => {
+    if (!selectedPageSlug) return [] as string[];
+
+    const keys = new Set(
+      data
+        .filter((row) => row.page_slug === selectedPageSlug && row.locale === selectedLocale)
+        .map((row) => row.section_key)
+    );
+
+    if (DIVE_SITE_SLUGS.includes(selectedPageSlug)) {
+      DIVE_SITE_SECTION_ORDER.forEach((key) => keys.add(key));
+    }
+
+    return Array.from(keys).sort((a, b) => {
+      const aIdx = DIVE_SITE_SECTION_ORDER.indexOf(a);
+      const bIdx = DIVE_SITE_SECTION_ORDER.indexOf(b);
+
+      if (aIdx !== -1 && bIdx !== -1) return aIdx - bIdx;
+      if (aIdx !== -1) return -1;
+      if (bIdx !== -1) return 1;
+      return a.localeCompare(b);
+    });
+  }, [data, selectedLocale, selectedPageSlug]);
+
+  useEffect(() => {
+    if (!selectedPageSlug) {
+      setPageDraft({});
+      return;
+    }
+
+    const nextDraft: Record<string, string> = {};
+    pageSectionKeys.forEach((sectionKey) => {
+      const row = data.find(
+        (item) =>
+          item.page_slug === selectedPageSlug &&
+          item.locale === selectedLocale &&
+          item.section_key === sectionKey
+      );
+      nextDraft[sectionKey] = row?.content_value || '';
+    });
+
+    setPageDraft(nextDraft);
+  }, [data, pageSectionKeys, selectedLocale, selectedPageSlug]);
+
+  const handleSavePage = async () => {
+    if (!supabase) {
+      alert('Supabase is not configured.');
+      return;
+    }
+
+    if (!selectedPageSlug) {
+      alert('Please select a page first.');
+      return;
+    }
+
+    const rowsToUpsert = pageSectionKeys.map((sectionKey) => {
+      const existing = data.find(
+        (row) =>
+          row.page_slug === selectedPageSlug &&
+          row.locale === selectedLocale &&
+          row.section_key === sectionKey
+      );
+
+      return {
+        page_slug: selectedPageSlug,
+        section_key: sectionKey,
+        locale: selectedLocale,
+        content_type: existing?.content_type || 'text',
+        content_value: pageDraft[sectionKey] ?? '',
+      };
+    });
+
+    if (rowsToUpsert.length === 0) {
+      alert('No section rows found to save for this page.');
+      return;
+    }
+
+    setSavingPage(true);
+
+    const { data: savedRows, error } = await supabase
+      .from('page_content')
+      .upsert(rowsToUpsert, { onConflict: 'page_slug,section_key,locale' })
+      .select('id,page_slug,section_key,locale,content_type,content_value,updated_at');
+
+    setSavingPage(false);
+
+    if (error) {
+      alert('Error saving page: ' + error.message);
+      return;
+    }
+
+    if (savedRows) {
+      const incoming = savedRows as PageContentRow[];
+      const incomingIds = new Set(incoming.map((row) => row.id));
+
+      setData((prev) => {
+        const kept = prev.filter((row) => !incomingIds.has(row.id));
+        const merged = [...kept, ...incoming];
+        merged.sort((a, b) => {
+          const pageCmp = a.page_slug.localeCompare(b.page_slug);
+          if (pageCmp !== 0) return pageCmp;
+          const sectionCmp = a.section_key.localeCompare(b.section_key);
+          if (sectionCmp !== 0) return sectionCmp;
+          return a.locale.localeCompare(b.locale);
+        });
+        return merged;
+      });
+    }
+
+    alert(`Saved ${rowsToUpsert.length} sections for ${selectedPageSlug} (${selectedLocale}).`);
+  };
 
   const handleEdit = (row: PageContentRow) => {
     setEditingId(row.id);
@@ -272,6 +438,116 @@ const AdminPagesManager: React.FC = () => {
   return (
     <div className="p-6">
       <h1 className="text-xl font-semibold">Pages Manager</h1>
+
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        <button
+          type="button"
+          onClick={() => setEditorMode('page')}
+          className={`rounded px-3 py-1 text-sm font-semibold ${editorMode === 'page' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'}`}
+        >
+          Page Editor
+        </button>
+        <button
+          type="button"
+          onClick={() => setEditorMode('rows')}
+          className={`rounded px-3 py-1 text-sm font-semibold ${editorMode === 'rows' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'}`}
+        >
+          Row Table
+        </button>
+      </div>
+
+      {editorMode === 'page' && (
+        <div className="mt-4 rounded border border-gray-200 p-4">
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+            <div className="md:col-span-2">
+              <label className="mb-1 block text-sm font-medium text-gray-700">Page</label>
+              <select
+                value={selectedPageSlug}
+                onChange={(e) => setSelectedPageSlug(e.target.value)}
+                className="w-full rounded border border-gray-300 px-3 py-2"
+                aria-label="Select page"
+              >
+                {groupedPageSlugs.map(({ group, slugs }) => (
+                  <optgroup key={group} label={`${group} (${slugs.length})`}>
+                    {slugs.map((slug) => (
+                      <option key={slug} value={slug}>
+                        {slug}
+                      </option>
+                    ))}
+                  </optgroup>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="mb-1 block text-sm font-medium text-gray-700">Locale</label>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setSelectedLocale('en')}
+                  className={`rounded px-3 py-2 text-sm font-semibold ${selectedLocale === 'en' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'}`}
+                >
+                  EN
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSelectedLocale('nl')}
+                  className={`rounded px-3 py-2 text-sm font-semibold ${selectedLocale === 'nl' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'}`}
+                >
+                  NL
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {selectedPageSlug ? (
+            <>
+              <div className="mt-4 text-sm text-gray-500">
+                Editing <span className="font-semibold text-gray-700">{selectedPageSlug}</span> in <span className="font-semibold text-gray-700">{selectedLocale}</span>.
+              </div>
+
+              <div className="mt-3 space-y-3">
+                {pageSectionKeys.map((sectionKey) => (
+                  <div key={sectionKey}>
+                    <label className="mb-1 block text-sm font-medium text-gray-700">
+                      {toSectionLabel(sectionKey)}
+                      <span className="ml-2 text-xs text-gray-400">({sectionKey})</span>
+                    </label>
+                    <textarea
+                      value={pageDraft[sectionKey] || ''}
+                      onChange={(e) =>
+                        setPageDraft((prev) => ({
+                          ...prev,
+                          [sectionKey]: e.target.value,
+                        }))
+                      }
+                      rows={sectionKey === 'overview' ? 5 : 3}
+                      className="w-full rounded border border-gray-300 p-2"
+                      placeholder={`Edit ${sectionKey}`}
+                    />
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-4 flex justify-end">
+                <button
+                  type="button"
+                  onClick={handleSavePage}
+                  disabled={savingPage || pageSectionKeys.length === 0}
+                  className="rounded bg-green-600 px-4 py-2 text-sm font-semibold text-white hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {savingPage ? 'Saving...' : `Save ${pageSectionKeys.length} Sections`}
+                </button>
+              </div>
+            </>
+          ) : (
+            <div className="mt-4 text-sm text-gray-500">No pages found in page_content yet.</div>
+          )}
+        </div>
+      )}
+
+      {editorMode === 'rows' && (
+        <>
       <div className="mt-3 flex flex-wrap items-center gap-3">
         <input
           value={searchQuery}
@@ -471,6 +747,8 @@ const AdminPagesManager: React.FC = () => {
         <div className="py-6 text-sm text-gray-500">No rows match your current filters.</div>
       )}
       </div>
+      </>
+      )}
     </div>
   );
 };
