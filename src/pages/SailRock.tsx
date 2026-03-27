@@ -1,5 +1,5 @@
 import React from 'react';
-// import DiveSiteDetail from '../components/DiveSiteDetail';
+import DiveSiteDetail from '../components/DiveSiteDetail';
 import { useTranslation } from 'react-i18next';
 
 const SailRock = () => {
@@ -68,7 +68,7 @@ const SailRock = () => {
       };
 
   return (
-    {/* <DiveSiteDetail
+    <DiveSiteDetail
       name="Sail Rock"
       overview={content.overview}
       quickFacts={content.quickFacts}
@@ -83,7 +83,7 @@ const SailRock = () => {
         "/images/photo-1682686580849-3e7f67df4015.avif",
         "/images/photo-1682687982423-295485af248a.avif"
       ]}
-    /> */}
+    />
   );
 };
 
