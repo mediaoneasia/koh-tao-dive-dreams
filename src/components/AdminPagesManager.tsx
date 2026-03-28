@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 interface PageContentRow {
   id: string;
@@ -58,6 +59,8 @@ const getEditorGroup = (sectionKey: string) => {
   if (/title|overview|body|content|text|description|intro|highlight|tips|requirements/.test(key)) return 'Content';
   return 'Other';
 };
+
+const isPayPalField = (sectionKey: string) => /paypal|pay_pal/.test(String(sectionKey || '').toLowerCase());
 
 const getPageGroup = (pageSlug: string) => {
   const slug = String(pageSlug || '').toLowerCase();
@@ -122,6 +125,22 @@ const AdminPagesManager: React.FC = () => {
   const [newContentType, setNewContentType] = useState('text');
   const [newContentValue, setNewContentValue] = useState('');
   const [isAddingRow, setIsAddingRow] = useState(false);
+  const [payPalModalSection, setPayPalModalSection] = useState<string | null>(null);
+  const [payPalModalValue, setPayPalModalValue] = useState('');
+
+  const openPayPalModal = (sectionKey: string) => {
+    setPayPalModalSection(sectionKey);
+    setPayPalModalValue(pageDraft[sectionKey] || '');
+  };
+
+  const savePayPalModal = () => {
+    if (!payPalModalSection) return;
+    setPageDraft((prev) => ({
+      ...prev,
+      [payPalModalSection]: payPalModalValue,
+    }));
+    setPayPalModalSection(null);
+  };
 
   const fetchData = async () => {
     setLoading(true);
@@ -544,24 +563,93 @@ const AdminPagesManager: React.FC = () => {
                             {toSectionLabel(sectionKey)}
                             <span className="ml-2 text-xs text-gray-400">({sectionKey})</span>
                           </label>
-                          <textarea
-                            value={pageDraft[sectionKey] || ''}
-                            onChange={(e) =>
-                              setPageDraft((prev) => ({
-                                ...prev,
-                                [sectionKey]: e.target.value,
-                              }))
-                            }
-                            rows={sectionKey === 'overview' ? 5 : 3}
-                            className="w-full rounded border border-gray-300 p-2"
-                            placeholder={`Edit ${sectionKey}`}
-                          />
+                          {isPayPalField(sectionKey) ? (
+                            <div className="space-y-2">
+                              <input
+                                value={pageDraft[sectionKey] || ''}
+                                onChange={(e) =>
+                                  setPageDraft((prev) => ({
+                                    ...prev,
+                                    [sectionKey]: e.target.value,
+                                  }))
+                                }
+                                className="w-full rounded border border-gray-300 px-3 py-2"
+                                placeholder="https://www.paypal.com/..."
+                              />
+                              <div className="flex flex-wrap gap-2">
+                                <button
+                                  type="button"
+                                  onClick={() => openPayPalModal(sectionKey)}
+                                  className="rounded border border-gray-300 px-3 py-1 text-xs font-semibold text-gray-700 hover:bg-gray-50"
+                                >
+                                  Edit in Modal
+                                </button>
+                                {pageDraft[sectionKey] ? (
+                                  <a
+                                    href={pageDraft[sectionKey]}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="rounded border border-blue-300 px-3 py-1 text-xs font-semibold text-blue-700 hover:bg-blue-50"
+                                  >
+                                    Open PayPal Link
+                                  </a>
+                                ) : null}
+                              </div>
+                            </div>
+                          ) : (
+                            <textarea
+                              value={pageDraft[sectionKey] || ''}
+                              onChange={(e) =>
+                                setPageDraft((prev) => ({
+                                  ...prev,
+                                  [sectionKey]: e.target.value,
+                                }))
+                              }
+                              rows={sectionKey === 'overview' ? 5 : 3}
+                              className="w-full rounded border border-gray-300 p-2"
+                              placeholder={`Edit ${sectionKey}`}
+                            />
+                          )}
                         </div>
                       ))}
                     </div>
                   </div>
                 ))}
               </div>
+
+              <Dialog open={Boolean(payPalModalSection)} onOpenChange={(open) => { if (!open) setPayPalModalSection(null); }}>
+                <DialogContent className="sm:max-w-2xl">
+                  <DialogHeader>
+                    <DialogTitle>
+                      Edit PayPal Link {payPalModalSection ? `(${payPalModalSection})` : ''}
+                    </DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-3">
+                    <input
+                      value={payPalModalValue}
+                      onChange={(e) => setPayPalModalValue(e.target.value)}
+                      className="w-full rounded border border-gray-300 px-3 py-2"
+                      placeholder="https://www.paypal.com/..."
+                    />
+                    <div className="flex justify-end gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setPayPalModalSection(null)}
+                        className="rounded border border-gray-300 px-3 py-2 text-sm font-semibold text-gray-700"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="button"
+                        onClick={savePayPalModal}
+                        className="rounded bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+                      >
+                        Save Link
+                      </button>
+                    </div>
+                  </div>
+                </DialogContent>
+              </Dialog>
 
               <div className="mt-4 flex justify-end">
                 <button
