@@ -36,6 +36,28 @@ const textToEditorHtml = (input: string) => {
 
 const normalizeText = (input: string) => input.replace(/\r\n/g, '\n').trimEnd();
 
+const htmlToPlainText = (input: string) =>
+  String(input || '')
+    .replace(/<br\s*\/?\s*>/gi, '\n')
+    .replace(/<\/(p|div|li|h[1-6])>/gi, '\n')
+    .replace(/<li[^>]*>/gi, '- ')
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/\n\s*\n+/g, '\n')
+    .trim();
+
+const normalizeEditorValue = (value: string) => {
+  const raw = String(value || '');
+  if (!raw.includes('<') && !raw.includes('&lt;') && !raw.includes('&gt;')) {
+    return raw;
+  }
+
+  return htmlToPlainText(raw);
+};
+
 const RichTextEditor: React.FC<RichTextEditorProps> = ({
   value,
   onChange,
@@ -169,7 +191,7 @@ const normalizeMediaLikeValue = (sectionKey: string, contentType: string | undef
     return value;
   }
 
-  return String(value || '')
+  return normalizeEditorValue(String(value || ''))
     .replace(/<br\s*\/?\s*>/gi, '\n')
     .replace(/<[^>]*>/g, ' ')
     .replace(/&amp;/g, '&')
@@ -362,7 +384,7 @@ const AdminPagesManager: React.FC = () => {
       );
 
       // Keep locale editing strict: do not auto-fill Dutch from English rows.
-      nextDraft[sectionKey] = localeRow?.content_value || '';
+      nextDraft[sectionKey] = normalizeEditorValue(localeRow?.content_value || '');
     });
 
     setPageDraft(nextDraft);
@@ -388,7 +410,9 @@ const AdminPagesManager: React.FC = () => {
       );
 
       return {
-        page_slug: getCanonicalPageSlug(selectedPageSlug),
+        // Preserve existing slug format when present (legacy short slugs or canonical paths)
+        // so updates target existing rows instead of forcing new inserts.
+        page_slug: existing?.page_slug || getCanonicalPageSlug(selectedPageSlug),
         section_key: sectionKey,
         locale: selectedLocale,
         content_type: existing?.content_type || 'text',
@@ -442,7 +466,7 @@ const AdminPagesManager: React.FC = () => {
 
   const handleEdit = (row: PageContentRow) => {
     setEditingId(row.id);
-    setEditContent(row.content_value);
+    setEditContent(normalizeEditorValue(row.content_value));
     setEditContentType(row.content_type || 'text');
   };
 
