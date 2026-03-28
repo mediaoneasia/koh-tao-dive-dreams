@@ -152,6 +152,29 @@ const shouldForcePlainTextEditor = (sectionKey: string, contentType?: string) =>
   return false;
 };
 
+const normalizeMediaLikeValue = (sectionKey: string, contentType: string | undefined, value: string) => {
+  if (!shouldForcePlainTextEditor(sectionKey, contentType)) {
+    return value;
+  }
+
+  return String(value || '')
+    .replace(/<br\s*\/?\s*>/gi, '\n')
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&nbsp;/g, ' ')
+    .split(/\r?\n/)
+    .map((line) =>
+      line
+        .replace(/^\s*[-*•]+\s*/, '')
+        .replace(/^\s*\d+[\.)]\s*/, '')
+        .trim()
+    )
+    .filter(Boolean)
+    .join('\n');
+};
+
 const getPageGroup = (pageSlug: string) => {
   const slug = String(pageSlug || '').toLowerCase();
 
@@ -354,7 +377,11 @@ const AdminPagesManager: React.FC = () => {
         section_key: sectionKey,
         locale: selectedLocale,
         content_type: existing?.content_type || 'text',
-        content_value: pageDraft[sectionKey] ?? '',
+        content_value: normalizeMediaLikeValue(
+          sectionKey,
+          existing?.content_type || 'text',
+          pageDraft[sectionKey] ?? ''
+        ),
       };
     });
 
@@ -413,7 +440,15 @@ const AdminPagesManager: React.FC = () => {
     const { error } = await supabase
       .from('page_content')
       .upsert(
-        { ...row, content_value: editContent, content_type: editContentType || row.content_type || 'text' },
+        {
+          ...row,
+          content_value: normalizeMediaLikeValue(
+            row.section_key,
+            editContentType || row.content_type || 'text',
+            editContent
+          ),
+          content_type: editContentType || row.content_type || 'text',
+        },
         { onConflict: 'id' }
       );
     if (error) {
@@ -457,7 +492,7 @@ const AdminPagesManager: React.FC = () => {
         section_key,
         locale: newLocale,
         content_type,
-        content_value,
+        content_value: normalizeMediaLikeValue(section_key, content_type, content_value),
       })
       .select('id,page_slug,section_key,locale,content_type,content_value,updated_at')
       .single();

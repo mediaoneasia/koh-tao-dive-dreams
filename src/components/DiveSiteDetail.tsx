@@ -19,6 +19,25 @@ interface DiveSiteDetailProps {
   images: string[];
 }
 
+const cleanImageToken = (value: string) => {
+  const token = String(value || '')
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/^\s*[-*•]+\s*/, '')
+    .replace(/^\s*\d+[\.)]\s*/, '')
+    .replace(/^\s*["']+|["']+\s*$/g, '')
+    .trim();
+
+  if (/^(\/images\/|https?:\/\/|data:image\/)/i.test(token)) {
+    return token;
+  }
+
+  return '';
+};
+
 const DiveSiteDetail: React.FC<DiveSiteDetailProps> = ({
   name,
   overview,
@@ -30,7 +49,12 @@ const DiveSiteDetail: React.FC<DiveSiteDetailProps> = ({
 }) => {
   const { i18n } = useTranslation();
   const isDutch = i18n.language.startsWith('nl');
-  const hero = images && images.length > 0 ? images[0] : '/images/photo-1682686580849-3e7f67df4015.avif';
+  const normalizedImages = (images || [])
+    .flatMap((item) => String(item || '').split(/\r?\n|,/))
+    .map(cleanImageToken)
+    .filter(Boolean);
+
+  const hero = normalizedImages.length > 0 ? normalizedImages[0] : '/images/photo-1682686580849-3e7f67df4015.avif';
 
   const labels = isDutch
     ? {
@@ -151,7 +175,7 @@ const DiveSiteDetail: React.FC<DiveSiteDetailProps> = ({
         </CardHeader>
         <CardContent>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {images.map((image, index) => (
+            {normalizedImages.map((image, index) => (
               <div key={index} className="aspect-video bg-muted rounded-lg overflow-hidden">
                 <img
                   src={image}
