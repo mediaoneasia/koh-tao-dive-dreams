@@ -128,7 +128,7 @@ const Contact = () => {
     setIsSubmitting(true);
     try {
       const payload = {
-        access_key: '4ca93aa5-cd42-4902-af87-a08e1ae7c832',
+        access_key: '7a970f0f-1200-4750-8a87-f19895d13fe3',
         to: 'contact@prodiving.asia',
         subject: formData.subject || 'Contact Form Submission',
         name: `${formData.firstName} ${formData.lastName}`,
