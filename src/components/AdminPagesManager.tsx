@@ -245,9 +245,13 @@ const AdminPagesManager: React.FC = () => {
       grouped.get(group)!.push(sectionKey);
     });
 
+    if (!grouped.has('Finance')) {
+      grouped.set('Finance', []);
+    }
+
     return EDITOR_GROUP_ORDER
       .map((group) => ({ group, keys: grouped.get(group) || [] }))
-      .filter((entry) => entry.keys.length > 0);
+      .filter((entry) => entry.keys.length > 0 || entry.group === 'Finance');
   }, [pageSectionKeys]);
 
   useEffect(() => {
