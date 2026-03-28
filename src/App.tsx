@@ -96,6 +96,7 @@ import UnderwaterNaturalist from './pages/specialty/UnderwaterNaturalist';
 
 import DivemasterInternship from './pages/internship/Divemaster';
 import InstructorInternship from './pages/internship/Instructor';
+import FacebookFeedPage from './pages/FacebookFeedPage';
 
 import './i18n';
 
@@ -285,6 +286,8 @@ const App = () => (
             <Route path="/ViewpointsKohTao" element={<ViewpointsKohTao />} />
             <Route path="/VisasKohTao" element={<VisasKohTao />} />
             <Route path="/WeatherKohTao" element={<WeatherKohTao />} />
+
+            <Route path="/facebook" element={<FacebookFeedPage />} />
 
             <Route path="*" element={<NotFound />} />
           </Routes>
