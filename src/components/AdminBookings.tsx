@@ -4,6 +4,7 @@
 // To add more columns or features, edit below. For comments or notes, add a new column and input logic as needed.
 
 import React, { useEffect, useState } from 'react';
+import BookingsCalendar from './BookingsCalendar';
 
 interface Booking {
   total_payable_now?: number | null;
@@ -29,6 +30,7 @@ const AdminBookings: React.FC = () => {
   const [statusDrafts, setStatusDrafts] = useState<Record<string, string>>({});
   const [statusSavingId, setStatusSavingId] = useState<string | null>(null);
   const [statusResult, setStatusResult] = useState<string | null>(null);
+  const [view, setView] = useState<'table' | 'calendar'>('table');
 
   const [exporting, setExporting] = useState(false);
   const [exportResult, setExportResult] = useState<string | null>(null);
@@ -96,7 +98,38 @@ const AdminBookings: React.FC = () => {
   return (
     <div className="overflow-x-auto">
       <h2 className="text-xl font-bold mb-4">Bookings</h2>
-      <button
+      
+      {/* View Toggle */}
+      <div className="mb-4 flex gap-2">
+        <button
+          className={`px-4 py-2 rounded font-medium transition-colors ${
+            view === 'table'
+              ? 'bg-blue-600 text-white'
+              : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
+          }`}
+          onClick={() => setView('table')}
+        >
+          Table View
+        </button>
+        <button
+          className={`px-4 py-2 rounded font-medium transition-colors ${
+            view === 'calendar'
+              ? 'bg-blue-600 text-white'
+              : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
+          }`}
+          onClick={() => setView('calendar')}
+        >
+          Calendar View
+        </button>
+      </div>
+
+      {/* Calendar View */}
+      {view === 'calendar' && <BookingsCalendar bookings={bookings} />}
+
+      {/* Table View & Controls */}
+      {view === 'table' && (
+        <>
+          <button
         className="mb-4 px-4 py-2 bg-blue-600 text-white rounded disabled:opacity-60"
         onClick={async () => {
           setExporting(true);
@@ -216,6 +249,8 @@ const AdminBookings: React.FC = () => {
           ))}
         </tbody>
       </table>
+        </>
+      )}
     </div>
   );
 };
