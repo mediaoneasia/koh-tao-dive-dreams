@@ -15,6 +15,7 @@ interface UsePageContentOptions {
 interface PageContentRow {
   section_key: string;
   content_value: string | null;
+  updated_at?: string | null;
 }
 
 interface RealtimePageContentRow extends PageContentRow {
@@ -40,10 +41,43 @@ export function usePageContent({ pageSlug, locale, fallbackContent }: UsePageCon
 
     const mergeRowsAndSet = (rows: PageContentRow[] | null | undefined) => {
       if (rows && rows.length > 0) {
-        const dbContent: PageContent = {};
+        const latestBySection = new Map<string, PageContentRow>();
+
         rows.forEach((row) => {
+          const existing = latestBySection.get(row.section_key);
+
+          if (!existing) {
+            latestBySection.set(row.section_key, row);
+            return;
+          }
+
+          const existingTs = Date.parse(existing.updated_at || '');
+          const incomingTs = Date.parse(row.updated_at || '');
+
+          const hasIncomingTs = Number.isFinite(incomingTs);
+          const hasExistingTs = Number.isFinite(existingTs);
+
+          if (!hasExistingTs && hasIncomingTs) {
+            latestBySection.set(row.section_key, row);
+            return;
+          }
+
+          if (hasIncomingTs && hasExistingTs && incomingTs > existingTs) {
+            latestBySection.set(row.section_key, row);
+            return;
+          }
+
+          // If timestamps are missing or equal, keep the later row seen.
+          if (!hasIncomingTs && !hasExistingTs) {
+            latestBySection.set(row.section_key, row);
+          }
+        });
+
+        const dbContent: PageContent = {};
+        latestBySection.forEach((row) => {
           dbContent[row.section_key] = row.content_value;
         });
+
         setContent({ ...fallbackContent, ...dbContent });
         return true;
       }
@@ -88,10 +122,11 @@ export function usePageContent({ pageSlug, locale, fallbackContent }: UsePageCon
 
         const { data, error } = await supabase
           .from('page_content')
-          .select('section_key, content_value')
+          .select('section_key, content_value, updated_at')
           .eq('page_slug', pageSlug)
           .eq('locale', locale)
-          .order('section_key', { ascending: true });
+          .order('section_key', { ascending: true })
+          .order('updated_at', { ascending: true });
 
         if (error) {
           console.error('Supabase fallback fetch failed:', error.message);
