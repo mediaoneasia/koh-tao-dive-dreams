@@ -49,6 +49,8 @@ const slugs = [
   'viewpoints-koh-tao',
   'food-drink',
   'how-to-get-here',
+  'medical-services',
+  'weather-koh-tao',
 ];
 
 const endpoint = new URL('/rest/v1/page_content?select=page_slug,locale,section_key', supabaseUrl);
