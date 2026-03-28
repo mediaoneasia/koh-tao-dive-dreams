@@ -19,9 +19,10 @@ i18n
   .use(initReactI18next)
   .init({
     resources,
-    lng: 'en',
     fallbackLng: 'en',
     supportedLngs: ['nl', 'en'],
+    load: 'languageOnly',
+    lowerCaseLng: true,
     debug: false,
 
     interpolation: {
@@ -29,7 +30,8 @@ i18n
     },
 
     detection: {
-      order: ['localStorage', 'navigator', 'htmlTag'],
+      order: ['localStorage', 'querystring', 'navigator', 'htmlTag'],
+      lookupLocalStorage: 'i18nextLng',
       caches: ['localStorage'],
     },
   });

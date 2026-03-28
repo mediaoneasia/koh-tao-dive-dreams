@@ -1,7 +1,9 @@
 import React, { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
 import { format, parse, startOfWeek, getDay } from 'date-fns';
-import enUS from 'date-fns/locale/en-US';
+import { enUS } from 'date-fns/locale/en-US';
+import { nl } from 'date-fns/locale/nl';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 
 interface Booking {
@@ -23,6 +25,7 @@ interface BookingsCalendarProps {
 
 const locales = {
   'en-US': enUS,
+  nl,
 };
 
 const localizer = dateFnsLocalizer({
@@ -34,6 +37,8 @@ const localizer = dateFnsLocalizer({
 });
 
 const BookingsCalendar: React.FC<BookingsCalendarProps> = ({ bookings }) => {
+  const { i18n, t } = useTranslation();
+
   const events = useMemo(() => {
     return bookings
       .filter((b) => b.preferred_date)
@@ -85,6 +90,20 @@ const BookingsCalendar: React.FC<BookingsCalendarProps> = ({ bookings }) => {
         endAccessor="end"
         style={{ height: '100%' }}
         eventPropGetter={eventStyleGetter}
+        culture={i18n.language.startsWith('nl') ? 'nl' : 'en-US'}
+        messages={{
+          today: t('calendar.today'),
+          previous: t('calendar.back'),
+          next: t('calendar.next'),
+          month: t('calendar.month'),
+          week: t('calendar.week'),
+          day: t('calendar.day'),
+          agenda: t('calendar.agenda'),
+          date: t('calendar.date'),
+          time: t('calendar.time'),
+          event: t('calendar.event'),
+          showMore: (total: number) => `+${total} ${t('calendar.showing')}`,
+        }}
         popup
         views={['month', 'week', 'day']}
         defaultView="month"
