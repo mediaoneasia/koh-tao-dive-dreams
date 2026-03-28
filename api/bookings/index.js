@@ -35,6 +35,7 @@ const normalizeBooking = (row = {}) => ({
   deposit_amount: typeof row.deposit_amount === 'number' ? row.deposit_amount : null,
   total_amount: typeof row.total_amount === 'number' ? row.total_amount : null,
   due_amount: typeof row.due_amount === 'number' ? row.due_amount : null,
+  bank_transfer_details: row.bank_transfer_details || '',
 });
 
 const sanitizePayload = (body = {}) => {
@@ -60,6 +61,7 @@ const sanitizePayload = (body = {}) => {
     deposit_amount: typeof body.deposit_amount === 'number' ? body.deposit_amount : null,
     total_amount: typeof body.total_amount === 'number' ? body.total_amount : null,
     due_amount: typeof body.due_amount === 'number' ? body.due_amount : null,
+    bank_transfer_details: body.bank_transfer_details || null,
   };
 };
 
@@ -111,7 +113,8 @@ export default async function handler(req, res) {
         body.deposit_amount !== undefined ||
         body.total_amount !== undefined ||
         body.due_amount !== undefined ||
-        body.paid_amount !== undefined
+        body.paid_amount !== undefined ||
+        body.bank_transfer_details !== undefined
       )) {
         const updateFields = {};
         if (body.internal_notes !== undefined) updateFields.internal_notes = body.internal_notes;
@@ -120,6 +123,7 @@ export default async function handler(req, res) {
         if (body.total_amount !== undefined) updateFields.total_amount = toNumberOr(body.total_amount, null);
         if (body.due_amount !== undefined) updateFields.due_amount = toNumberOr(body.due_amount, null);
         if (body.paid_amount !== undefined) updateFields.paid_amount = toNumberOr(body.paid_amount, null);
+        if (body.bank_transfer_details !== undefined) updateFields.bank_transfer_details = body.bank_transfer_details;
         updateFields.updated_at = new Date().toISOString();
         const { data, error } = await supabase
           .from(BOOKING_TABLE)

@@ -22,6 +22,7 @@ interface Booking {
   deposit_amount?: number | null;
   total_amount?: number | null;
   due_amount?: number | null;
+  bank_transfer_details?: string | null;
 }
 
 interface FinanceSettings {
@@ -47,6 +48,9 @@ const AdminBookings: React.FC = () => {
   const [noteDraft, setNoteDraft] = useState('');
   const [noteSaving, setNoteSaving] = useState(false);
   const [noteResult, setNoteResult] = useState<string | null>(null);
+  const [bankTransferDraft, setBankTransferDraft] = useState('');
+  const [bankTransferSaving, setBankTransferSaving] = useState(false);
+  const [bankTransferResult, setBankTransferResult] = useState<string | null>(null);
 
   const [exporting, setExporting] = useState(false);
   const [exportResult, setExportResult] = useState<string | null>(null);
@@ -118,6 +122,8 @@ const AdminBookings: React.FC = () => {
     if (!financeModalBooking) return;
     setNoteDraft(financeModalBooking.internal_notes || '');
     setNoteResult(null);
+    setBankTransferDraft(financeModalBooking.bank_transfer_details || financeSettings.bank_transfer_details || '');
+    setBankTransferResult(null);
   }, [financeModalBooking]);
 
   const saveBookingNote = async () => {
@@ -160,6 +166,50 @@ const AdminBookings: React.FC = () => {
       setNoteResult(err instanceof Error ? err.message : 'Failed to save note');
     } finally {
       setNoteSaving(false);
+    }
+  };
+
+  const saveBankTransferDetails = async () => {
+    if (!financeModalBooking) return;
+
+    setBankTransferSaving(true);
+    setBankTransferResult(null);
+
+    try {
+      const res = await fetch('/api/bookings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: financeModalBooking.id, bank_transfer_details: bankTransferDraft }),
+      });
+
+      if (!res.ok) {
+        const payload = await res.json().catch(() => ({}));
+        throw new Error(payload?.error || 'Failed to save bank transfer details');
+      }
+
+      setBookings((prev) =>
+        prev.map((b) =>
+          b.id === financeModalBooking.id
+            ? {
+                ...b,
+                bank_transfer_details: bankTransferDraft,
+              }
+            : b
+        )
+      );
+      setFinanceModalBooking((prev) =>
+        prev
+          ? {
+              ...prev,
+              bank_transfer_details: bankTransferDraft,
+            }
+          : prev
+      );
+      setBankTransferResult('Booking bank transfer details saved.');
+    } catch (err) {
+      setBankTransferResult(err instanceof Error ? err.message : 'Failed to save bank transfer details');
+    } finally {
+      setBankTransferSaving(false);
     }
   };
 
@@ -394,12 +444,27 @@ const AdminBookings: React.FC = () => {
                 )}
               </div>
 
-              {financeSettings.bank_transfer_details ? (
-                <div>
-                  <strong>Bank transfer details:</strong>
-                  <pre className="mt-1 whitespace-pre-wrap rounded bg-slate-50 p-2 text-xs text-slate-700">{financeSettings.bank_transfer_details}</pre>
+              <div>
+                <strong>Bank transfer details</strong>
+                <textarea
+                  value={bankTransferDraft}
+                  onChange={(e) => setBankTransferDraft(e.target.value)}
+                  rows={4}
+                  className="mt-1 w-full rounded border border-gray-300 p-2"
+                  placeholder="Bank name, account number, IBAN/SWIFT..."
+                />
+                <div className="mt-2 flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={saveBankTransferDetails}
+                    disabled={bankTransferSaving}
+                    className="rounded bg-emerald-600 px-3 py-1 text-xs font-semibold text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {bankTransferSaving ? 'Saving...' : 'Save bank details'}
+                  </button>
+                  {bankTransferResult ? <span className="text-xs text-slate-600">{bankTransferResult}</span> : null}
                 </div>
-              ) : null}
+              </div>
 
               <div>
                 <strong>Comments / Notes</strong>
