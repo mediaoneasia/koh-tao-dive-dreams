@@ -31,6 +31,12 @@ const AdminBookings: React.FC = () => {
 
   const [exporting, setExporting] = useState(false);
   const [exportResult, setExportResult] = useState<string | null>(null);
+  const [copyResult, setCopyResult] = useState<string | null>(null);
+
+  const calendarFeedUrl = (() => {
+    const origin = typeof window !== 'undefined' ? window.location.origin : '';
+    return `${origin}/api/bookings/calendar`;
+  })();
 
   useEffect(() => {
     fetch('/api/bookings')
@@ -75,7 +81,29 @@ const AdminBookings: React.FC = () => {
       >
         {exporting ? 'Exporting...' : 'Export to Jira'}
       </button>
+      <div className="mb-4 flex gap-2">
+        <button
+          className="px-4 py-2 bg-emerald-600 text-white rounded"
+          onClick={() => window.open(calendarFeedUrl, '_blank', 'noopener,noreferrer')}
+        >
+          Open Calendar Feed
+        </button>
+        <button
+          className="px-4 py-2 bg-slate-700 text-white rounded"
+          onClick={async () => {
+            try {
+              await navigator.clipboard.writeText(calendarFeedUrl);
+              setCopyResult('Calendar feed URL copied.');
+            } catch {
+              setCopyResult(`Copy failed. URL: ${calendarFeedUrl}`);
+            }
+          }}
+        >
+          Copy Feed URL
+        </button>
+      </div>
       {exportResult && <div className="mb-4 text-green-700">{exportResult}</div>}
+      {copyResult && <div className="mb-4 text-slate-700">{copyResult}</div>}
       <table className="min-w-full border">
         <thead>
           <tr>
