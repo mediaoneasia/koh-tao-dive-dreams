@@ -38,6 +38,15 @@ const cleanImageToken = (value: string) => {
   return '';
 };
 
+const extractImagePaths = (input: string) => {
+  const source = String(input || '');
+  const localMatches = source.match(/\/images\/[^<>"'\s,]+?\.(?:avif|webp|png|jpe?g|gif|svg)(?:\?[^<>"'\s,]*)?/gi) || [];
+  const remoteMatches = source.match(/https?:\/\/[^<>"'\s,]+?\.(?:avif|webp|png|jpe?g|gif|svg)(?:\?[^<>"'\s,]*)?/gi) || [];
+  const dataMatches = source.match(/data:image\/[a-zA-Z+.-]+;base64,[A-Za-z0-9+/=]+/g) || [];
+
+  return [...localMatches, ...remoteMatches, ...dataMatches];
+};
+
 const DiveSiteDetail: React.FC<DiveSiteDetailProps> = ({
   name,
   overview,
@@ -49,10 +58,19 @@ const DiveSiteDetail: React.FC<DiveSiteDetailProps> = ({
 }) => {
   const { i18n } = useTranslation();
   const isDutch = i18n.language.startsWith('nl');
-  const normalizedImages = (images || [])
-    .flatMap((item) => String(item || '').split(/\r?\n|,/))
-    .map(cleanImageToken)
-    .filter(Boolean);
+  const normalizedImages = (() => {
+    const raw = (images || []).map((item) => String(item || '')).join('\n');
+    const extracted = extractImagePaths(raw);
+
+    if (extracted.length > 0) {
+      return Array.from(new Set(extracted.map(cleanImageToken).filter(Boolean)));
+    }
+
+    return (images || [])
+      .flatMap((item) => String(item || '').split(/\r?\n|,/))
+      .map(cleanImageToken)
+      .filter(Boolean);
+  })();
 
   const hero = normalizedImages.length > 0 ? normalizedImages[0] : '/images/photo-1682686580849-3e7f67df4015.avif';
 
