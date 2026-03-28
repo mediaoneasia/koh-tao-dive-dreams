@@ -5,6 +5,7 @@
 
 import React, { useEffect, useState } from 'react';
 import BookingsCalendar from './BookingsCalendar';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 interface Booking {
   total_payable_now?: number | null;
@@ -23,6 +24,12 @@ interface Booking {
   due_amount?: number | null;
 }
 
+interface FinanceSettings {
+  paypal_link: string;
+  default_currency: string;
+  bank_transfer_details: string;
+}
+
 const AdminBookings: React.FC = () => {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
@@ -31,6 +38,12 @@ const AdminBookings: React.FC = () => {
   const [statusSavingId, setStatusSavingId] = useState<string | null>(null);
   const [statusResult, setStatusResult] = useState<string | null>(null);
   const [view, setView] = useState<'table' | 'calendar'>('table');
+  const [financeModalBooking, setFinanceModalBooking] = useState<Booking | null>(null);
+  const [financeSettings, setFinanceSettings] = useState<FinanceSettings>({
+    paypal_link: 'https://paypal.me/prodivingasia',
+    default_currency: 'THB',
+    bank_transfer_details: '',
+  });
 
   const [exporting, setExporting] = useState(false);
   const [exportResult, setExportResult] = useState<string | null>(null);
@@ -61,6 +74,42 @@ const AdminBookings: React.FC = () => {
         setLoading(false);
       });
   }, []);
+
+  useEffect(() => {
+    fetch('/api/get-page-content?page_slug=admin-finance&locale=en')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((payload) => {
+        const rows = Array.isArray(payload?.content) ? payload.content : [];
+        if (!rows.length) return;
+
+        setFinanceSettings((prev) => {
+          const next = { ...prev };
+          rows.forEach((row: any) => {
+            if (!row?.section_key) return;
+            if (row.section_key === 'paypal_link' && row.content_value) next.paypal_link = row.content_value;
+            if (row.section_key === 'default_currency' && row.content_value) next.default_currency = row.content_value;
+            if (row.section_key === 'bank_transfer_details' && row.content_value) next.bank_transfer_details = row.content_value;
+          });
+          return next;
+        });
+      })
+      .catch(() => {
+        // Keep defaults if settings are unavailable.
+      });
+  }, []);
+
+  const getPayableNow = (booking: Booking) => {
+    if (typeof booking.total_payable_now === 'number' && booking.total_payable_now > 0) return booking.total_payable_now;
+    if (typeof booking.deposit_amount === 'number' && booking.deposit_amount > 0) return booking.deposit_amount;
+    if (typeof booking.total_amount === 'number' && booking.total_amount > 0) return booking.total_amount;
+    return null;
+  };
+
+  const buildPayPalUrl = (booking: Booking) => {
+    const amount = getPayableNow(booking);
+    if (amount === null) return null;
+    return `${financeSettings.paypal_link}/${amount}${financeSettings.default_currency}`;
+  };
 
   const saveStatus = async (bookingId: string, explicitStatus?: string) => {
     const selectedStatus = explicitStatus || statusDrafts[bookingId];
@@ -232,11 +281,18 @@ const AdminBookings: React.FC = () => {
                 <div><strong>Total:</strong> {typeof b.total_amount === 'number' ? b.total_amount : '-'}</div>
                 <div><strong>Deposit:</strong> {typeof b.deposit_amount === 'number' ? b.deposit_amount : '-'}</div>
                 <div><strong>To Be Paid:</strong> {typeof b.due_amount === 'number' ? b.due_amount : (typeof b.total_amount === 'number' && typeof b.deposit_amount === 'number' ? b.total_amount - b.deposit_amount : '-')}</div>
+                <button
+                  type="button"
+                  onClick={() => setFinanceModalBooking(b)}
+                  className="mt-2 rounded bg-slate-700 px-2 py-1 text-xs font-semibold text-white hover:bg-slate-800"
+                >
+                  Individual details
+                </button>
               </td>
               <td className="border px-2 py-1">
-                {(b.total_payable_now || b.deposit_amount || b.total_amount) && (
+                {buildPayPalUrl(b) && (
                   <a
-                    href={`https://paypal.me/prodivingasia/${b.total_payable_now || b.deposit_amount || b.total_amount}`}
+                    href={buildPayPalUrl(b) || '#'}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-blue-600 underline"
@@ -249,6 +305,53 @@ const AdminBookings: React.FC = () => {
           ))}
         </tbody>
       </table>
+
+      <Dialog open={Boolean(financeModalBooking)} onOpenChange={(open) => { if (!open) setFinanceModalBooking(null); }}>
+        <DialogContent className="sm:max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>
+              Individual Finance Details{financeModalBooking ? ` - ${financeModalBooking.name}` : ''}
+            </DialogTitle>
+          </DialogHeader>
+
+          {financeModalBooking && (
+            <div className="space-y-3 text-sm">
+              <div><strong>Booking ID:</strong> {financeModalBooking.id}</div>
+              <div><strong>Course:</strong> {financeModalBooking.course_title}</div>
+              <div><strong>Date:</strong> {financeModalBooking.preferred_date || '-'}</div>
+              <div><strong>Total:</strong> {typeof financeModalBooking.total_amount === 'number' ? financeModalBooking.total_amount : '-'}</div>
+              <div><strong>Deposit:</strong> {typeof financeModalBooking.deposit_amount === 'number' ? financeModalBooking.deposit_amount : '-'}</div>
+              <div><strong>Due:</strong> {typeof financeModalBooking.due_amount === 'number' ? financeModalBooking.due_amount : '-'}</div>
+              <div>
+                <strong>Payable now:</strong>{' '}
+                {getPayableNow(financeModalBooking) !== null ? `${getPayableNow(financeModalBooking)} ${financeSettings.default_currency}` : '-'}
+              </div>
+              <div>
+                <strong>PayPal URL:</strong>{' '}
+                {buildPayPalUrl(financeModalBooking) ? (
+                  <a
+                    href={buildPayPalUrl(financeModalBooking) || '#'}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="break-all text-blue-600 underline"
+                  >
+                    {buildPayPalUrl(financeModalBooking)}
+                  </a>
+                ) : (
+                  '-'
+                )}
+              </div>
+
+              {financeSettings.bank_transfer_details ? (
+                <div>
+                  <strong>Bank transfer details:</strong>
+                  <pre className="mt-1 whitespace-pre-wrap rounded bg-slate-50 p-2 text-xs text-slate-700">{financeSettings.bank_transfer_details}</pre>
+                </div>
+              ) : null}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
         </>
       )}
     </div>
