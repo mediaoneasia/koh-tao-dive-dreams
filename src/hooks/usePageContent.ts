@@ -13,10 +13,13 @@ interface UsePageContentOptions {
 }
 
 interface PageContentRow {
-  page_slug: string;
-  locale: string;
   section_key: string;
   content_value: string | null;
+}
+
+interface RealtimePageContentRow extends PageContentRow {
+  page_slug: string;
+  locale: string;
 }
 
 const isPageContentRows = (value: unknown): value is PageContentRow[] =>
@@ -47,7 +50,7 @@ export function usePageContent({ pageSlug, locale, fallbackContent }: UsePageCon
       return false;
     };
 
-    const applyRealtimeRow = (row: Partial<PageContentRow> | null | undefined) => {
+    const applyRealtimeRow = (row: Partial<RealtimePageContentRow> | null | undefined) => {
       if (!row || row.page_slug !== pageSlug || row.locale !== locale) {
         return;
       }
@@ -118,7 +121,7 @@ export function usePageContent({ pageSlug, locale, fallbackContent }: UsePageCon
           schema: 'public',
           table: 'page_content',
         },
-        (payload: RealtimePostgresChangesPayload<PageContentRow>) => {
+        (payload: RealtimePostgresChangesPayload<RealtimePageContentRow>) => {
           if (payload.eventType === 'DELETE') {
             const oldRow = payload.old;
             if (
