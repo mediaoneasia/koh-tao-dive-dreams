@@ -23,6 +23,19 @@ interface RichTextEditorProps {
   minHeightClassName?: string;
 }
 
+const escapeHtml = (input: string) =>
+  input
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+
+const textToEditorHtml = (input: string) => {
+  if (!input) return '';
+  return escapeHtml(input).replace(/\n/g, '<br />');
+};
+
+const normalizeText = (input: string) => input.replace(/\r\n/g, '\n').trimEnd();
+
 const RichTextEditor: React.FC<RichTextEditorProps> = ({
   value,
   onChange,
@@ -38,22 +51,24 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
         placeholder: placeholder || 'Start typing...',
       }),
     ],
-    content: value || '',
+    content: textToEditorHtml(value || ''),
     editorProps: {
       attributes: {
         class: `${minHeightClassName} rounded border border-gray-300 p-2 focus:outline-none`,
       },
     },
     onUpdate: ({ editor: current }) => {
-      onChange(current.getHTML());
+      const plainText = current.getText({ blockSeparator: '\n' });
+      onChange(plainText);
     },
   });
 
   useEffect(() => {
     if (!editor) return;
-    const current = editor.getHTML();
-    if (value !== current) {
-      editor.commands.setContent(value || '', { emitUpdate: false });
+    const current = normalizeText(editor.getText({ blockSeparator: '\n' }));
+    const next = normalizeText(value || '');
+    if (next !== current) {
+      editor.commands.setContent(textToEditorHtml(value || ''), { emitUpdate: false });
     }
   }, [editor, value]);
 
