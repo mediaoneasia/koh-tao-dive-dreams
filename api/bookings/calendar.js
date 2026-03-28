@@ -42,6 +42,14 @@ const nowUtcStamp = () => {
   return `${y}${m}${day}T${hh}${mm}${ss}Z`;
 };
 
+const todayUtcDateOnly = () => {
+  const d = new Date();
+  const y = d.getUTCFullYear();
+  const m = String(d.getUTCMonth() + 1).padStart(2, '0');
+  const day = String(d.getUTCDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+};
+
 const escapeText = (value) =>
   String(value || '')
     .replace(/\\/g, '\\\\')
@@ -79,8 +87,14 @@ export default async function handler(req, res) {
   try {
     const rows = await selectBookings();
     const dtStamp = nowUtcStamp();
+    const today = todayUtcDateOnly();
 
     const events = rows
+      .filter((row) => {
+        const dateOnly = parseDateOnly(row.preferred_date);
+        const isConfirmed = String(row.status || '').toLowerCase() === 'confirmed';
+        return Boolean(dateOnly) && isConfirmed && dateOnly >= today;
+      })
       .map((row) => {
         const dateOnly = parseDateOnly(row.preferred_date);
         if (!dateOnly) return null;
@@ -117,10 +131,10 @@ export default async function handler(req, res) {
     const calendar = [
       'BEGIN:VCALENDAR',
       'VERSION:2.0',
-      'PRODID:-//Pro Diving Asia//Bookings Calendar//EN',
+      'PRODID:-//Pro Diving Asia//Confirmed Bookings Calendar//EN',
       'CALSCALE:GREGORIAN',
       'METHOD:PUBLISH',
-      'X-WR-CALNAME:Pro Diving Asia Bookings',
+      'X-WR-CALNAME:Pro Diving Asia Confirmed Bookings',
       'X-PUBLISHED-TTL:PT15M',
       'REFRESH-INTERVAL;VALUE=DURATION:PT15M',
       events,
