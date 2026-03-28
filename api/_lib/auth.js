@@ -3,6 +3,7 @@ const SUPABASE_API_KEY =
   process.env.SUPABASE_SERVICE_ROLE_KEY ||
   process.env.SUPABASE_ANON_KEY ||
   process.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || ',.,.,.,.';
 
 const normalizeEmail = (value = '') => String(value).trim().toLowerCase();
 
@@ -33,15 +34,69 @@ const getBearerToken = (req) => {
   return header.slice('Bearer '.length).trim() || null;
 };
 
+const getAdminLoginToken = (req) => {
+  const token =
+    req.headers?.['x-admin-login-token'] ||
+    req.headers?.['X-Admin-Login-Token'];
+
+  return typeof token === 'string' ? token.trim() : null;
+};
+
+const base64UrlToBase64 = (value = '') =>
+  value.replace(/-/g, '+').replace(/_/g, '/') + '='.repeat((4 - (value.length % 4 || 4)) % 4);
+
+const verifyAdminLoginToken = async (token) => {
+  if (!token || !token.includes('.')) return null;
+
+  const [payloadB64, sig] = token.split('.');
+  if (!payloadB64 || !sig) return null;
+
+  // Node runtime signature verification via HMAC-SHA256.
+  const { createHmac } = await import('crypto');
+  const computedSig = createHmac('sha256', ADMIN_PASSWORD)
+    .update(payloadB64)
+    .digest('base64')
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=+$/g, '');
+
+  if (computedSig !== sig) return null;
+
+  try {
+    const payload = JSON.parse(Buffer.from(base64UrlToBase64(payloadB64), 'base64').toString('utf8'));
+    const email = normalizeEmail(payload?.email || '');
+    const exp = Number(payload?.exp || 0);
+    const now = Math.floor(Date.now() / 1000);
+
+    if (!email || !exp || exp <= now) return null;
+
+    const allowedEmails = parseAllowedAdminEmails();
+    if (allowedEmails.length && !allowedEmails.includes(email)) return null;
+
+    return {
+      id: `admin-login:${email}`,
+      email,
+      app_metadata: { app_role: 'admin' },
+      user_metadata: { role: 'admin' },
+    };
+  } catch {
+    return null;
+  }
+};
+
 
 export const requireAdmin = async (req, res) => {
-  if (!SUPABASE_URL || !SUPABASE_API_KEY) {
+  const token = getBearerToken(req);
+  if (!token) {
+    const adminLoginToken = getAdminLoginToken(req);
+    const adminFromLogin = await verifyAdminLoginToken(adminLoginToken);
+    if (adminFromLogin) return adminFromLogin;
+
     res.status(404).json({ error: 'Not found' });
     return null;
   }
 
-  const token = getBearerToken(req);
-  if (!token) {
+  if (!SUPABASE_URL || !SUPABASE_API_KEY) {
     res.status(404).json({ error: 'Not found' });
     return null;
   }

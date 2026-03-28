@@ -45,13 +45,19 @@ const AdminUsersManager: React.FC = () => {
   const authedFetch = async (url: string, init?: RequestInit) => {
     const { data: { session } } = await supabase.auth.getSession();
     const token = session?.access_token;
+    const adminLoginToken = window.localStorage.getItem('admin_login_token');
 
-    if (!token) {
+    if (!token && !adminLoginToken) {
       throw new Error('No authenticated session found. Please sign in again.');
     }
 
     const headers = new Headers(init?.headers || {});
-    headers.set('Authorization', `Bearer ${token}`);
+    if (token) {
+      headers.set('Authorization', `Bearer ${token}`);
+    }
+    if (adminLoginToken) {
+      headers.set('x-admin-login-token', adminLoginToken);
+    }
     if (!headers.has('Content-Type')) headers.set('Content-Type', 'application/json');
 
     return fetch(url, { ...init, headers });
@@ -187,6 +193,7 @@ const AdminUsersManager: React.FC = () => {
             value={roleDraft}
             onChange={(e) => setRoleDraft(e.target.value as AppRole)}
             className="rounded border border-gray-300 px-3 py-2"
+            aria-label="Role to assign"
           >
             <option value="user">user</option>
             <option value="admin">admin</option>

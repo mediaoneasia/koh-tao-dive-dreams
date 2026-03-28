@@ -139,6 +139,7 @@ const getPageSlugAliases = (slug: string) => {
 };
 const matchesSelectedPageSlug = (rowPageSlug: string, selected: string) =>
   getPageSlugAliases(selected).includes(String(rowPageSlug || ''));
+const isHiddenInPageEditor = (sectionKey: string) => sectionKey === 'images';
 
 const toSectionLabel = (sectionKey: string) =>
   sectionKey
@@ -343,7 +344,9 @@ const AdminPagesManager: React.FC = () => {
       DIVE_SITE_SECTION_ORDER.forEach((key) => keys.add(key));
     }
 
-    return Array.from(keys).sort((a, b) => {
+    return Array.from(keys)
+      .filter((sectionKey) => !isHiddenInPageEditor(sectionKey))
+      .sort((a, b) => {
       const aIdx = DIVE_SITE_SECTION_ORDER.indexOf(a);
       const bIdx = DIVE_SITE_SECTION_ORDER.indexOf(b);
 
@@ -351,7 +354,7 @@ const AdminPagesManager: React.FC = () => {
       if (aIdx !== -1) return -1;
       if (bIdx !== -1) return 1;
       return a.localeCompare(b);
-    });
+      });
   }, [data, selectedLocale, selectedPageSlug]);
 
   const groupedPageSectionKeys = useMemo(() => {

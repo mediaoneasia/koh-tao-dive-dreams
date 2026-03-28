@@ -155,6 +155,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
   const handleLogout = async () => {
     window.localStorage.removeItem('admin_authenticated');
+    window.localStorage.removeItem('admin_login_token');
     await supabase.auth.signOut();
     toast.success(isDutch ? 'Succesvol uitgelogd' : 'Successfully logged out');
     navigate('/admin/login');

@@ -84,6 +84,9 @@ const Login: React.FC = () => {
         }
 
         window.localStorage.setItem('admin_authenticated', '1');
+        if (payload?.token) {
+          window.localStorage.setItem('admin_login_token', payload.token);
+        }
         toast.success('Admin login successful');
         navigate('/admin', { replace: true });
         return;

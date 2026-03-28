@@ -529,6 +529,8 @@ const Navigation = ({ user, isAdmin, isAdminRoute }: { user?: any, isAdmin?: boo
                         <li>
                           <button
                             onClick={async () => {
+                              window.localStorage.removeItem('admin_authenticated');
+                              window.localStorage.removeItem('admin_login_token');
                               await supabase.auth.signOut();
                               setUser(null);
                               setIsAdmin(false);
@@ -539,6 +541,8 @@ const Navigation = ({ user, isAdmin, isAdminRoute }: { user?: any, isAdmin?: boo
                             {labels.logout}
                           </button>
                         </li>
+                              window.localStorage.removeItem('admin_authenticated');
+                              window.localStorage.removeItem('admin_login_token');
                       </>
                     ) : (
                       <>
