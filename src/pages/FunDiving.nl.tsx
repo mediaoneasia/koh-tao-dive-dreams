@@ -15,12 +15,12 @@ const FunDiving = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const locale = 'nl';
   const fallbackContent = useMemo(() => ({
-    fun_diving_hero_title: 'Fun Diving Koh Tao',
-    fun_diving_hero_subtitle: 'Beleef het beste van de onderwaterwereld van Koh Tao met onze professioneel begeleide fun dive trips. Ontdek kleurrijke koraalriffen, ontmoet bijzonder onderwaterleven en maak onvergetelijke herinneringen.',
+    fun_diving_hero_title: 'Fun diven op Koh Tao',
+    fun_diving_hero_subtitle: 'Beleef het beste van de onderwaterwereld van Koh Tao met onze professioneel begeleide fun duiktrips. Ontdek kleurrijke koraalriffen, ontmoet bijzonder onderwaterleven en maak onvergetelijke herinneringen.',
     fun_diving_hero_cta: 'Ga fun diven op Koh Tao',
     fun_diving_hero_cta2: 'Boek een cursus',
     fun_diving_overview_title: 'Van adembenemende scheepswrakken tot exotisch onderwaterleven',
-    fun_diving_overview_body: "Koh Tao's fun dives hebben het allemaal! We zijn trots op het bieden van een persoonlijke, ontspannen en plezierige fun dive-ervaring. We tonen je de mooiste onderwaterwereld afgestemd op jouw trainingsniveau en ervaring, zodat je duiken perfect aansluiten bij je specifieke interesses.",
+    fun_diving_overview_body: "Koh Tao heeft alles voor fun duiken! We zijn trots op het bieden van een persoonlijke, ontspannen en plezierige duikervaring. We tonen je de mooiste onderwaterwereld afgestemd op jouw trainingsniveau en ervaring, zodat je duiken perfect aansluiten bij je specifieke interesses.",
     fun_diving_world_class_title: 'Wereldklasse duiklocaties',
     fun_diving_world_class_body: 'Onder het turquoise water rond Koh Tao ligt een wereld van kleurrijke koraalriffen, bruisend onderwaterleven van macro-wezens tot schildpadden en als je geluk hebt, de majestueuze walvishaai. Met meer dan 25 fascinerende duiklocaties is er eindeloze diversiteit.',
     fun_diving_expert_title: 'Expert duikprofessionals',
@@ -30,11 +30,11 @@ const FunDiving = () => {
     fun_diving_flexible_title: 'Flexibel schema',
     fun_diving_flexible_body: 'We organiseren twee duiktrips per dag - ochtend en middag - op onze ruime, aangepaste duikboten. Na een spannende dag duiken kun je ontspannen met verfrissende drankjes en je ongelooflijke onderwaterervaringen delen tijdens een prachtige zonsondergang.',
     fun_diving_ready_title: 'Klaar om te verkennen?',
-    fun_diving_ready_body: 'Of je nu een pas gecertificeerde Open Water duiker bent of een ervaren technisch duiker, we hebben de perfecte duiklocaties en pakketten voor jou. Boek vandaag nog je fun diving-avontuur!',
+    fun_diving_ready_body: 'Of je nu een pas gecertificeerde Open Water duiker bent of een ervaren technisch duiker, we hebben de perfecte duiklocaties en pakketten voor jou. Boek vandaag nog je fun duikavontuur!',
     fun_diving_ready_cta1: 'Bekijk prijzen & schema',
     fun_diving_ready_cta2: 'Ontdek duiklocaties',
     fun_diving_trips_title: "Trips & programma's",
-    fun_diving_sites_title: 'Beste fun diving-trips op Koh Tao',
+    fun_diving_sites_title: 'Beste fun duiktrips op Koh Tao',
     fun_diving_all_sites_title: 'Alle duiklocaties',
     fun_diving_marine_tab_title: 'Ontdek de onderwaterwereld',
     // ...add more as needed for other tabs
@@ -172,7 +172,7 @@ const FunDiving = () => {
         <div id="fun-dive-tabs" className="max-w-6xl mx-auto px-4 py-8">
           <TabsList className="grid w-full grid-cols-3 lg:grid-cols-9">
             <TabsTrigger value="overview">Overzicht</TabsTrigger>
-            <TabsTrigger value="trips">{content.fun_diving_trips_title || 'Trips'}</TabsTrigger>
+            <TabsTrigger value="trips">{content.fun_diving_trips_title || 'Duiktrips'}</TabsTrigger>
             <TabsTrigger value="sites">Locaties</TabsTrigger>
             <TabsTrigger value="marine">Marien</TabsTrigger>
             <TabsTrigger value="schedule">Schema</TabsTrigger>
@@ -277,10 +277,10 @@ const FunDiving = () => {
               <h2 className="text-4xl font-bold text-center mb-8">{content.fun_diving_trips_title}</h2>
               <div className="grid md:grid-cols-3 gap-6">
                 <Card className="overflow-hidden">
-                  <img src="/images/fun.png" alt="Fun Dive" className="w-full h-40 object-cover" />
+                  <img src="/images/fun.png" alt="Fun duik" className="w-full h-40 object-cover" />
                   <CardHeader>
                     <div className="flex items-center justify-between">
-                      <CardTitle>Fun Dive</CardTitle>
+                      <CardTitle>Fun duik</CardTitle>
                       <Badge>Recreatief</Badge>
                     </div>
                     <CardDescription>Duur: Halve dag — 2 duiken</CardDescription>
@@ -292,15 +292,15 @@ const FunDiving = () => {
                       <li>Premium uitrusting</li>
                       <li>Maximaal 4 duikers per gids</li>
                     </ul>
-                          <Button variant="secondary" onClick={() => { navigate(`/booking?item=${encodeURIComponent('Fun Dive')}&type=dive&price=1800&currency=THB&dives=2`); }}>Informatie / Boeken</Button>
+                          <Button variant="secondary" onClick={() => { navigate(`/booking?item=${encodeURIComponent('Fun Dive')}&type=dive&price=1800&currency=THB&dives=2`); }}>Info / Boeken</Button>
                   </CardContent>
                 </Card>
 
                 <Card className="overflow-hidden">
-                  <img src="/images/discover.png" alt="Discover Scuba Diving - Zwembadtraining" className="w-full h-40 object-cover" />
+                  <img src="/images/discover.png" alt="Discover Scuba - zwembadtraining" className="w-full h-40 object-cover" />
                   <CardHeader>
                     <div className="flex items-center justify-between">
-                      <CardTitle>Discover Scuba (Try Dive)</CardTitle>
+                      <CardTitle>Discover Scuba (proefduik)</CardTitle>
                       <Badge>Beginner</Badge>
                     </div>
                     <CardDescription>Duur: Halve dag — korte introductieduik</CardDescription>
@@ -316,16 +316,16 @@ const FunDiving = () => {
                       <Button variant="outline" asChild>
                         <Link to="/courses/discover-scuba">Bekijk programma</Link>
                       </Button>
-                      <Button variant="secondary" onClick={() => { navigate(`/booking?item=${encodeURIComponent('Discover Scuba')}&type=dive&price=2500&currency=THB`); }}>Informatie / Boeken</Button>
+                      <Button variant="secondary" onClick={() => { navigate(`/booking?item=${encodeURIComponent('Discover Scuba')}&type=dive&price=2500&currency=THB`); }}>Info / Boeken</Button>
                     </div>
                   </CardContent>
                 </Card>
 
                 <Card className="overflow-hidden">
-                  <img src="/images/sailrock.webp" alt="Sail Rock Special" className="w-full h-40 object-cover" onError={(e)=>{(e.target as HTMLImageElement).src='/images/photo-1618865181016-a80ad83a06d3.avif'}} />
+                  <img src="/images/sailrock.webp" alt="Sail Rock-special" className="w-full h-40 object-cover" onError={(e)=>{(e.target as HTMLImageElement).src='/images/photo-1618865181016-a80ad83a06d3.avif'}} />
                   <CardHeader>
                     <div className="flex items-center justify-between">
-                      <CardTitle>Sail Rock Special</CardTitle>
+                      <CardTitle>Sail Rock-special</CardTitle>
                       <Badge>Hele dag</Badge>
                     </div>
                     <CardDescription>Duur: Hele dag — 3 duiken met lunch</CardDescription>
@@ -337,7 +337,7 @@ const FunDiving = () => {
                       <li>Ervaren gidsen en briefings</li>
                       <li>Ophalen en terugbrengen op Koh Tao</li>
                     </ul>
-                    <Button variant="secondary" onClick={() => { navigate(`/booking?item=${encodeURIComponent('Sail Rock Special')}&type=dive&price=2900&currency=THB`); }}>Informatie / Boeken</Button>
+                    <Button variant="secondary" onClick={() => { navigate(`/booking?item=${encodeURIComponent('Sail Rock Special')}&type=dive&price=2900&currency=THB`); }}>Info / Boeken</Button>
                   </CardContent>
                 </Card>
               </div>
@@ -431,7 +431,7 @@ const FunDiving = () => {
             <div className="max-w-6xl mx-auto">
               <div className="grid lg:grid-cols-2 gap-12">
                 <div>
-                  <h2 className="text-4xl font-bold mb-8">Bootschema fun diving</h2>
+                  <h2 className="text-4xl font-bold mb-8">Bootschema fun duiken</h2>
                   <div className="space-y-4">
                     <Card>
                       <CardHeader>
@@ -441,8 +441,8 @@ const FunDiving = () => {
                         </div>
                       </CardHeader>
                       <CardContent>
-                        <p>Daily departures at 8:00 AM and 10:00 AM</p>
-                        <p className="text-sm text-muted-foreground mt-2">2 dives per trip</p>
+                        <p>Dagelijkse vertrektijden om 08:00 en 10:00</p>
+                        <p className="text-sm text-muted-foreground mt-2">2 duiken per trip</p>
                       </CardContent>
                     </Card>
 
@@ -454,8 +454,8 @@ const FunDiving = () => {
                         </div>
                       </CardHeader>
                       <CardContent>
-                        <p>Daily departures at 1:00 PM</p>
-                        <p className="text-sm text-muted-foreground mt-2">2 dives per trip</p>
+                        <p>Dagelijkse vertrektijd om 13:00</p>
+                        <p className="text-sm text-muted-foreground mt-2">2 duiken per trip</p>
                       </CardContent>
                     </Card>
 
@@ -465,13 +465,13 @@ const FunDiving = () => {
                           <Clock className="w-5 h-5 text-blue-600" />
                           <CardTitle className="text-lg">
                             <Link to="/dive-sites/sail-rock" className="hover:text-blue-600 underline-offset-4 hover:underline">
-                              Sail Rock Special
+                              Sail Rock-special
                             </Link>
                           </CardTitle>
                         </div>
                       </CardHeader>
                       <CardContent>
-                        <p>Wednesday & Saturday at 6:30 AM</p>
+                        <p>Woensdag en zaterdag om 06:30</p>
                         <p className="text-sm text-muted-foreground mt-2">Hele dagtrip met lunch</p>
                       </CardContent>
                     </Card>
@@ -485,7 +485,7 @@ const FunDiving = () => {
                       <CardHeader>
                         <div className="flex items-center gap-2">
                           <DollarSign className="w-5 h-5 text-green-600" />
-                          <CardTitle className="text-lg">Fun Diving-pakketten</CardTitle>
+                          <CardTitle className="text-lg">Fun duikpakketten</CardTitle>
                         </div>
                         <CardDescription>Volumekortingen beschikbaar</CardDescription>
                       </CardHeader>
@@ -513,7 +513,7 @@ const FunDiving = () => {
                             <li>✓ Zoetwaterdouches</li>
                           </ul>
                         </div>
-                        <p className="text-xs text-muted-foreground mt-3">Vereiste: Open Water-certificering of equivalent</p>
+                        <p className="text-xs text-muted-foreground mt-3">Vereiste: Open Water-certificering of gelijkwaardig</p>
                         <div className="mt-4">
                           <Link to="/koh-tao-dive-sites" className="text-sm font-medium text-blue-600 hover:underline underline-offset-4">
                             Bekijk overzicht van alle duiklocaties
@@ -526,7 +526,7 @@ const FunDiving = () => {
                       <CardHeader>
                         <div className="flex items-center gap-2">
                           <DollarSign className="w-5 h-5 text-green-600" />
-                          <CardTitle className="text-lg">Sail Rock Special-trip</CardTitle>
+                          <CardTitle className="text-lg">Sail Rock-specialtrip</CardTitle>
                         </div>
                       </CardHeader>
                       <CardContent>
@@ -621,11 +621,11 @@ const FunDiving = () => {
               <div className="space-y-4">
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-lg">Moet ik een gecertificeerde duiker zijn om fun diving op Koh Tao te doen?</CardTitle>
+                    <CardTitle className="text-lg">Moet ik een gecertificeerde duiker zijn om fun duiken op Koh Tao te doen?</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <p className="text-muted-foreground">
-                      Ja, je moet een gecertificeerde duiker zijn om deel te nemen aan fun diving. Koh Tao biedt
+                      Ja, je moet een gecertificeerde duiker zijn om deel te nemen aan fun duiken. Koh Tao biedt
                       duiken voor alle certificeringsniveaus, dus of je nu Open Water-gecertificeerd bent of
                       geavanceerde training hebt, er zijn geschikte duiklocaties voor jou. Als je nog niet
                       gecertificeerd bent, bekijk dan onze{' '}
@@ -636,11 +636,11 @@ const FunDiving = () => {
 
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-lg">Wat kan ik verwachten tijdens een fun dive op Koh Tao?</CardTitle>
+                    <CardTitle className="text-lg">Wat kan ik verwachten tijdens een fun duik op Koh Tao?</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <p className="text-muted-foreground">
-                      Een typische fun dive op Koh Tao omvat een begeleide duik met een gecertificeerde
+                      Een typische fun duik op Koh Tao omvat een begeleide duik met een gecertificeerde
                       duikprofessional, die je meeneemt om het diverse onderwaterleven, koraalriffen en
                       onderwaterlandschappen te verkennen die het eiland beroemd maken. We organiseren twee
                       duiktrips per dag - ochtend en middag - op onze ruime, aangepaste duikboten.
@@ -650,7 +650,7 @@ const FunDiving = () => {
 
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-lg">Hoe diep duiken we tijdens fun diving op Koh Tao?</CardTitle>
+                    <CardTitle className="text-lg">Hoe diep duiken we tijdens fun duiken op Koh Tao?</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <p className="text-muted-foreground">
@@ -664,7 +664,7 @@ const FunDiving = () => {
 
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-lg">Is het nodig om fun diving van tevoren te boeken?</CardTitle>
+                    <CardTitle className="text-lg">Is het nodig om fun duiken van tevoren te boeken?</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <p className="text-muted-foreground">
@@ -678,7 +678,7 @@ const FunDiving = () => {
 
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-lg">Welk onderwaterleven kan ik zien tijdens fun diving?</CardTitle>
+                    <CardTitle className="text-lg">Welk onderwaterleven kan ik zien tijdens fun duiken?</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <p className="text-muted-foreground">
@@ -693,11 +693,11 @@ const FunDiving = () => {
 
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-lg">Wat is inbegrepen in de fun diving-prijs?</CardTitle>
+                    <CardTitle className="text-lg">Wat is inbegrepen in de prijs voor fun duiken?</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <p className="text-muted-foreground">
-                      Onze fun diving-pakketten omvatten: gecertificeerde duikgids, gebruik van alle duikuitrusting
+                      Onze fun duikpakketten omvatten: gecertificeerde duikgids, gebruik van alle duikuitrusting
                       (BCD, ademautomaat, wetsuit, masker, vinnen), duikcomputer, gewichten, tank en maximaal
                       4 duikers per gids voor een persoonlijke ervaring. Zoetwaterdouches zijn beschikbaar na je duik.
                     </p>
