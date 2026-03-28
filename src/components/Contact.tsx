@@ -3,6 +3,8 @@ import { MapPin, Phone, Mail, Clock, Facebook, Instagram, MessageCircle } from '
 import { toast } from 'sonner';
 import { usePageContent } from '@/hooks/usePageContent';
 import { useTranslation } from 'react-i18next';
+import CalendarSubscribe from './CalendarSubscribe';
+import CalendarSubscribe from './CalendarSubscribe';
 
 // Do not call emailjs.init with the service ID — we'll pass the public key on send.
 
@@ -170,7 +172,8 @@ const Contact = () => {
       setIsSubmitting(false);
     }
   };
-  return <section id="contact" className="py-20 bg-gray-900 text-white">
+  return (
+    <section id="contact" className="py-20 bg-gray-900 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold mb-4">{content.section_title}</h2>
@@ -282,6 +285,17 @@ const Contact = () => {
           <p className="mt-2">{content.footer_line_2}</p>
         </div>
       </div>
-    </section>;
+    </section>
+  );
 };
-export default Contact;
+
+const ContactWrapper = () => {
+  return (
+    <>
+      <Contact />
+      <CalendarSubscribe />
+    </>
+  );
+};
+
+export default ContactWrapper;
