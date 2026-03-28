@@ -108,6 +108,15 @@ const DIVE_SITE_SECTION_ORDER = [
 
 const normalizeDiveSiteSlug = (slug: string) => String(slug || '').replace(/^dive-sites\//, '');
 const isDiveSiteSlug = (slug: string) => DIVE_SITE_SLUGS.includes(normalizeDiveSiteSlug(slug));
+const getCanonicalPageSlug = (slug: string) =>
+  isDiveSiteSlug(slug) ? `dive-sites/${normalizeDiveSiteSlug(slug)}` : String(slug || '');
+const getPageSlugAliases = (slug: string) => {
+  if (!isDiveSiteSlug(slug)) return [String(slug || '')];
+  const short = normalizeDiveSiteSlug(slug);
+  return [`dive-sites/${short}`, short];
+};
+const matchesSelectedPageSlug = (rowPageSlug: string, selected: string) =>
+  getPageSlugAliases(selected).includes(String(rowPageSlug || ''));
 
 const toSectionLabel = (sectionKey: string) =>
   sectionKey
@@ -270,8 +279,10 @@ const AdminPagesManager: React.FC = () => {
   }, []);
 
   const availablePageSlugs = useMemo(() => {
-    const seededDiveSites = DIVE_SITE_SLUGS.flatMap((slug) => [slug, `dive-sites/${slug}`]);
-    const unique = Array.from(new Set([...data.map((row) => row.page_slug), ...seededDiveSites]));
+    const seededDiveSites = DIVE_SITE_SLUGS.map((slug) => `dive-sites/${slug}`);
+    const unique = Array.from(
+      new Set([...data.map((row) => getCanonicalPageSlug(row.page_slug)), ...seededDiveSites])
+    );
     unique.sort((a, b) => a.localeCompare(b));
     return unique;
   }, [data]);
@@ -302,7 +313,7 @@ const AdminPagesManager: React.FC = () => {
 
     const keys = new Set(
       data
-        .filter((row) => row.page_slug === selectedPageSlug)
+        .filter((row) => matchesSelectedPageSlug(row.page_slug, selectedPageSlug))
         .map((row) => row.section_key)
     );
 
@@ -345,7 +356,7 @@ const AdminPagesManager: React.FC = () => {
     pageSectionKeys.forEach((sectionKey) => {
       const localeRow = data.find(
         (item) =>
-          item.page_slug === selectedPageSlug &&
+          matchesSelectedPageSlug(item.page_slug, selectedPageSlug) &&
           item.locale === selectedLocale &&
           item.section_key === sectionKey
       );
@@ -371,13 +382,13 @@ const AdminPagesManager: React.FC = () => {
     const rowsToUpsert = pageSectionKeys.map((sectionKey) => {
       const existing = data.find(
         (row) =>
-          row.page_slug === selectedPageSlug &&
+          matchesSelectedPageSlug(row.page_slug, selectedPageSlug) &&
           row.locale === selectedLocale &&
           row.section_key === sectionKey
       );
 
       return {
-        page_slug: selectedPageSlug,
+        page_slug: getCanonicalPageSlug(selectedPageSlug),
         section_key: sectionKey,
         locale: selectedLocale,
         content_type: existing?.content_type || 'text',
