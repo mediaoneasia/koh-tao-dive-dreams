@@ -221,10 +221,8 @@ const       BookingPage: React.FC = () => {
         console.warn('Booking persistence failed; continuing with email flow.', dbErr);
       }
 
-      // Prepare Web3Forms payload
+      // Send booking notification via backend API
       const payload = {
-        access_key: '7a970f0f-1200-4750-8a87-f19895d13fe3',
-        subject: `Booking Inquiry: ${bookingItemTitle}`,
         name: data.name,
         email: data.email,
         phone: data.phone || 'N/A',
@@ -246,7 +244,7 @@ const       BookingPage: React.FC = () => {
         message: messageWithSource,
       };
 
-      const res = await fetch('https://api.web3forms.com/submit', {
+      const res = await fetch(apiUrl('/api/send-booking-notification'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -254,7 +252,7 @@ const       BookingPage: React.FC = () => {
 
       const responseData = await res.json().catch(() => ({}));
 
-      // Notify user based on Web3Forms result, but booking is already persisted
+      // Notify user based on email API result, but booking is already persisted
       if (res.ok && responseData.success) {
         if (data.paymentChoice === 'now' && amountMajor > 0) {
           setShowPaymentLinks(true);

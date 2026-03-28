@@ -1,5 +1,5 @@
 
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 
 export default async function handler(req, res) {
   try {
@@ -16,33 +16,31 @@ export default async function handler(req, res) {
       return;
     }
 
-    // Use Nodemailer to send the email via your SMTP
-    const smtpHost = process.env.SMTP_HOST;
-    const smtpPort = Number(process.env.SMTP_PORT || 587);
-    const smtpUser = process.env.SMTP_USER;
-    const smtpPass = process.env.SMTP_PASS;
+    const resendApiKey = process.env.RESEND_API_KEY;
+    const fromEmail = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
+    const toEmail = process.env.RESEND_CONTACT_TO_EMAIL || 'contact@prodiving.asia';
 
-    if (!smtpHost || !smtpUser || !smtpPass) {
-      res.status(500).json({ success: false, error: 'SMTP not configured' });
+    if (!resendApiKey) {
+      res.status(500).json({ success: false, error: 'Resend not configured' });
       return;
     }
 
-    const transporter = nodemailer.createTransport({
-      host: smtpHost,
-      port: smtpPort,
-      secure: smtpPort === 465,
-      auth: { user: smtpUser, pass: smtpPass },
-    });
+    const resend = new Resend(resendApiKey);
 
-    const mailOptions = {
-      from: smtpUser,
-      to: 'contact@prodiving.asia',
+    const { error: sendError } = await resend.emails.send({
+      from: fromEmail,
+      to: [toEmail],
       subject: subject || 'Contact Form Submission',
       replyTo: email,
       text: `Name: ${name}\nEmail: ${email}\nSubject: ${subject}\nMessage:\n${message}`,
-    };
+    });
 
-    await transporter.sendMail(mailOptions);
+    if (sendError) {
+      console.error('Resend send error (contact):', sendError);
+      res.status(500).json({ success: false, error: sendError.message || 'Failed to send email' });
+      return;
+    }
+
     res.status(200).json({ success: true });
   } catch (error) {
     console.error('Contact API error:', error);

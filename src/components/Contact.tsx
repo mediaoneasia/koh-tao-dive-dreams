@@ -14,6 +14,8 @@ const Contact = () => {
   const locale = isDutch ? 'nl' : 'en';
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const apiBase = (import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || '').trim().replace(/\/+$/, '');
+  const apiUrl = (path: string) => (apiBase ? `${apiBase}${path}` : path);
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -128,14 +130,12 @@ const Contact = () => {
     setIsSubmitting(true);
     try {
       const payload = {
-        access_key: '7a970f0f-1200-4750-8a87-f19895d13fe3',
-        to: 'contact@prodiving.asia',
-        subject: formData.subject || 'Contact Form Submission',
         name: `${formData.firstName} ${formData.lastName}`,
         email: formData.email,
+        subject: formData.subject || 'Contact Form Submission',
         message: formData.message
       };
-      const response = await fetch('https://api.web3forms.com/submit', {
+      const response = await fetch(apiUrl('/api/contact'), {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -161,7 +161,7 @@ const Contact = () => {
         });
       } else {
         const errMsg = data?.message || data?.error || 'Submission failed';
-        console.error('Web3Forms error:', errMsg, data);
+        console.error('Contact API error:', errMsg, data);
         toast.error(`Failed: ${errMsg}. Please try again or email us directly.`);
       }
     } catch (error) {

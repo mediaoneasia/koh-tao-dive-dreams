@@ -35,6 +35,8 @@ interface BookingFormProps {
 
 const BookingForm: React.FC<BookingFormProps> = ({ isOpen, onClose, itemType, itemTitle, depositMajor, depositCurrency }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const apiBase = (import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || '').trim().replace(/\/+$/, '');
+  const apiUrl = (path: string) => (apiBase ? `${apiBase}${path}` : path);
 
   const form = useForm<BookingFormData>({
     resolver: zodResolver(bookingSchema),
@@ -70,15 +72,19 @@ const BookingForm: React.FC<BookingFormProps> = ({ isOpen, onClose, itemType, it
       const paymentChoice = (data as any).paymentChoice || 'none';
       const messageBody = `Phone: ${data.phone || 'N/A'}\nPreferred Date: ${data.preferred_date || 'N/A'}\nExperience Level: ${data.experience_level || 'N/A'}\nPayment Option: ${paymentChoice}\n\nMessage:\n${data.message || 'N/A'}`;
 
-      // Send to Web3Forms (existing)
+      // Send to backend notification API
       const payload = {
-        access_key: '7a970f0f-1200-4750-8a87-f19895d13fe3',
-        subject: `Booking Inquiry: ${itemTitle}`,
+        item_title: itemTitle,
         name: data.name,
         email: data.email,
+        phone: data.phone || 'N/A',
+        preferred_date: data.preferred_date || 'N/A',
+        experience_level: data.experience_level || 'N/A',
+        payment_choice: paymentChoice,
+        deposit_amount: typeof depositMajor === 'number' ? `฿${depositMajor}` : 'N/A',
         message: messageBody,
       };
-      const response = await fetch('https://api.web3forms.com/submit', {
+      const response = await fetch(apiUrl('/api/send-booking-notification'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -120,8 +126,8 @@ const BookingForm: React.FC<BookingFormProps> = ({ isOpen, onClose, itemType, it
         form.reset();
         onClose();
       } else {
-        const errMsg = responseData?.error || `HTTP ${response.status}`;
-        console.error('Web3Forms error:', errMsg, responseData);
+        const errMsg = responseData?.message || responseData?.error || `HTTP ${response.status}`;
+        console.error('Booking notification error:', errMsg, responseData);
         toast.error(`Failed to send booking: ${errMsg}. Please try again.`);
       }
     } catch (error) {
