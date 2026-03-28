@@ -68,7 +68,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
     const current = normalizeText(editor.getText({ blockSeparator: '\n' }));
     const next = normalizeText(value || '');
     if (next !== current) {
-      editor.commands.setContent(textToEditorHtml(value || ''), { emitUpdate: false });
+      editor.commands.setContent(textToEditorHtml(value || ''), false);
     }
   }, [editor, value]);
 
@@ -135,6 +135,21 @@ const getEditorGroup = (sectionKey: string) => {
   if (/seo|meta|slug|keyword|description/.test(key)) return 'SEO';
   if (/title|overview|body|content|text|description|intro|highlight|tips|requirements/.test(key)) return 'Content';
   return 'Other';
+};
+
+const shouldForcePlainTextEditor = (sectionKey: string, contentType?: string) => {
+  const key = String(sectionKey || '').toLowerCase();
+  const type = String(contentType || '').toLowerCase();
+
+  if (/(image|img|photo|gallery|video|url|link|src|icon|logo|path|slug)/.test(key)) {
+    return true;
+  }
+
+  if (/(image|media|url|link|path|json)/.test(type)) {
+    return true;
+  }
+
+  return false;
 };
 
 const getPageGroup = (pageSlug: string) => {
@@ -631,7 +646,7 @@ const AdminPagesManager: React.FC = () => {
                             {toSectionLabel(sectionKey)}
                             <span className="ml-2 text-xs text-gray-400">({sectionKey})</span>
                           </label>
-                          {useWysiwyg ? (
+                          {useWysiwyg && !shouldForcePlainTextEditor(sectionKey) ? (
                             <RichTextEditor
                               value={pageDraft[sectionKey] || ''}
                               onChange={(val) =>
@@ -858,7 +873,7 @@ const AdminPagesManager: React.FC = () => {
               </td>
               <td className="border border-gray-300 p-2">
                 {editingId === row.id ? (
-                  useWysiwyg ? (
+                  useWysiwyg && !shouldForcePlainTextEditor(row.section_key, row.content_type) ? (
                     <RichTextEditor
                       value={editContent}
                       onChange={setEditContent}
