@@ -6,13 +6,22 @@ const LanguageSwitcher = () => {
   const isEnglish = i18n.language.startsWith('en');
   const isDutch = i18n.language.startsWith('nl');
 
-  const changeLanguage = (lng: string) => {
+  const changeLanguage = async (lng: 'en' | 'nl') => {
     try {
       window.localStorage.setItem('i18nextLng', lng);
     } catch {
       // no-op if storage is unavailable
     }
-    i18n.changeLanguage(lng);
+
+    try {
+      const url = new URL(window.location.href);
+      url.searchParams.set('lng', lng);
+      window.history.replaceState({}, '', `${url.pathname}${url.search}${url.hash}`);
+    } catch {
+      // no-op if URL API is unavailable
+    }
+
+    await i18n.changeLanguage(lng);
   };
 
   return (
@@ -20,7 +29,9 @@ const LanguageSwitcher = () => {
       <Button
         variant={isEnglish ? 'default' : 'outline'}
         size="sm"
-        onClick={() => changeLanguage('en')}
+        onClick={() => {
+          void changeLanguage('en');
+        }}
         className="flex items-center space-x-1"
       >
         <span className="text-lg">🇺🇸</span>
@@ -29,7 +40,9 @@ const LanguageSwitcher = () => {
       <Button
         variant={isDutch ? 'default' : 'outline'}
         size="sm"
-        onClick={() => changeLanguage('nl')}
+        onClick={() => {
+          void changeLanguage('nl');
+        }}
         className="flex items-center space-x-1"
       >
         <span className="text-lg">🇳🇱</span>
