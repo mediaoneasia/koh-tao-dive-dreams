@@ -188,15 +188,9 @@ const AdminPagesManager: React.FC = () => {
           item.locale === selectedLocale &&
           item.section_key === sectionKey
       );
-      const englishFallbackRow = data.find(
-        (item) =>
-          item.page_slug === selectedPageSlug &&
-          item.locale === 'en' &&
-          item.section_key === sectionKey
-      );
 
-      // When NL rows don't exist yet, seed the editor with EN values so NL can be created quickly.
-      nextDraft[sectionKey] = localeRow?.content_value || englishFallbackRow?.content_value || '';
+      // Keep locale editing strict: do not auto-fill Dutch from English rows.
+      nextDraft[sectionKey] = localeRow?.content_value || '';
     });
 
     setPageDraft(nextDraft);
