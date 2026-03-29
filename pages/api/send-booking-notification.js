@@ -1,3 +1,4 @@
+import fetch from 'node-fetch';
 
 export default async function handler(req, res) {
 	// Allow production and any Vercel preview domain
