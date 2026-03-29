@@ -1,6 +1,6 @@
 
 
-
+export default async function handler(req, res) {
   // Allow production and any Vercel preview domain
   const origin = req.headers.origin;
   const isProd = origin === 'https://www.divinginasia.com';
