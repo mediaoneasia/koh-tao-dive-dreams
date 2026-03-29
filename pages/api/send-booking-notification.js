@@ -1,8 +1,8 @@
 
 
-	import fetch from 'node-fetch';
 
-	export default async function handler(req, res) {
+
+
 		// Allow production and any Vercel preview domain
 		const origin = req.headers.origin;
 		const isProd = origin === 'https://www.divinginasia.com';
@@ -37,7 +37,7 @@
 			} = req.body || {};
 
 			// Prepare data for Web3Forms
-			const web3formsAccessKey = '0baa4056-09a3-4e86-9b77-5fcfea76b361';
+			   const web3formsAccessKey = '7a970f0f-1200-4750-8a87-f19895d13fe3';
 			if (!web3formsAccessKey) {
 				res.status(500).json({ success: false, error: 'Web3Forms not configured' });
 				return;
@@ -50,28 +50,35 @@
 				message: message || 'No message',
 			};
 
-			let response, data;
-			try {
-				response = await fetch('https://api.web3forms.com/submit', {
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-					},
-					body: JSON.stringify(formData),
-				});
-				data = await response.json();
-			} catch (apiErr) {
-				console.error('Web3Forms API error:', apiErr);
-				res.status(500).json({ success: false, error: 'Web3Forms API request failed', details: String(apiErr) });
-				return;
-			}
+			   let response, data, rawText = '';
+			   try {
+				   response = await fetch('https://api.web3forms.com/submit', {
+					   method: 'POST',
+					   headers: {
+						   'Content-Type': 'application/json',
+					   },
+					   body: JSON.stringify(formData),
+				   });
+				   rawText = await response.text();
+				   try {
+					   data = JSON.parse(rawText);
+				   } catch (parseErr) {
+					   console.error('Web3Forms non-JSON response:', rawText);
+					   res.status(500).json({ success: false, error: 'Web3Forms API returned non-JSON response', details: rawText });
+					   return;
+				   }
+			   } catch (apiErr) {
+				   console.error('Web3Forms API error:', apiErr);
+				   res.status(500).json({ success: false, error: 'Web3Forms API request failed', details: String(apiErr) });
+				   return;
+			   }
 
-			if (data.success) {
-				res.status(200).json({ success: true });
-			} else {
-				console.error('Web3Forms submission failed:', data);
-				res.status(500).json({ success: false, error: data.message || 'Failed to send booking', details: data });
-			}
+			   if (data && data.success) {
+				   res.status(200).json({ success: true });
+			   } else {
+				   console.error('Web3Forms submission failed:', data);
+				   res.status(500).json({ success: false, error: (data && data.message) || 'Failed to send booking', details: data });
+			   }
 		} catch (err) {
 			console.error('send-booking-notification error', err);
 			res.status(500).json({ error: err.message || 'Internal error' });
