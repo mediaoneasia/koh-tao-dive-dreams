@@ -34,42 +34,8 @@ export default async function handler(req, res) {
       paypal_link,
     } = req.body || {};
 
-    // Prepare data for Web3Forms
-    const web3formsAccessKey = '0baa4056-09a3-4e86-9b77-5fcfea76b361';
-    if (!web3formsAccessKey) {
-      res.status(500).json({ success: false, error: 'Web3Forms not configured' });
-      return;
-    }
-
-    const formData = {
-      access_key: web3formsAccessKey,
-      name: name,
-      email: email,
-      message: message || 'No message',
-    };
-
-    let response, data;
-    try {
-      response = await fetch('https://api.web3forms.com/submit', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
-      data = await response.json();
-    } catch (apiErr) {
-      console.error('Web3Forms API error:', apiErr);
-      res.status(500).json({ success: false, error: 'Web3Forms API request failed', details: String(apiErr) });
-      return;
-    }
-
-    if (data.success) {
-      res.status(200).json({ success: true });
-    } else {
-      console.error('Web3Forms submission failed:', data);
-      res.status(500).json({ success: false, error: data.message || 'Failed to send booking', details: data });
-    }
+    // Web3Forms logic removed. Deprecated endpoint.
+    res.status(410).json({ error: 'Web3Forms notification is deprecated. Use backend SMTP endpoint.' });
   } catch (err) {
     console.error('send-booking-notification error', err);
     res.status(500).json({ error: err.message || 'Internal error' });

@@ -253,38 +253,7 @@ const       BookingPage: React.FC = () => {
         message: messageWithSource,
       };
 
-      console.log('Sending booking payload to Web3Forms', payload);
-
-      const res = await fetch('https://api.web3forms.com/submit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-
-      const responseData = await res.json().catch(() => ({}));
-      console.log('Web3Forms response:', res.status, responseData);
-
-      // Notify user based on Web3Forms result, but booking is already persisted
-      if (res.ok && responseData.success) {
-        if (data.paymentChoice === 'now' && amountMajor > 0) {
-          setShowPaymentLinks(true);
-        } else {
-          setShowSkipPaymentPopup(true);
-        }
-      } else {
-        const errMsg = responseData?.message || responseData?.error || `HTTP ${res.status}`;
-        console.error('Web3Forms error:', errMsg, responseData);
-        if (persisted) {
-          toast.error(`Inquiry saved, but email notification failed: ${errMsg}`);
-          if (data.paymentChoice === 'now' && amountMajor > 0) {
-            setShowPaymentLinks(true);
-          } else {
-            setShowSkipPaymentPopup(true);
-          }
-        } else {
-          toast.error(`Submission failed: ${errMsg}. Please retry.`);
-        }
-      }
+      // Web3Forms logic removed. Use backend API for notifications only.
     } catch (err) {
       console.error('Form submission error:', err);
       toast.error('Submission failed. Please try again.');
