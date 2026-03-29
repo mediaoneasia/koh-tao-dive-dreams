@@ -35,7 +35,7 @@ export default async function handler(req, res) {
 		} = req.body || {};
 
 		// Prepare data for Web3Forms
-		const web3formsAccessKey = '0baa4056-09a3-4e86-9b77-5fcfea76b361';
+				const web3formsAccessKey = '7a970f0f-1200-4750-8a87-f19895d13fe3';
 		if (!web3formsAccessKey) {
 			res.status(500).json({ success: false, error: 'Web3Forms not configured' });
 			return;
