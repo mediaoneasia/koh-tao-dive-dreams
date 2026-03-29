@@ -40,7 +40,7 @@ export default async function handler(req, res) {
 
 		await transporter.sendMail({
 			from: smtpUser || 'bookings@prodiving.asia',
-			   to: 'booking@prodiving.asia',
+			   to: 'bookings@prodiving.asia',
 			subject: `New Booking Inquiry: ${item_title}`,
 			text: body,
 		});
@@ -50,4 +50,4 @@ export default async function handler(req, res) {
 		console.error('send-booking-notification error', err);
 		res.status(500).json({ error: err.message || 'Internal error' });
 	}
-@
+}
