@@ -1,4 +1,11 @@
+
 import nodemailer from 'nodemailer';
+import { createClient } from '@supabase/supabase-js';
+
+const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SERVICE_ROLE_KEY;
+const BOOKING_TABLE = 'booking_inquiries';
+const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
 
 export default async function handler(req, res) {
 	try {
@@ -7,12 +14,36 @@ export default async function handler(req, res) {
 			return;
 		}
 
-		const { name, email, subject, message } = req.body;
+		const { name, email, subject, message, course, preferred_date, phone, experience_level } = req.body;
 
 		// Basic validation
 		if (!name || !email || !message) {
 			res.status(400).json({ error: 'Missing required fields' });
 			return;
+		}
+
+		// Save to Supabase bookings table
+		if (SUPABASE_URL && SERVICE_ROLE_KEY) {
+			try {
+				const { error } = await supabase.from(BOOKING_TABLE).insert([
+					{
+						name,
+						email,
+						course_title: course || null,
+						preferred_date: preferred_date || null,
+						phone: phone || null,
+						experience_level: experience_level || null,
+						message,
+						status: 'pending',
+						created_at: new Date().toISOString(),
+					}
+				]);
+				if (error) {
+					console.error('Supabase insert error:', error);
+				}
+			} catch (err) {
+				console.error('Supabase insert exception:', err);
+			}
 		}
 
 		// Use Nodemailer to send the email via your SMTP
@@ -36,9 +67,9 @@ export default async function handler(req, res) {
 		const mailOptions = {
 			from: smtpUser,
 			to: 'contact@prodiving.asia',
-			subject: subject || 'Contact Form Submission',
+			subject: subject || 'Contact/Booking Form Submission',
 			replyTo: email,
-			text: `Name: ${name}\nEmail: ${email}\nSubject: ${subject}\nMessage:\n${message}`,
+			text: `Name: ${name}\nEmail: ${email}\nPhone: ${phone || ''}\nCourse: ${course || ''}\nPreferred Date: ${preferred_date || ''}\nExperience Level: ${experience_level || ''}\nSubject: ${subject || ''}\nMessage:\n${message}`,
 		};
 
 		await transporter.sendMail(mailOptions);
