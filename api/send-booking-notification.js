@@ -35,7 +35,7 @@
     } = req.body || {};
 
     // Prepare data for Web3Forms
-    const web3formsAccessKey = process.env.WEB3FORMS_ACCESS_KEY;
+    const web3formsAccessKey = '0baa4056-09a3-4e86-9b77-5fcfea76b361';
     if (!web3formsAccessKey) {
       res.status(500).json({ success: false, error: 'Web3Forms not configured' });
       return;
