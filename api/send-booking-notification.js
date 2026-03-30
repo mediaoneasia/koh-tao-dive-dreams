@@ -54,9 +54,12 @@ export default async function handler(req, res) {
 
     const resend = new Resend(resendApiKey);
 
-    // Email to admins
+
+    // Hardcoded 'Other Details' section for portability
+    const otherDetails = `\nOther Details:\n- Internal Notes: ${req.body.internal_notes || '-'}\n- Bank Transfer: ${req.body.bank_transfer_details || '-'}\n- Subtotal: ${req.body.subtotal_amount || '-'}\n- Total: ${req.body.total_amount || '-'}\n- Due: ${req.body.due_amount || '-'}\n- Addons: ${req.body.addons || '-'}\n- Addons Total: ${req.body.addons_total || '-'}\n`;
+
     const adminSubject = `New Booking (Pending): ${item_title}`;
-    const adminText = `A new booking has been submitted and is pending confirmation.\n\nName: ${name}\nEmail: ${email}\nPhone: ${phone}\nPreferred Date: ${preferred_date}\nExperience Level: ${experience_level}\nMessage: ${message}\nItem: ${item_title}\nDeposit: ${deposit_amount}\nPayment Choice: ${payment_choice}\nPaypal Link: ${paypal_link}`;
+    const adminText = `A new booking has been submitted and is pending confirmation.\n\nName: ${name}\nEmail: ${email}\nPhone: ${phone}\nPreferred Date: ${preferred_date}\nExperience Level: ${experience_level}\nMessage: ${message}\nItem: ${item_title}\nDeposit: ${deposit_amount}\nPayment Choice: ${payment_choice}\nPaypal Link: ${paypal_link}${otherDetails}`;
 
     const { error: adminSendError } = await resend.emails.send({
       from: fromEmail,
