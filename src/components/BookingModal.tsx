@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
+import react, { usestate } from 'react';
 
-interface BookingModalProps {
+interface bookingmodalprops {
   open: boolean;
-  onClose: () => void;
-  onSubmit: (data: any) => void;
+  onclose: () => void;
+  onsubmit: (data: any) => void;
 }
 
-const BookingModal: React.FC<BookingModalProps> = ({ open, onClose, onSubmit }) => {
-  const [form, setForm] = useState({
+const bookingmodal: react.fc<bookingmodalprops> = ({ open, onclose, onsubmit }) => {
+  const [form, setform] = usestate({
     name: '',
     email: '',
     phone: '',
@@ -18,30 +18,30 @@ const BookingModal: React.FC<BookingModalProps> = ({ open, onClose, onSubmit }) 
 
   if (!open) return null;
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+  const handlechange = (e: react.changeevent<htmlinputelement | htmltextareaelement>) => {
+    setform({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSubmit(form);
-    onClose();
+  const handlesubmit = (e: react.formevent) => {
+    e.preventdefault();
+    onsubmit(form);
+    onclose();
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
-        <h2 className="text-xl font-bold mb-4">New Booking</h2>
-        <form onSubmit={handleSubmit} className="space-y-3">
-          <input name="name" value={form.name} onChange={handleChange} placeholder="Name" className="w-full border p-2 rounded" required />
-          <input name="email" value={form.email} onChange={handleChange} placeholder="Email" className="w-full border p-2 rounded" required />
-          <input name="phone" value={form.phone} onChange={handleChange} placeholder="Phone" className="w-full border p-2 rounded" />
-          <input name="date" value={form.date} onChange={handleChange} placeholder="Preferred Date" className="w-full border p-2 rounded" type="date" />
-          <input name="experience" value={form.experience} onChange={handleChange} placeholder="Experience Level" className="w-full border p-2 rounded" />
-          <textarea name="message" value={form.message} onChange={handleChange} placeholder="Message" className="w-full border p-2 rounded" />
-          <div className="flex justify-end gap-2 mt-4">
-            <button type="button" onClick={onClose} className="px-4 py-2 bg-gray-200 rounded">Cancel</button>
-            <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded">Submit</button>
+    <div classname="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+      <div classname="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+        <h2 classname="text-xl font-bold mb-4">new booking</h2>
+        <form onsubmit={handlesubmit} classname="space-y-3">
+          <input name="name" value={form.name} onchange={handlechange} placeholder="name" classname="w-full border p-2 rounded" required />
+          <input name="email" value={form.email} onchange={handlechange} placeholder="email" classname="w-full border p-2 rounded" required />
+          <input name="phone" value={form.phone} onchange={handlechange} placeholder="phone" classname="w-full border p-2 rounded" />
+          <input name="date" value={form.date} onchange={handlechange} placeholder="preferred date" classname="w-full border p-2 rounded" type="date" />
+          <input name="experience" value={form.experience} onchange={handlechange} placeholder="experience level" classname="w-full border p-2 rounded" />
+          <textarea name="message" value={form.message} onchange={handlechange} placeholder="message" classname="w-full border p-2 rounded" />
+          <div classname="flex justify-end gap-2 mt-4">
+            <button type="button" onclick={onclose} classname="px-4 py-2 bg-gray-200 rounded">cancel</button>
+            <button type="submit" classname="px-4 py-2 bg-blue-600 text-white rounded">submit</button>
           </div>
         </form>
       </div>
@@ -49,4 +49,4 @@ const BookingModal: React.FC<BookingModalProps> = ({ open, onClose, onSubmit }) 
   );
 };
 
-export default BookingModal;
+export default bookingmodal;
