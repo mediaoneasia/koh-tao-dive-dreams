@@ -26,13 +26,13 @@ export default async function handler(req, res) {
       try {
         const { error } = await supabase.from(BOOKING_TABLE).insert([
           {
-            name,
-            email,
-            course_title: course || null,
-            preferred_date: preferred_date || null,
-            phone: phone || null,
-            experience_level: experience_level || null,
-            message,
+            name: name || '',
+            email: email || '',
+            course_title: course || '',
+            preferred_date: preferred_date || '',
+            phone: phone || '',
+            experience_level: experience_level || '',
+            message: message || '',
             status: 'pending',
             created_at: new Date().toISOString(),
           }
