@@ -1,4 +1,5 @@
 import React, {useMemo, useState, Suspense } from 'react';
+import DropboxGallery from '@/components/DropboxGallery';
 const FunDiveBooking = React.lazy(() => import('@/components/FunDiveBooking'));
 import DiveSiteDetail from '@/components/DiveSiteDetail';
 import { useTranslation } from 'react-i18next';
