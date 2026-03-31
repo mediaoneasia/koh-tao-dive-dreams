@@ -5,19 +5,29 @@
 // Setup type definitions for built-in Supabase Runtime APIs
 import "@supabase/functions-js/edge-runtime.d.ts"
 
-console.log("Hello from Functions!")
 
-Deno.serve(async (req) => {
-  const { name } = await req.json()
-  const data = {
-    message: `Hello ${name}!`,
+Deno.serve(async (_req) => {
+  try {
+    // Fetch latest rates with THB as base
+    const res = await fetch("https://api.exchangerate.host/latest?base=THB&symbols=THB,USD,EUR");
+    if (!res.ok) throw new Error("Failed to fetch exchange rates");
+    const data = await res.json();
+    const rates = {
+      THB: 1,
+      USD: data.rates.USD,
+      EUR: data.rates.EUR,
+    };
+    return new Response(
+      JSON.stringify({ rates, date: data.date }),
+      { headers: { "Content-Type": "application/json" } }
+    );
+  } catch (err) {
+    return new Response(
+      JSON.stringify({ error: "Could not fetch live exchange rates." }),
+      { status: 500, headers: { "Content-Type": "application/json" } }
+    );
   }
-
-  return new Response(
-    JSON.stringify(data),
-    { headers: { "Content-Type": "application/json" } },
-  )
-})
+});
 
 /* To invoke locally:
 
