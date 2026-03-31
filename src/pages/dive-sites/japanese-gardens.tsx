@@ -1,4 +1,4 @@
-import React, { useMemo, useState, Suspense } from 'react';
+mport React, {useMemo, useState, Suspense } from 'react';
 const FunDiveBooking = React.lazy(() => import('@/components/FunDiveBooking'));
 import DiveSiteDetail from '@/components/DiveSiteDetail';
 import { useTranslation } from 'react-i18next';
@@ -81,6 +81,8 @@ const JapaneseGardens = () => {
           </div>
         </Suspense>
       )}
+      <h2 className="text-2xl font-bold mt-8 mb-4">Gallery</h2>
+      <DropboxGallery folder="japanese-gardens" />
     </>
   );
 };
