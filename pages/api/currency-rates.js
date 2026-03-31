@@ -1,12 +1,22 @@
 // pages/api/currency-rates.js
 
 // Simple in-memory cache (resets on server restart)
+
+export const corsHeaders = {
+  'Access-Control-Allow-Origin': 'https://main.ds60ehca8n5ua.amplifyapp.com',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
 let cachedRates = null;
 let cachedDate = null;
 let lastFetch = 0;
 const CACHE_TTL = 1000 * 60 * 30; // 30 minutes
 
 export default async function handler(req, res) {
+  // Set CORS headers on every response
+  Object.entries(corsHeaders).forEach(([key, value]) => {
+    res.setHeader(key, value);
+  });
+
   const now = Date.now();
   if (cachedRates && (now - lastFetch < CACHE_TTL)) {
     return res.status(200).json({ rates: cachedRates, date: cachedDate, cached: true });
