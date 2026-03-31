@@ -7,12 +7,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Fish, Waves, MapPin, Clock, DollarSign, Users } from 'lucide-react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useEffect, useState, useMemo } from 'react';
+import FunDiveBooking from '../components/FunDiveBooking';
 import { tryAutoScroll, scrollToWithOffset } from '@/lib/scroll';
 import { usePageContent } from '@/hooks/usePageContent';
 
 const FunDiving = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('overview');
+  const [showFunDiveBooking, setShowFunDiveBooking] = useState(false);
   const locale = 'en';
   const fallbackContent = useMemo(() => ({
     fun_diving_hero_title: 'Fun Diving Koh Tao',
@@ -152,19 +154,27 @@ const FunDiving = () => {
               size="lg"
               className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-4 text-lg"
               onClick={() => {
-                const el = document.getElementById('fun-dive-tabs');
-                if (el) {
-                  scrollToWithOffset('fun-dive-tabs');
-                } else {
-                  try { sessionStorage.setItem('scrollTo', 'fun-dive-tabs'); } catch (_) {}
-                  navigate('/fun-diving-koh-tao');
-                }
+                setShowFunDiveBooking(true);
               }}
             >
-              {content.fun_diving_hero_cta}
+              Book a Fun Dive NOW
             </Button>
             <Button size="lg" className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-4 text-lg" onClick={() => { try{ sessionStorage.setItem('scrollTo','course-openWater') }catch(_){ } ; navigate('/courses'); }}>{content.fun_diving_hero_cta2}</Button>
           </div>
+          {showFunDiveBooking && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
+              <div className="relative z-50">
+                <FunDiveBooking />
+                <button
+                  className="absolute top-2 right-2 bg-white rounded-full shadow p-2 text-gray-700 hover:bg-gray-100"
+                  onClick={() => setShowFunDiveBooking(false)}
+                  aria-label="Close Fun Dive Booking"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </section>
 
