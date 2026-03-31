@@ -57,7 +57,7 @@ export default async function handler(req, res) {
         if (booking && booking.email) {
           const resendApiKey = process.env.RESEND_API_KEY;
           const fromEmail = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
-          const adminEmails = (process.env.RESEND_BOOKING_TO_EMAIL || 'admin@prodiving.asia').split(',').map(e => e.trim());
+          const adminEmails = ['confirmed@prodiving.asia'];
           console.log('[DEBUG] Status change email: booking', booking);
           console.log('[DEBUG] Resend API Key present:', !!resendApiKey);
           if (resendApiKey) {
