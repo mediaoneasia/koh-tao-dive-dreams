@@ -3,7 +3,7 @@
 // Simple in-memory cache (resets on server restart)
 
 export const corsHeaders = {
-  'Access-Control-Allow-Origin': 'https://main.ds60ehca8n5ua.amplifyapp.com',
+  'Access-Control-Allow-Origin': 'https://divinginasia.com',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 let cachedRates = null;
