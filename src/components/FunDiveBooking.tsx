@@ -13,19 +13,25 @@ const DIVE_SITES = [
   'HTMS Sattakut',
 ];
 
+
 const FunDiveBooking: React.FC = () => {
   const [selectedSite, setSelectedSite] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [showNotice, setShowNotice] = useState(false);
+  const [showConfirmation, setShowConfirmation] = useState(false);
+
 
   const handleSiteSelect = (site: string) => {
     setSelectedSite(site);
     setShowNotice(true);
+    setShowConfirmation(false);
   };
+
 
   const handleProceed = () => {
     setShowNotice(false);
     setModalOpen(true);
+    setShowConfirmation(false);
   };
 
   return (
@@ -57,11 +63,49 @@ const FunDiveBooking: React.FC = () => {
       <BookingModal
         open={modalOpen}
         onClose={() => setModalOpen(false)}
-        onSubmit={data => {
-          // You can add logic to handle the booking submission here
+        onSubmit={async data => {
+          // Compose booking payload
+          const payload = {
+            name: data.name,
+            email: data.email,
+            phone: data.phone,
+            preferred_date: data.date,
+            experience_level: data.experience,
+            message: data.message,
+            item_title: selectedSite || 'Fun Dive',
+            course_title: selectedSite || 'Fun Dive',
+          };
+          // Send to email notification API
+          try {
+            await fetch('/api/send-booking-notification', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload),
+            });
+          } catch (e) {
+            // Optionally handle error
+          }
+          // Send to Supabase bookings API
+          try {
+            await fetch('/api/bookings', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload),
+            });
+          } catch (e) {
+            // Optionally handle error
+          }
           setModalOpen(false);
+          setShowConfirmation(true);
+          setSelectedSite(null);
+          setShowNotice(false);
         }}
       />
+      {showConfirmation && (
+        <div className="mt-6 p-4 bg-green-100 border-l-4 border-green-500 text-green-800 rounded text-center">
+          <strong>Thank you!</strong> Your booking request has been submitted. We will contact you soon to confirm your dive.
+        </div>
+      )}
     </div>
   );
 };
