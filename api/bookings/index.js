@@ -2,7 +2,7 @@
 import { handleOptions, applyCors } from '../_lib/cors.js';
 
 import { createClient } from '@supabase/supabase-js';
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 
 const BOOKING_TABLE = 'bookings';
 const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
@@ -85,24 +85,14 @@ const parseBody = (req) => {
 };
 
 const sendConfirmedEmails = async (booking) => {
-  const smtpHost = process.env.SMTP_HOST;
-  const smtpPort = Number(process.env.SMTP_PORT || 587);
-  const smtpUser = process.env.SMTP_USER;
-  const smtpPass = process.env.SMTP_PASS;
+  const resendApiKey = process.env.RESEND_API_KEY;
+  const fromEmail = process.env.RESEND_FROM_EMAIL || 'petergreaney@gmail.com';
   const adminEmail = process.env.BOOKING_ADMIN_EMAIL || 'confirmed@divinginasia.com';
-
-  if (!smtpHost || !smtpUser || !smtpPass) {
-    console.warn('SMTP not configured, skipping confirmed booking emails');
+  if (!resendApiKey) {
+    console.warn('Resend not configured, skipping confirmed booking emails');
     return;
   }
-
-  const transporter = nodemailer.createTransport({
-    host: smtpHost,
-    port: smtpPort,
-    secure: smtpPort === 465,
-    auth: { user: smtpUser, pass: smtpPass },
-  });
-
+  const resend = new Resend(resendApiKey);
   const subject = `Booking Confirmed: ${booking.course_title || 'Booking Inquiry'}`;
   const customerText = [
     `Hi ${booking.name || 'Customer'},`,
@@ -114,7 +104,6 @@ const sendConfirmedEmails = async (booking) => {
     '',
     'If you have questions, just reply to this email.',
   ].join('\n');
-
   const adminText = [
     'A booking has been confirmed in admin.',
     '',
@@ -124,21 +113,27 @@ const sendConfirmedEmails = async (booking) => {
     `Course: ${booking.course_title || 'N/A'}`,
     `Preferred Date: ${booking.preferred_date || 'N/A'}`,
   ].join('\n');
-
-  await transporter.sendMail({
-    from: smtpUser,
+  // Send to admin
+  const { error: adminSendError } = await resend.emails.send({
+    from: fromEmail,
     to: adminEmail,
     subject,
     text: adminText,
   });
-
+  if (adminSendError) {
+    console.error('Resend send error (admin booking):', adminSendError);
+  }
+  // Send to customer
   if (booking.email) {
-    await transporter.sendMail({
-      from: smtpUser,
+    const { error: customerSendError } = await resend.emails.send({
+      from: fromEmail,
       to: booking.email,
       subject,
       text: customerText,
     });
+    if (customerSendError) {
+      console.error('Resend send error (customer booking):', customerSendError);
+    }
   }
 };
 
