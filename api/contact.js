@@ -66,16 +66,30 @@ export default async function handler(req, res) {
 
     const mailOptions = {
       from: smtpUser,
-      to: 'confirmed@prodiving.asia',
-      subject: subject || 'Contact/Booking Form Submission',
-      replyTo: email,
-      text: `Name: ${name}\nEmail: ${email}\nPhone: ${phone || ''}\nCourse: ${course || ''}\nPreferred Date: ${preferred_date || ''}\nExperience Level: ${experience_level || ''}\nSubject: ${subject || ''}\nMessage:\n${message}`,
-    };
-
-    await transporter.sendMail(mailOptions);
-    res.status(200).json({ success: true });
-  } catch (error) {
-    console.error('Contact API error:', error);
-    res.status(500).json({ success: false, error: 'Internal server error' });
-  }
-}
+              // Use Resend to send the email
+              const resendApiKey = process.env.RESEND_API_KEY;
+              const fromEmail = 'bookings@prodiving.asia';
+              const toEmail = 'confirmed@prodiving.asia';
+              if (!resendApiKey) {
+                res.status(500).json({ success: false, error: 'Resend API key not configured' });
+                return;
+              }
+              const resend = new Resend(resendApiKey);
+              const subjectLine = subject || 'Contact/Booking Form Submission';
+              const textBody = `Name: ${name}\nEmail: ${email}\nPhone: ${phone || ''}\nCourse: ${course || ''}\nPreferred Date: ${preferred_date || ''}\nExperience Level: ${experience_level || ''}\nSubject: ${subject || ''}\nMessage:\n${message}`;
+              try {
+                const { error: resendError } = await resend.emails.send({
+                  from: fromEmail,
+                  to: toEmail,
+                  subject: subjectLine,
+                  reply_to: email,
+                  text: textBody,
+                });
+                if (resendError) {
+                  res.status(500).json({ success: false, error: resendError.message || 'Failed to send email via Resend' });
+                  return;
+                }
+                res.status(200).json({ success: true });
+              } catch (err) {
+                res.status(500).json({ success: false, error: err?.message || 'Resend error' });
+              }
