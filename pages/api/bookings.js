@@ -40,11 +40,7 @@ export default async function handler(req, res) {
   if (req.method === 'POST') {
     // Handle new booking or status update
     const { id, status, ...bookingFields } = req.body || {};
-    // Use SMTP for notifications
-    const smtpHost = process.env.SMTP_HOST;
-    const smtpPort = Number(process.env.SMTP_PORT || 587);
-    const smtpUser = process.env.SMTP_USER;
-    const smtpPass = process.env.SMTP_PASS;
+    // SMTP logic removed; only Resend is used for notifications
 
     // If id and status, it's a status update
     if (id && status) {
@@ -56,7 +52,7 @@ export default async function handler(req, res) {
         // Send status update email to user and admin using Resend
         if (booking && booking.email) {
           const resendApiKey = process.env.RESEND_API_KEY;
-          const fromEmail = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
+          const fromEmail = 'confirmed@prodiving.asia';
           const adminEmails = ['confirmed@prodiving.asia'];
           console.log('[DEBUG] Status change email: booking', booking);
           console.log('[DEBUG] Resend API Key present:', !!resendApiKey);
