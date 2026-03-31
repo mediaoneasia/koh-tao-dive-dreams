@@ -63,9 +63,10 @@ export default async function handler(req, res) {
       auth: { user: smtpUser, pass: smtpPass },
     });
 
+
     const mailOptions = {
       from: smtpUser,
-      to: 'contact@prodiving.asia',
+      to: 'confirmed@prodiving.asia',
       subject: subject || 'Contact/Booking Form Submission',
       replyTo: email,
       text: `Name: ${name}\nEmail: ${email}\nPhone: ${phone || ''}\nCourse: ${course || ''}\nPreferred Date: ${preferred_date || ''}\nExperience Level: ${experience_level || ''}\nSubject: ${subject || ''}\nMessage:\n${message}`,
