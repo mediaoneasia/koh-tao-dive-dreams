@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import DropboxGallery from '@/components/DropboxGallery';
 import DiveSiteDetail from '@/components/DiveSiteDetail';
 import { useTranslation } from 'react-i18next';
 import { usePageContent } from '@/hooks/usePageContent';
@@ -62,6 +63,8 @@ const HTMSSattakut = () => {
         divingTips={toList(content.diving_tips)}
         images={toList(content.images)}
       />
+      <h2 className="text-2xl font-bold mt-8 mb-4">Gallery</h2>
+      <DropboxGallery folder="htms-sattakut" />
     </div>
   );
 };
