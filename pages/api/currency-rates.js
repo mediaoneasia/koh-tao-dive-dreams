@@ -1,5 +1,16 @@
 // pages/api/currency-rates.js
+
+// Simple in-memory cache (resets on server restart)
+let cachedRates = null;
+let cachedDate = null;
+let lastFetch = 0;
+const CACHE_TTL = 1000 * 60 * 30; // 30 minutes
+
 export default async function handler(req, res) {
+  const now = Date.now();
+  if (cachedRates && (now - lastFetch < CACHE_TTL)) {
+    return res.status(200).json({ rates: cachedRates, date: cachedDate, cached: true });
+  }
   try {
     const response = await fetch('https://api.exchangerate.host/latest?base=THB&symbols=THB,USD,EUR');
     if (!response.ok) throw new Error('Failed to fetch exchange rates');
@@ -9,8 +20,16 @@ export default async function handler(req, res) {
       USD: data.rates.USD,
       EUR: data.rates.EUR,
     };
-    res.status(200).json({ rates, date: data.date });
+    cachedRates = rates;
+    cachedDate = data.date;
+    lastFetch = now;
+    res.status(200).json({ rates, date: data.date, cached: false });
   } catch (err) {
-    res.status(500).json({ error: 'Could not fetch live exchange rates.' });
+    if (cachedRates) {
+      // Serve stale cache if available
+      res.status(200).json({ rates: cachedRates, date: cachedDate, cached: 'stale' });
+    } else {
+      res.status(500).json({ error: 'Could not fetch live exchange rates.' });
+    }
   }
 }
