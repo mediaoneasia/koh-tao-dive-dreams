@@ -1,49 +1,120 @@
 import TaskManagement from '../../admin/components/TaskManagement';
 
-export default function ProjectManager() {
+import React, { useState } from 'react';
+
+interface Task {
+	id: string;
+	title: string;
+	assignedTo: string;
+	status: 'To Do' | 'In Progress' | 'Done';
+}
+
+const defaultUsers = [
+	{ id: '1', name: 'Alice' },
+	{ id: '2', name: 'Bob' },
+	{ id: '3', name: 'Charlie' },
+];
+
+function getInitialTasks(): Task[] {
+	const saved = localStorage.getItem('projectManagerTasks');
+	return saved ? JSON.parse(saved) : [];
+}
+
+export default function AdminProjectManager() {
+	const [tasks, setTasks] = useState<Task[]>(getInitialTasks());
+	const [newTask, setNewTask] = useState('');
+	const [assignedTo, setAssignedTo] = useState(defaultUsers[0].id);
+
+	function saveTasks(updated: Task[]) {
+		setTasks(updated);
+		localStorage.setItem('projectManagerTasks', JSON.stringify(updated));
+	}
+
+	function addTask(e: React.FormEvent) {
+		e.preventDefault();
+		if (!newTask.trim()) return;
+		const task: Task = {
+			id: Date.now().toString(),
+			title: newTask,
+			assignedTo,
+			status: 'To Do',
+		};
+		saveTasks([...tasks, task]);
+		setNewTask('');
+	}
+
+	function updateTask(id: string, changes: Partial<Task>) {
+		const updated = tasks.map(t => t.id === id ? { ...t, ...changes } : t);
+		saveTasks(updated);
+	}
+
+	function deleteTask(id: string) {
+		saveTasks(tasks.filter(t => t.id !== id));
+	}
+
 	return (
-		<div className="p-6 space-y-8">
-			<h1 className="text-3xl font-bold mb-2">Project Manager</h1>
-			<p className="mb-6 text-gray-600">This section will contain project management tools and links.</p>
-			{/* Overview Section */}
-			<section className="bg-white rounded shadow p-4">
-				<h2 className="text-xl font-semibold mb-2">Overview</h2>
-				<div className="flex space-x-4">
-					<div className="bg-blue-100 rounded p-4 flex-1">Summary Card 1</div>
-					<div className="bg-green-100 rounded p-4 flex-1">Summary Card 2</div>
-					<div className="bg-yellow-100 rounded p-4 flex-1">Summary Card 3</div>
-				</div>
-			</section>
-			{/* Task Management Section */}
-			<section className="bg-white rounded shadow p-4">
-				<h2 className="text-xl font-semibold mb-2">Task Management</h2>
-				<TaskManagement />
-			</section>
-			{/* Calendar Section */}
-			<section className="bg-white rounded shadow p-4">
-				<h2 className="text-xl font-semibold mb-2">Calendar & Deadlines</h2>
-				<div className="text-gray-500">[Calendar placeholder]</div>
-			</section>
-			{/* Team Management Section */}
-			<section className="bg-white rounded shadow p-4">
-				<h2 className="text-xl font-semibold mb-2">Team Management</h2>
-				<div className="text-gray-500">[Team members placeholder]</div>
-			</section>
-			{/* Notes & Files Section */}
-			<section className="bg-white rounded shadow p-4">
-				<h2 className="text-xl font-semibold mb-2">Notes & Files</h2>
-				<div className="text-gray-500">[Notes and file uploads placeholder]</div>
-			</section>
-			{/* Progress Tracking Section */}
-			<section className="bg-white rounded shadow p-4">
-				<h2 className="text-xl font-semibold mb-2">Progress Tracking</h2>
-				<div className="text-gray-500">[Milestones and progress bars placeholder]</div>
-			</section>
-			{/* Notifications Section */}
-			<section className="bg-white rounded shadow p-4">
-				<h2 className="text-xl font-semibold mb-2">Notifications</h2>
-				<div className="text-gray-500">[Notifications placeholder]</div>
-			</section>
+		<div className="p-6 max-w-2xl mx-auto">
+			<h1 className="text-2xl font-bold mb-4">Project Manager</h1>
+			<form onSubmit={addTask} className="flex gap-2 mb-4">
+				<input
+					className="border rounded px-2 py-1 flex-1"
+					value={newTask}
+					onChange={e => setNewTask(e.target.value)}
+					placeholder="New task..."
+				/>
+				<select
+					className="border rounded px-2 py-1"
+					value={assignedTo}
+					onChange={e => setAssignedTo(e.target.value)}
+				>
+					{defaultUsers.map(u => (
+						<option key={u.id} value={u.id}>{u.name}</option>
+					))}
+				</select>
+				<button className="bg-blue-600 text-white px-4 py-1 rounded" type="submit">Add</button>
+			</form>
+			<table className="w-full text-left">
+				<thead>
+					<tr>
+						<th>Task</th>
+						<th>Assigned To</th>
+						<th>Status</th>
+						<th></th>
+					</tr>
+				</thead>
+				<tbody>
+					{tasks.map(task => (
+						<tr key={task.id} className="border-t">
+							<td>{task.title}</td>
+							<td>
+								<select
+									value={task.assignedTo}
+									onChange={e => updateTask(task.id, { assignedTo: e.target.value })}
+									className="border rounded px-2 py-1"
+								>
+									{defaultUsers.map(u => (
+										<option key={u.id} value={u.id}>{u.name}</option>
+									))}
+								</select>
+							</td>
+							<td>
+								<select
+									value={task.status}
+									onChange={e => updateTask(task.id, { status: e.target.value as Task['status'] })}
+									className="border rounded px-2 py-1"
+								>
+									<option>To Do</option>
+									<option>In Progress</option>
+									<option>Done</option>
+								</select>
+							</td>
+							<td>
+								<button className="text-red-600" onClick={() => deleteTask(task.id)}>Delete</button>
+							</td>
+						</tr>
+					))}
+				</tbody>
+			</table>
 		</div>
 	);
 }
