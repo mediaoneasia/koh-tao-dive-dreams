@@ -209,7 +209,7 @@ const Navigation = ({ user, isAdmin, isAdminRoute }: { user?: any, isAdmin?: boo
             <img src="/images/logo.png" alt="Pro Diving Asia Logo" className="h-14 w-auto" style={{ display: 'block', marginRight: 12, marginLeft: 0 }} />
           </div>
           {/* Desktop nav */}
-          <div className="hidden md:flex items-center space-x-5 text-[0.95rem]">
+          <div className="hidden md:flex items-center space-x-5 text-[0.95rem] pt-2 pl-4">
             <Link to="/" className="text-gray-700 hover:text-blue-600 transition-colors duration-200 font-medium">
               {t('nav.home')}
             </Link>
