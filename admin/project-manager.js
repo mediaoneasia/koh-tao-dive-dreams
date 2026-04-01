@@ -1,4 +1,3 @@
-
 import dynamic from 'next/dynamic';
 const TaskManagement = dynamic(() => import('../components/TaskManagement'), { ssr: false });
 
@@ -49,3 +48,4 @@ export default function ProjectManager() {
     </div>
   );
 }
+

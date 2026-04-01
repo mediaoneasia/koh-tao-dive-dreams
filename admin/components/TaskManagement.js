@@ -1,42 +1,5 @@
 
-import { useEffect, useState } from 'react';
-import TeamMembers from './TeamMembers';
 
-export default function TaskManagement() {
-  const [tasks, setTasks] = useState([]);
-  const [newTask, setNewTask] = useState('');
-  const [assignedUser, setAssignedUser] = useState(null);
-  const [users, setUsers] = useState([]);
-
-  // Load users and tasks on mount
-  useEffect(() => {
-    async function fetchUsers() {
-      const res = await fetch('/api/admin-users');
-      const data = await res.json();
-      setUsers(data || []);
-      if (data && data.length > 0) setAssignedUser(data[0].id);
-    }
-    async function fetchTasks() {
-      const res = await fetch('/api/project-tasks');
-      const data = await res.json();
-      setTasks(data || []);
-    }
-    fetchUsers();
-    fetchTasks();
-  }, []);
-
-  async function addTask(e) {
-    e.preventDefault();
-    if (!newTask.trim() || !assignedUser) return;
-    const res = await fetch('/api/project-tasks', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title: newTask, assigned_to: assignedUser, status: 'To Do' })
-    });
-    const data = await res.json();
-    if (res.ok) setTasks([...tasks, data]);
-    setNewTask('');
-  }
 
   async function changeStatus(id, status) {
     const task = tasks.find(t => t.id === id);
