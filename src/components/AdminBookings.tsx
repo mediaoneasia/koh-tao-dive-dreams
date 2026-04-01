@@ -493,8 +493,6 @@ const AdminBookings: React.FC = () => {
           )}
         </DialogContent>
       </Dialog>
-        </>
-      )}
     </div>
   );
 };
