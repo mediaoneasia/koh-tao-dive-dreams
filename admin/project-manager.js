@@ -1,6 +1,5 @@
 import dynamic from 'next/dynamic';
 const TaskManagement = dynamic(() => import('../components/TaskManagement'), { ssr: false });
-
 export default function ProjectManager() {
   return (
     <div className="p-6 space-y-8">

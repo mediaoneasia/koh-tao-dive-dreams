@@ -1,6 +1,5 @@
 
 
-
   async function changeStatus(id, status) {
     const task = tasks.find(t => t.id === id);
     if (!task) return;
