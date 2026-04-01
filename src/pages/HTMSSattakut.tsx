@@ -79,6 +79,12 @@ const HTMSSattakut = () => {
               <figcaption className="text-center text-sm mt-2 text-gray-500">HTMS Sattakut - Wrak</figcaption>
             )}
           </figure>
+            <figure>
+              <img src="https://www.divinginasia.com/images/wreck.jpeg" alt="Extern wrakafbeelding" className="rounded shadow max-w-full h-auto" />
+              {isDutch && (
+                <figcaption className="text-center text-sm mt-2 text-gray-500">Externe afbeelding: divinginasia.com</figcaption>
+              )}
+            </figure>
           {isDutch && (
             <figure>
               <img src="https://www.divinginasia.com/images/wreck.jpeg" alt="Extern wrakafbeelding" className="rounded shadow max-w-full h-auto" />
