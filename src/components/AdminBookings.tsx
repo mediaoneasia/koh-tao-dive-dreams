@@ -52,6 +52,39 @@ const AdminBookings: React.FC = () => {
   const [exportResult, setExportResult] = useState<string | null>(null);
   const [copyResult, setCopyResult] = useState<string | null>(null);
 
+  // Currency state
+  const [currency, setCurrency] = useState<'THB' | 'USD' | 'EUR'>('THB');
+  const [exchangeRates, setExchangeRates] = useState<{ [key: string]: number }>({ THB: 1, USD: 1, EUR: 1 });
+
+  // Fetch exchange rates on mount
+  useEffect(() => {
+    const fetchRates = async () => {
+      try {
+        const res = await fetch(`https://openexchangerates.org/api/latest.json?app_id=${process.env.OPENEXCHANGERATES_API_KEY}&symbols=THB,USD,EUR`);
+        const data = await res.json();
+        if (data && data.rates) {
+          setExchangeRates({
+            THB: data.rates.THB || 1,
+            USD: data.rates.USD || 1,
+            EUR: data.rates.EUR || 1,
+          });
+        }
+      } catch {
+        // fallback: keep default rates
+      }
+    };
+    fetchRates();
+  }, []);
+
+  // Currency conversion helper
+  const convertCurrency = (amount: number | null | undefined, from: string = 'THB') => {
+    if (!amount || !exchangeRates[from] || !exchangeRates[currency]) return '-';
+    // Convert from base (THB) to USD, EUR, etc.
+    const thbAmount = from === 'THB' ? amount : (amount / exchangeRates[from]) * exchangeRates['THB'];
+    const converted = (thbAmount / exchangeRates['THB']) * exchangeRates[currency];
+    return `${converted.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${currency}`;
+  };
+
   const calendarFeedUrl = (() => {
     const origin = typeof window !== 'undefined' ? window.location.origin : '';
     return `${origin}/api/bookings/calendar`;
@@ -241,6 +274,16 @@ const AdminBookings: React.FC = () => {
       <h2 className="text-xl font-bold mb-4">Bookings</h2>
       {/* Unified horizontal control bar */}
       <div className="flex flex-wrap items-center gap-3 mb-6">
+        <label className="font-medium mr-2">Currency:</label>
+        <select
+          className="px-2 py-1 rounded border border-gray-300 mr-4"
+          value={currency}
+          onChange={e => setCurrency(e.target.value as 'THB' | 'USD' | 'EUR')}
+        >
+          <option value="THB">THB</option>
+          <option value="USD">USD</option>
+          <option value="EUR">EUR</option>
+        </select>
         <button
           className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded"
           onClick={() => setShowFunDiveBooking(true)}
