@@ -1,6 +1,6 @@
 import Contact from '../components/Contact';
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -8,7 +8,42 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { usePageContent } from '@/hooks/usePageContent';
 
+const SUPPORTED_CURRENCIES = ['THB', 'USD', 'EUR'] as const;
+type Currency = typeof SUPPORTED_CURRENCIES[number];
+
 const Instructor: React.FC = () => {
+  // Currency state
+  const [currency, setCurrency] = useState<Currency>('THB');
+  const [exchangeRates, setExchangeRates] = useState<{ [key: string]: number }>({ THB: 1, USD: 1, EUR: 1 });
+
+  // Fetch exchange rates on mount
+  useEffect(() => {
+    const fetchRates = async () => {
+      try {
+        const res = await fetch(`https://openexchangerates.org/api/latest.json?app_id=${import.meta.env.VITE_OPENEXCHANGERATES_API_KEY}&symbols=THB,USD,EUR`);
+        const data = await res.json();
+        if (data && data.rates) {
+          setExchangeRates({
+            THB: data.rates.THB || 1,
+            USD: data.rates.USD || 1,
+            EUR: data.rates.EUR || 1,
+          });
+        }
+      } catch {
+        // fallback: keep default rates
+      }
+    };
+    fetchRates();
+  }, []);
+
+  // Currency conversion helper
+  const convertCurrency = (amount: number | null | undefined, from: string = 'THB') => {
+    if (!amount || !exchangeRates[from] || !exchangeRates[currency]) return '-';
+    const thbAmount = from === 'THB' ? amount : (amount / exchangeRates[from]) * exchangeRates['THB'];
+    const converted = (thbAmount / exchangeRates['THB']) * exchangeRates[currency];
+    const symbol = currency === 'THB' ? '฿' : currency === 'USD' ? '$' : '€';
+    return `${symbol}${converted.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${currency}`;
+  };
   const navigate = useNavigate();
   const { i18n } = useTranslation();
   const isDutch = i18n.language.startsWith('nl');
@@ -93,12 +128,26 @@ const Instructor: React.FC = () => {
     fallbackContent,
   });
 
+  const basePriceTHB = Number(String(content.price_thb || '68900').replace(/[^\d.-]/g, '')) || 68900;
   const bookingUrl = `/booking?item=${encodeURIComponent(
     content.hero_title || 'PADI Open Water Scuba Instructor'
-  )}&type=course&price=${Number(String(content.price_thb || '68900').replace(/[^\d.-]/g, '')) || 68900}&currency=THB`;
+  )}&type=course&price=${convertCurrency(basePriceTHB, 'THB').replace(/[^\d.]/g, '')}&currency=${currency}`;
 
   return (
     <div className="min-h-screen bg-background">
+      <div className="flex justify-end items-center p-4">
+        <label htmlFor="currency-select" className="mr-2 font-medium">Currency:</label>
+        <select
+          id="currency-select"
+          value={currency}
+          onChange={e => setCurrency(e.target.value as Currency)}
+          className="border rounded px-2 py-1"
+        >
+          {SUPPORTED_CURRENCIES.map((cur) => (
+            <option key={cur} value={cur}>{cur}</option>
+          ))}
+        </select>
+      </div>
       <section className="instructor-hero-bg relative h-72 md:h-96 flex items-center">
         <div className="container mx-auto px-4 text-white z-10">
           <h1 className="text-4xl md:text-5xl font-bold">{content.hero_title}</h1>
@@ -182,7 +231,7 @@ const Instructor: React.FC = () => {
                 <CardDescription>{content.sidebar_subtitle}</CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="text-2xl font-bold text-sky-600 mb-3">฿{Number(String(content.price_thb || '68900').replace(/[^\d.-]/g, '')) || 68900}</p>
+                <p className="text-2xl font-bold text-sky-600 mb-3">{convertCurrency(basePriceTHB, 'THB')}</p>
                 <p className="text-sm text-muted-foreground mb-4">{content.sidebar_note}</p>
                 <Button onClick={() => navigate(bookingUrl)}>{content.sidebar_cta}</Button>
               </CardContent>
