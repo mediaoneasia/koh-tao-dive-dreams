@@ -19,7 +19,8 @@ export const CurrencyProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   useEffect(() => {
     const fetchRates = async () => {
       try {
-        const res = await fetch(`https://openexchangerates.org/api/latest.json?app_id=${import.meta.env.VITE_OPENEXCHANGERATES_API_KEY}&symbols=THB,USD,EUR`);
+        // Hardcoded app_id for debugging
+        const res = await fetch('https://openexchangerates.org/api/latest.json?app_id=563cc6ace29a406bb2ebcae222e61786&symbols=THB,USD,EUR');
         const data = await res.json();
         if (data && data.rates) {
           setExchangeRates({
