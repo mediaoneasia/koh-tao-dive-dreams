@@ -207,6 +207,10 @@ const CoursePageTemplate: React.FC<CoursePageProps> = ({
                   </div>
                   <div className="space-y-1">
                     <p className="text-2xl font-bold text-sky-600">฿{thbAmount.toLocaleString(localeTag)}</p>
+                    {/* Show converted price below if not THB */}
+                    {selectedCurrency && selectedCurrency !== 'THB' && priceConverted && (
+                      <p className="text-base text-muted-foreground">{priceConverted}</p>
+                    )}
                   </div>
                 </div>
                 <p className="text-sm text-muted-foreground">
