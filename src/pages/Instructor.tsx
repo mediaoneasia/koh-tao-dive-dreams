@@ -231,7 +231,10 @@ const Instructor: React.FC = () => {
                 <CardDescription>{content.sidebar_subtitle}</CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="text-2xl font-bold text-sky-600 mb-3">{convertCurrency(basePriceTHB, 'THB')}</p>
+                <p className="text-2xl font-bold text-sky-600 mb-1">฿{basePriceTHB} THB</p>
+                {currency !== 'THB' && (
+                  <p className="text-lg font-semibold text-sky-700 mb-3">{convertCurrency(basePriceTHB, 'THB')}</p>
+                )}
                 <p className="text-sm text-muted-foreground mb-4">{content.sidebar_note}</p>
                 <Button onClick={() => navigate(bookingUrl)}>{content.sidebar_cta}</Button>
               </CardContent>
