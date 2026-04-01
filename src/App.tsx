@@ -18,6 +18,7 @@ import AgodaHotels from './pages/AgodaHotels';
 import ClicksDashboard from './pages/ClicksDashboard';
 import BookingPage from './pages/BookingPage';
 import Admin from './pages/Admin';
+import ProjectManagerPage from './pages/AdminProjectManager';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Account from './pages/Account';
@@ -200,6 +201,10 @@ const App = () => (
             <Route
               path="/admin"
               element={<RequireAdmin><Admin /></RequireAdmin>}
+            />
+            <Route
+              path="/admin/project-manager"
+              element={<RequireAdmin><ProjectManagerPage /></RequireAdmin>}
             />
             <Route path="/login" element={<Login />} />
             <Route path="/admin/login" element={<Login />} />
