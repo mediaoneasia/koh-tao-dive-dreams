@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useNavigate } from 'react-router-dom';
 import Contact from '@/components/Contact';
+import CurrencyExchange from '@/components/CurrencyExchange';
 
 export default function DivemasterInternship() {
   const navigate = useNavigate();
@@ -28,6 +29,9 @@ export default function DivemasterInternship() {
           <p className="text-gray-700">
             Many of our professional level candidates have successfully gone on to senior roles within the scuba diving industry.
           </p>
+          <div className="mt-6">
+            <CurrencyExchange />
+          </div>
         </Card>
 
         <Card className="mb-8 p-6">
