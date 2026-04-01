@@ -152,14 +152,15 @@ const Admin = () => {
 
 
     <div className="min-h-[70vh]">
-      {/* Horizontal tab row */}
-      <div className="flex flex-row items-center gap-4 mb-8" style={{marginLeft: 0, paddingLeft: 0}}>
-        <nav className="flex flex-row gap-2">
+      {/* Centered horizontal tab row with more spacing */}
+      <div className="flex flex-col items-center mb-8">
+        <nav className="flex flex-row gap-6 justify-center">
           {tabs.map(tab => (
             <button
               key={tab.key}
-              className={`px-5 py-2 text-sm font-semibold rounded-lg transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:z-10 ${activeTab === tab.key ? 'bg-blue-600 text-white shadow' : 'bg-transparent text-gray-700 hover:bg-blue-100'}`}
+              className={`px-7 py-3 text-base font-semibold rounded-lg transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:z-10 ${activeTab === tab.key ? 'bg-blue-600 text-white shadow' : 'bg-transparent text-gray-700 hover:bg-blue-100'}`}
               onClick={() => setActiveTab(tab.key)}
+              style={{ minWidth: 160 }}
             >
               {tab.label}
             </button>
@@ -168,7 +169,7 @@ const Admin = () => {
         <button
           type="button"
           onClick={() => setFinanceModalOpen(true)}
-          className="ml-4 rounded bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 shadow"
+          className="mt-4 rounded bg-emerald-600 px-5 py-2 text-base font-semibold text-white hover:bg-emerald-700 shadow"
         >
           Global Finance Defaults
         </button>
