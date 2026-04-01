@@ -14,12 +14,15 @@ export default async function handler(req, res) {
     return res.status(200).json({ rates: cachedRates, date: cachedDate, cached: true });
   }
   try {
-    // Use exchangerate.host (no API key required)
-    const response = await fetch('https://api.exchangerate.host/latest?base=THB&symbols=THB,USD,EUR');
+    // Use exchangeratesapi.io with API key
+    const apiKey = process.env.CURRENCY_API_KEY;
+    if (!apiKey) throw new Error('Missing CURRENCY_API_KEY');
+    const url = `https://api.exchangeratesapi.io/v1/latest?access_key=${apiKey}&base=THB&symbols=THB,USD,EUR`;
+    const response = await fetch(url);
     if (!response.ok) throw new Error('Failed to fetch exchange rates');
     const data = await response.json();
     if (!data.rates || typeof data.rates.USD !== 'number' || typeof data.rates.EUR !== 'number') {
-      throw new Error('exchangerate.host API response missing USD or EUR rates');
+      throw new Error('exchangeratesapi.io API response missing USD or EUR rates');
     }
     const rates = {
       THB: 1,
