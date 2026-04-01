@@ -33,7 +33,6 @@ const Admin = () => {
     paypal_link: 'https://paypal.me/prodivingasia',
     course_deposit_rate: '0.2',
     default_deposit_amount: '',
-    default_currency: 'THB',
     bank_transfer_details: '',
   });
 
@@ -43,7 +42,6 @@ const Admin = () => {
     { key: 'paypal_link', label: 'PayPal Link', placeholder: 'https://paypal.me/prodivingasia' },
     { key: 'course_deposit_rate', label: 'Course Deposit Rate', placeholder: '0.2' },
     { key: 'default_deposit_amount', label: 'Default Deposit Amount', placeholder: 'e.g. 2500' },
-    { key: 'default_currency', label: 'Default Currency', placeholder: 'THB' },
     { key: 'bank_transfer_details', label: 'Bank Transfer Details', multiline: true, placeholder: 'Bank name, account number, IBAN/SWIFT...' },
   ];
 

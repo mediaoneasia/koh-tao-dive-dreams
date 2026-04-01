@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { getExchangeRates, ExchangeRates } from '@/lib/exchangeRates';
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -54,17 +54,7 @@ const CoursePageTemplate: React.FC<CoursePageProps> = ({
   bookingType = 'course',
 }) => {
 
-  // Exchange rates state (must be inside component)
-  const [rates, setRates] = useState<ExchangeRates | null>(null);
-  const [ratesError, setRatesError] = useState<string | null>(null);
-  useEffect(() => {
-    getExchangeRates()
-      .then(setRates)
-      .catch((err) => {
-        console.error('Exchange rate fetch error:', err);
-        setRatesError('Could not fetch live exchange rates.');
-      });
-  }, []);
+
 
   const navigate = useNavigate();
   const { content, isLoading } = usePageContent({
@@ -122,12 +112,7 @@ const CoursePageTemplate: React.FC<CoursePageProps> = ({
     const digits = String(value || '').replace(/[^\d.-]/g, '');
     return Number(digits || 0);
   };
-  const formatCurrency = (amount: number, currency: 'THB' | 'USD' | 'EUR') =>
-    new Intl.NumberFormat(localeTag, {
-      style: 'currency',
-      currency,
-      maximumFractionDigits: 0,
-    }).format(amount);
+
 
   const priceThb = content.price_thb || fallbackContent.price_thb || '0';
   const duration = content.duration || fallbackContent.duration || 'Contact us';
@@ -221,20 +206,7 @@ const CoursePageTemplate: React.FC<CoursePageProps> = ({
                     {locale === 'nl' ? 'Prijs' : 'Price'}
                   </div>
                   <div className="space-y-1">
-                    <p className="text-2xl font-bold text-sky-600">{formatCurrency(thbAmount, 'THB')}</p>
-                    {ratesError && <div className="text-xs text-red-500">{ratesError}</div>}
-                    {rates ? (
-                      <>
-                        <p className="text-sm text-muted-foreground">
-                          <span>{formatCurrency(thbAmount * rates.USD, 'USD')}</span>
-                          <span> / </span>
-                          <span>{formatCurrency(thbAmount * rates.EUR, 'EUR')}</span>
-                        </p>
-                        <p className="text-xs text-gray-500 mt-1">Conversions are correct at the time of booking.</p>
-                      </>
-                    ) : (
-                      <p className="text-sm text-gray-400">Loading rates...</p>
-                    )}
+                    <p className="text-2xl font-bold text-sky-600">฿{thbAmount.toLocaleString(localeTag)}</p>
                   </div>
                 </div>
                 <p className="text-sm text-muted-foreground">

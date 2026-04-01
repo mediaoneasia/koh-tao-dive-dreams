@@ -27,11 +27,7 @@ interface Booking {
   bank_transfer_details?: string | null;
 }
 
-interface FinanceSettings {
-  paypal_link: string;
-  default_currency: string;
-  bank_transfer_details: string;
-}
+
 
 const AdminBookings: React.FC = () => {
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -43,11 +39,8 @@ const AdminBookings: React.FC = () => {
   const [view, setView] = useState<'table' | 'calendar'>('table');
   const [showFunDiveBooking, setShowFunDiveBooking] = useState(false);
   const [financeModalBooking, setFinanceModalBooking] = useState<Booking | null>(null);
-  const [financeSettings, setFinanceSettings] = useState<FinanceSettings>({
-    paypal_link: 'https://paypal.me/prodivingasia',
-    default_currency: 'THB',
-    bank_transfer_details: '',
-  });
+  const [paypalLink, setPaypalLink] = useState('https://paypal.me/prodivingasia');
+  const [bankTransferDetails, setBankTransferDetails] = useState('');
   const [noteDraft, setNoteDraft] = useState('');
   const [noteSaving, setNoteSaving] = useState(false);
   const [noteResult, setNoteResult] = useState<string | null>(null);
@@ -91,16 +84,10 @@ const AdminBookings: React.FC = () => {
       .then((payload) => {
         const rows = Array.isArray(payload?.content) ? payload.content : [];
         if (!rows.length) return;
-
-        setFinanceSettings((prev) => {
-          const next = { ...prev };
-          rows.forEach((row: any) => {
-            if (!row?.section_key) return;
-            if (row.section_key === 'paypal_link' && row.content_value) next.paypal_link = row.content_value;
-            if (row.section_key === 'default_currency' && row.content_value) next.default_currency = row.content_value;
-            if (row.section_key === 'bank_transfer_details' && row.content_value) next.bank_transfer_details = row.content_value;
-          });
-          return next;
+        rows.forEach((row: any) => {
+          if (!row?.section_key) return;
+          if (row.section_key === 'paypal_link' && row.content_value) setPaypalLink(row.content_value);
+          if (row.section_key === 'bank_transfer_details' && row.content_value) setBankTransferDetails(row.content_value);
         });
       })
       .catch(() => {
@@ -118,16 +105,16 @@ const AdminBookings: React.FC = () => {
   const buildPayPalUrl = (booking: Booking) => {
     const amount = getPayableNow(booking);
     if (amount === null) return null;
-    return `${financeSettings.paypal_link}/${amount}${financeSettings.default_currency}`;
+    return `${paypalLink}/${amount}`;
   };
 
   useEffect(() => {
     if (!financeModalBooking) return;
     setNoteDraft(financeModalBooking.internal_notes || '');
     setNoteResult(null);
-    setBankTransferDraft(financeModalBooking.bank_transfer_details || financeSettings.bank_transfer_details || '');
+    setBankTransferDraft(financeModalBooking.bank_transfer_details || bankTransferDetails || '');
     setBankTransferResult(null);
-  }, [financeModalBooking]);
+  }, [financeModalBooking, bankTransferDetails]);
 
   const saveBookingNote = async () => {
     if (!financeModalBooking) return;
@@ -370,6 +357,7 @@ const AdminBookings: React.FC = () => {
                 <div className="flex items-center gap-2">
                   <select
                     className="border rounded px-2 py-1"
+                    title="Booking status"
                     value={statusDrafts[b.id] || b.status || 'pending'}
                     onChange={(e) => {
                       const nextStatus = e.target.value;
@@ -438,14 +426,7 @@ const AdminBookings: React.FC = () => {
           {financeModalBooking && (
             <div className="space-y-3 text-sm">
               {/* Finance Section Heading and Status */}
-              <FinanceSection
-                initialStatus={financeModalBooking.status}
-                onSave={(status) => {
-                  // Optionally update status in backend here
-                  setBookings((prev) => prev.map((b) => b.id === financeModalBooking.id ? { ...b, status } : b));
-                  setFinanceModalBooking((prev) => prev ? { ...prev, status } : prev);
-                }}
-              />
+              <FinanceSection />
               <div><strong>Booking ID:</strong> {financeModalBooking.id}</div>
               <div><strong>Course:</strong> {financeModalBooking.course_title}</div>
               <div><strong>Date:</strong> {financeModalBooking.preferred_date || '-'}</div>
@@ -454,7 +435,7 @@ const AdminBookings: React.FC = () => {
               <div><strong>Due:</strong> {typeof financeModalBooking.due_amount === 'number' ? financeModalBooking.due_amount : '-'}</div>
               <div>
                 <strong>Payable now:</strong>{' '}
-                {getPayableNow(financeModalBooking) !== null ? `${getPayableNow(financeModalBooking)} ${financeSettings.default_currency}` : '-'}
+                {getPayableNow(financeModalBooking) !== null ? getPayableNow(financeModalBooking) : '-'}
               </div>
               <div>
                 <strong>PayPal URL:</strong>{' '}
