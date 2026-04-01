@@ -150,14 +150,14 @@ const Admin = () => {
 
   return (
 
-    <div className="flex min-h-[70vh] p-4 gap-8">
-      {/* Sidebar */}
-      <aside className="w-56 flex-shrink-0 flex flex-col gap-4 bg-gray-50 rounded-xl shadow p-4 border border-gray-200">
-        <nav className="flex flex-col gap-2">
+    <div className="p-4 min-h-[70vh]">
+      {/* Horizontal tab row */}
+      <div className="flex flex-row items-center gap-4 mb-8">
+        <nav className="flex flex-row gap-2">
           {tabs.map(tab => (
             <button
               key={tab.key}
-              className={`text-left px-4 py-2 text-sm font-semibold rounded-lg transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:z-10 ${activeTab === tab.key ? 'bg-blue-600 text-white shadow' : 'bg-transparent text-gray-700 hover:bg-blue-100'}`}
+              className={`px-5 py-2 text-sm font-semibold rounded-lg transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:z-10 ${activeTab === tab.key ? 'bg-blue-600 text-white shadow' : 'bg-transparent text-gray-700 hover:bg-blue-100'}`}
               onClick={() => setActiveTab(tab.key)}
             >
               {tab.label}
@@ -167,13 +167,13 @@ const Admin = () => {
         <button
           type="button"
           onClick={() => setFinanceModalOpen(true)}
-          className="mt-4 rounded bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 shadow"
+          className="ml-4 rounded bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 shadow"
         >
           Global Finance Defaults
         </button>
-      </aside>
+      </div>
       {/* Main Content */}
-      <div className="flex-1">
+      <div>
 
       <Dialog open={financeModalOpen} onOpenChange={setFinanceModalOpen}>
         <DialogContent className="sm:max-w-2xl">

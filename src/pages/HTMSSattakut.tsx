@@ -65,7 +65,7 @@ const HTMSSattakut = () => {
       />
       {/* Dropbox Gallery restored below. Remove this block to hide again. */}
       <div className="my-8">
-        <DropboxGallery folder="htms-sattakut" />
+        <DropboxGallery folder="diving_in_asiahtms-sattakut" />
       </div>
         {/* Show images at the bottom for all users, with captions for Dutch users */}
         <div className="mt-8 flex flex-col gap-6 items-center">
