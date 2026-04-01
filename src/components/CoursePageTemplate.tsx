@@ -39,6 +39,10 @@ export interface CoursePageProps {
   level?: string;
   bookingItemName?: string;
   bookingType?: 'course' | 'dive';
+  // Added for currency display
+  priceTHB?: number;
+  priceConverted?: string;
+  selectedCurrency?: string;
 }
 
 const CoursePageTemplate: React.FC<CoursePageProps> = ({
