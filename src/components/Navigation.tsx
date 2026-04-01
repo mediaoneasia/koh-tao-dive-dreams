@@ -202,6 +202,7 @@ const Navigation = ({ user, isAdmin, isAdminRoute }: { user?: any, isAdmin?: boo
   return (
     <nav className="fixed top-0 w-full bg-background/70 backdrop-blur-md z-50 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="w-full border-b border-gray-200/80" />
         <div className="flex justify-between items-center h-20 border-solid border-0 py-2">
           <div className="flex items-center">
             <img src="/images/logo.png" alt="Pro Diving Asia Logo" className="h-14 w-auto" style={{ display: 'block', marginRight: 12, marginLeft: 0 }} />
@@ -221,8 +222,8 @@ const Navigation = ({ user, isAdmin, isAdminRoute }: { user?: any, isAdmin?: boo
                 {t('nav.courses')}
                 <ChevronRight className="h-4 w-4 transition-transform duration-200 group-hover:rotate-90" />
               </Link>
-              <div className="absolute left-0 top-full pt-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50" style={{left: '0', right: 'auto'}}>
-                <div className="bg-[#0b1e3d]/80 rounded-lg shadow-2xl border border-[#1a3a5c] min-w-[1100px] p-6 flex gap-8">
+              <div className="absolute left-1 top-full pt-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50" style={{left: '1rem', right: 'auto'}}>
+                <div className="bg-[#0b1e3d]/80 rounded-lg shadow-2xl border border-[#1a3a5c] min-w-[900px] max-w-[95vw] p-6 flex gap-8 overflow-x-auto">
                   {courseCategories.map((cat) => (
                     <div key={cat.label} className="flex-1">
                       <h4 className="text-blue-400 text-xs font-bold uppercase tracking-wider mb-3 border-b border-[#1a3a5c] pb-2">
