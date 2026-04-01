@@ -63,7 +63,10 @@ const HTMSSattakut = () => {
         divingTips={toList(content.diving_tips)}
         images={toList(content.images)}
       />
-      {/* Gallery removed as requested */}
+      {/* Dropbox Gallery restored below. Remove this block to hide again. */}
+      <div className="my-8">
+        <DropboxGallery folder="htms-sattakut" />
+      </div>
         {/* Show images at the bottom for all users, with captions for Dutch users */}
         <div className="mt-8 flex flex-col gap-6 items-center">
           <figure>
