@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useCurrency } from '@/hooks/useCurrency';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -131,6 +132,8 @@ const CoursePageTemplate: React.FC<CoursePageProps> = ({
 
   const heroImageUrl = heroImage || images[0];
 
+  const { exchangeRates } = useCurrency();
+
   return (
     <div className="min-h-screen bg-background">
       <section className="relative h-72 md:h-96 flex items-center overflow-hidden">
@@ -217,6 +220,11 @@ const CoursePageTemplate: React.FC<CoursePageProps> = ({
                     {selectedCurrency && selectedCurrency !== 'THB' && priceConverted && (
                       <p className="text-base text-muted-foreground">{priceConverted}</p>
                     )}
+                    {/* Show exchange rates below */}
+                    <div className="text-xs text-muted-foreground mt-1">
+                      <div>1 THB = {(exchangeRates.USD / exchangeRates.THB).toFixed(3)} USD</div>
+                      <div>1 THB = {(exchangeRates.EUR / exchangeRates.THB).toFixed(3)} EUR</div>
+                    </div>
                   </div>
                 </div>
                 <p className="text-sm text-muted-foreground">
