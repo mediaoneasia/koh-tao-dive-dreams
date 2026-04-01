@@ -225,8 +225,8 @@ const Navigation = ({ user, isAdmin, isAdminRoute }: { user?: any, isAdmin?: boo
                 {t('nav.courses')}
                 <ChevronRight className="h-4 w-4 transition-transform duration-200 group-hover:rotate-90" />
               </Link>
-              <div className="absolute left-0 top-full pt-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50" style={{left: 0, right: 'auto'}}>
-                <div className="bg-[#0b1e3d]/80 rounded-lg shadow-2xl border border-[#1a3a5c] min-w-[900px] max-w-[95vw] p-6 flex gap-8 overflow-x-auto">
+              <div className="absolute left-0 top-full pt-0 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50" style={{left: 0, right: 'auto', marginLeft: 0, paddingLeft: 0}}>
+                <div className="bg-[#0b1e3d]/80 rounded-lg shadow-2xl border border-[#1a3a5c] min-w-[900px] max-w-[95vw] p-6 flex gap-8 overflow-x-auto" style={{marginLeft: 0, paddingLeft: 0}}>
                   {courseCategories.map((cat) => (
                     <div key={cat.label} className="flex-1">
                       <h4 className="text-blue-400 text-xs font-bold uppercase tracking-wider mb-3 border-b border-[#1a3a5c] pb-2">
