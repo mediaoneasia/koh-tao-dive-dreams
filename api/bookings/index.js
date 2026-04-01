@@ -232,6 +232,15 @@ export default async function handler(req, res) {
       return res.status(201).json(normalizeBooking((fallbackInsert.data || [])[0] || null));
     }
 
+    if (req.method === 'DELETE') {
+      // WARNING: This will delete all bookings! Protect this in production.
+      const { error } = await supabase.from(BOOKING_TABLE).delete().neq('id', '');
+      if (error) {
+        return res.status(500).json({ error: error.message });
+      }
+      return res.status(200).json({ message: 'All bookings deleted.' });
+    }
+
     res.setHeader('Allow', 'GET, POST');
     return res.status(405).json({ error: 'Method not allowed' });
   } catch (err) {

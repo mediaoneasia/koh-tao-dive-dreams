@@ -11,6 +11,8 @@ export default function AdminPage() {
   const [error, setError] = useState(null);
   const [editing, setEditing] = useState({});
 
+  const [deleteStatus, setDeleteStatus] = useState('');
+
   useEffect(() => {
     fetchData();
   }, []);
@@ -23,6 +25,22 @@ export default function AdminPage() {
     if (error) setError(error.message);
     else setData(data);
     setLoading(false);
+  }
+
+  async function handleDeleteAllBookings() {
+    if (!window.confirm('Are you sure you want to delete ALL bookings? This cannot be undone.')) return;
+    setDeleteStatus('Deleting...');
+    try {
+      const res = await fetch('/api/bookings', { method: 'DELETE' });
+      const result = await res.json();
+      if (res.ok) {
+        setDeleteStatus('All bookings deleted.');
+      } else {
+        setDeleteStatus(result.error || 'Failed to delete bookings.');
+      }
+    } catch (err) {
+      setDeleteStatus('Error: ' + (err.message || err));
+    }
   }
 
   function getUniquePageSlugs() {
@@ -70,6 +88,10 @@ export default function AdminPage() {
   return (
     <div style={{ padding: 32 }}>
       <h1>Page Content Admin</h1>
+      <button style={{ marginBottom: 16, background: 'red', color: 'white', padding: '8px 16px', border: 'none', borderRadius: 4 }} onClick={handleDeleteAllBookings}>
+        Delete ALL Bookings
+      </button>
+      {deleteStatus && <div style={{ color: 'red', marginBottom: 16 }}>{deleteStatus}</div>}
       <table border="1" cellPadding="8" style={{ borderCollapse: 'collapse', width: '100%' }}>
         <thead>
           <tr>
