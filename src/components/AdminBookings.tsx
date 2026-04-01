@@ -239,28 +239,52 @@ const AdminBookings: React.FC = () => {
   return (
     <div className="overflow-x-auto">
       <h2 className="text-xl font-bold mb-4">Bookings</h2>
-      <button
-        className="mb-4 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded mr-4"
-        onClick={() => setShowFunDiveBooking(true)}
-      >
-        Book a Fun Dive
-      </button>
-      {showFunDiveBooking && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
-          <div className="relative z-50">
-            <FunDiveBooking />
-            <button
-              className="absolute top-2 right-2 bg-white rounded-full shadow p-2 text-gray-700 hover:bg-gray-100"
-              onClick={() => setShowFunDiveBooking(false)}
-              aria-label="Close Fun Dive Booking"
-            >
-              ✕
-            </button>
-          </div>
-        </div>
-      )}
-      {/* View Toggle */}
-      <div className="mb-4 flex gap-2">
+      {/* Unified horizontal control bar */}
+      <div className="flex flex-wrap items-center gap-3 mb-6">
+        <button
+          className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded"
+          onClick={() => setShowFunDiveBooking(true)}
+        >
+          Book a Fun Dive
+        </button>
+        <button
+          className="px-4 py-2 bg-blue-600 text-white rounded disabled:opacity-60"
+          onClick={async () => {
+            setExporting(true);
+            setExportResult(null);
+            try {
+              const res = await fetch('/api/export-bookings-to-jira', { method: 'POST' });
+              const data = await res.json();
+              setExportResult(data.message || 'Export complete.');
+            } catch (e) {
+              setExportResult('Export failed.');
+            } finally {
+              setExporting(false);
+            }
+          }}
+          disabled={exporting}
+        >
+          {exporting ? 'Exporting...' : 'Export to Jira'}
+        </button>
+        <button
+          className="px-4 py-2 bg-emerald-600 text-white rounded"
+          onClick={() => window.open(calendarFeedUrl, '_blank', 'noopener,noreferrer')}
+        >
+          Open Calendar Feed
+        </button>
+        <button
+          className="px-4 py-2 bg-slate-700 text-white rounded"
+          onClick={async () => {
+            try {
+              await navigator.clipboard.writeText(calendarFeedUrl);
+              setCopyResult('Calendar feed URL copied.');
+            } catch {
+              setCopyResult(`Copy failed. URL: ${calendarFeedUrl}`);
+            }
+          }}
+        >
+          Copy Feed URL
+        </button>
         <button
           className={`px-4 py-2 rounded font-medium transition-colors ${
             view === 'table'
@@ -283,52 +307,21 @@ const AdminBookings: React.FC = () => {
         </button>
       </div>
 
-      {/* Calendar View */}
-      {view === 'calendar' && <BookingsCalendar bookings={bookings} />}
+      {showFunDiveBooking && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
+          <div className="relative z-50">
+            <FunDiveBooking />
+            <button
+              className="absolute top-2 right-2 bg-white rounded-full shadow p-2 text-gray-700 hover:bg-gray-100"
+              onClick={() => setShowFunDiveBooking(false)}
+              aria-label="Close Fun Dive Booking"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+      )}
 
-      {/* Table View & Controls */}
-      {view === 'table' && (
-        <>
-          <button
-        className="mb-4 px-4 py-2 bg-blue-600 text-white rounded disabled:opacity-60"
-        onClick={async () => {
-          setExporting(true);
-          setExportResult(null);
-          try {
-            const res = await fetch('/api/export-bookings-to-jira', { method: 'POST' });
-            const data = await res.json();
-            setExportResult(data.message || 'Export complete.');
-          } catch (e) {
-            setExportResult('Export failed.');
-          } finally {
-            setExporting(false);
-          }
-        }}
-        disabled={exporting}
-      >
-        {exporting ? 'Exporting...' : 'Export to Jira'}
-      </button>
-      <div className="mb-4 flex gap-2">
-        <button
-          className="px-4 py-2 bg-emerald-600 text-white rounded"
-          onClick={() => window.open(calendarFeedUrl, '_blank', 'noopener,noreferrer')}
-        >
-          Open Calendar Feed
-        </button>
-        <button
-          className="px-4 py-2 bg-slate-700 text-white rounded"
-          onClick={async () => {
-            try {
-              await navigator.clipboard.writeText(calendarFeedUrl);
-              setCopyResult('Calendar feed URL copied.');
-            } catch {
-              setCopyResult(`Copy failed. URL: ${calendarFeedUrl}`);
-            }
-          }}
-        >
-          Copy Feed URL
-        </button>
-      </div>
       {exportResult && <div className="mb-4 text-green-700">{exportResult}</div>}
       {copyResult && <div className="mb-4 text-slate-700">{copyResult}</div>}
       {statusResult && <div className="mb-4 text-emerald-700">{statusResult}</div>}
