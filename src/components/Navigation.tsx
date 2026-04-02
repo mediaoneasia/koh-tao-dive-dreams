@@ -99,12 +99,6 @@ const Navigation = ({ user, isAdmin, isAdminRoute }: { user?: any, isAdmin?: boo
     // accommodation: isDutch ? 'Accommodatie' : 'Stay',
     // thingsToDo: isDutch ? 'Te Doen' : 'To Do',
     // banksKohTao: isDutch ? 'Banken' : 'Banks',
-    beachesKohTao: isDutch ? 'Stranden' : 'Beaches',
-    foodDrink: isDutch ? 'Eten' : 'Food',
-    howToGetHere: isDutch ? 'Route' : 'Route',
-    medicalServices: isDutch ? 'Zorg' : 'Medical',
-    viewpoints: isDutch ? 'Uitzicht' : 'Views',
-    weatherKohTao: isDutch ? 'Weer' : 'Weather',
     login: isDutch ? 'Inloggen' : 'Login',
     signup: isDutch ? 'Registreren' : 'Sign up',
     info: isDutch ? 'Info' : 'Info',
@@ -554,8 +548,6 @@ const Navigation = ({ user, isAdmin, isAdminRoute }: { user?: any, isAdmin?: boo
                               window.localStorage.removeItem('admin_authenticated');
                               window.localStorage.removeItem('admin_login_token');
                               await supabase.auth.signOut();
-                              setUser(null);
-                              setIsAdmin(false);
                               navigate('/');
                             }}
                             className="w-full text-left py-2 px-3 text-sm text-gray-300 hover:text-white hover:bg-[#1a3a5c] transition-all duration-150 rounded"
@@ -563,8 +555,6 @@ const Navigation = ({ user, isAdmin, isAdminRoute }: { user?: any, isAdmin?: boo
                             {labels.logout}
                           </button>
                         </li>
-                              window.localStorage.removeItem('admin_authenticated');
-                              window.localStorage.removeItem('admin_login_token');
                       </>
                     ) : (
                       <>
@@ -793,10 +783,11 @@ const Navigation = ({ user, isAdmin, isAdminRoute }: { user?: any, isAdmin?: boo
                         )}
                         <button
                           onClick={async () => {
+                            window.localStorage.removeItem('admin_authenticated');
+                            window.localStorage.removeItem('admin_login_token');
                             await supabase.auth.signOut();
-                            setUser(null);
-                            setIsAdmin(false);
                             setIsOpen(false);
+                            navigate('/');
                           }}
                           className="w-full text-left px-3 py-1.5 text-sm text-gray-600 hover:text-blue-600"
                         >
