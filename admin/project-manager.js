@@ -1,5 +1,10 @@
 import dynamic from 'next/dynamic';
+
 const TaskManagement = dynamic(() => import('../components/TaskManagement'), { ssr: false });
+
+const jiraEmbedUrl = process.env.NEXT_PUBLIC_JIRA_EMBED_URL || '';
+const jiraProjectUrl = process.env.NEXT_PUBLIC_JIRA_PROJECT_URL || jiraEmbedUrl || 'https://divinginasia.atlassian.net';
+
 export default function ProjectManager() {
   return (
     <div className="p-6 space-y-8">
@@ -18,6 +23,39 @@ export default function ProjectManager() {
       <section className="bg-white rounded shadow p-4">
         <h2 className="text-xl font-semibold mb-2">Task Management</h2>
         <TaskManagement />
+      </section>
+      <section className="bg-white rounded shadow p-4 space-y-4">
+        <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+          <div>
+            <h2 className="text-xl font-semibold">Jira</h2>
+            <p className="text-sm text-gray-600">
+              View the Jira project here. If Atlassian blocks the embed in your browser, open it in a new tab.
+            </p>
+          </div>
+          <a
+            href={jiraProjectUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center justify-center rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+          >
+            Open Jira
+          </a>
+        </div>
+
+        {jiraEmbedUrl ? (
+          <div className="overflow-hidden rounded-lg border border-gray-200 bg-gray-50">
+            <iframe
+              title="Jira Project"
+              src={jiraEmbedUrl}
+              className="h-[720px] w-full bg-white"
+            />
+          </div>
+        ) : (
+          <div className="rounded-lg border border-dashed border-gray-300 bg-gray-50 p-6 text-sm text-gray-600">
+            Set `NEXT_PUBLIC_JIRA_EMBED_URL` to the embeddable Jira view and optionally `NEXT_PUBLIC_JIRA_PROJECT_URL`
+            for the direct project link.
+          </div>
+        )}
       </section>
       {/* Calendar Section */}
       <section className="bg-white rounded shadow p-4">

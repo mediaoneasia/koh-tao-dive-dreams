@@ -20,6 +20,8 @@ const Admin = () => {
       { key: 'users', label: 'Users' },
       { key: 'project-manager', label: 'Project Manager' },
     ];
+  const jiraEmbedUrl = import.meta.env.VITE_JIRA_EMBED_URL || '';
+  const jiraProjectUrl = import.meta.env.VITE_JIRA_PROJECT_URL || jiraEmbedUrl || 'https://divinginasia.atlassian.net';
   const [activeTab, setActiveTab] = useState('bookings');
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -249,9 +251,26 @@ const Admin = () => {
           </div>
         )}
         {activeTab === 'project-manager' && (
-          <div className="bg-white rounded shadow p-4">
-            <h2 className="text-xl font-semibold mb-4">Project Manager</h2>
-            <p>This section will contain project management tools and links.</p>
+          <div className="bg-white rounded shadow p-4 space-y-4">
+            <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+              <div>
+                <h2 className="text-xl font-semibold">Project Manager</h2>
+                <p className="text-sm text-gray-600">
+                  Jira cannot be embedded due to Atlassian restrictions. Please use the button below to open the Jira project board in a new tab.
+                </p>
+              </div>
+              <a
+                href={jiraProjectUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center justify-center rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+              >
+                Open Jira
+              </a>
+            </div>
+            <div className="rounded-lg border border-dashed border-gray-300 bg-gray-50 p-6 text-sm text-gray-600">
+              (Direct embedding is not supported by Jira. Use the button above to access your board.)
+            </div>
           </div>
         )}
       </div>

@@ -2,7 +2,10 @@ const express = require('express');
 const { requireAdmin } = require('./api/_lib/auth');
 const cors = require('cors');
 const path = require('path');
-require('dotenv').config();
+const dotenv = require('dotenv');
+
+dotenv.config({ path: path.join(__dirname, '.env') });
+dotenv.config({ path: path.join(__dirname, '.env.local'), override: true });
 
 const app = express();
 const affiliateClicksStore = [];
