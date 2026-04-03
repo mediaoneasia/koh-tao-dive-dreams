@@ -8,10 +8,10 @@ const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
 const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SERVICE_ROLE_KEY;
 const PAGE_CONTENT_TABLE = 'page_content';
 
-const JIRA_URL = 'https://divinginasia.atlassian.net';
-const JIRA_PROJECT_KEY = 'pro';
+const JIRA_URL = process.env.JIRA_DOMAIN || 'https://divinginasia.atlassian.net';
+const JIRA_PROJECT_KEY = process.env.JIRA_PROJECT_KEY || 'PRO';
 const JIRA_API_TOKEN = process.env.JIRA_API_TOKEN;
-const JIRA_USER_EMAIL = process.env.JIRA_USER_EMAIL || 'your-email@domain.com';
+const JIRA_USER_EMAIL = process.env.JIRA_EMAIL || process.env.JIRA_USER_EMAIL || '';
 
 const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, { realtime: { enabled: false } });
 
@@ -58,6 +58,9 @@ export default async function handler(req, res) {
   }
   if (!SUPABASE_URL || !SERVICE_ROLE_KEY) {
     return res.status(500).json({ message: 'Supabase not configured' });
+  }
+  if (!JIRA_USER_EMAIL || !JIRA_API_TOKEN) {
+    return res.status(500).json({ message: 'Jira is not configured' });
   }
   try {
     const { data, error } = await supabase.from(PAGE_CONTENT_TABLE).select('*');

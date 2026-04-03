@@ -3,12 +3,7 @@
 
 import fs from 'fs';
 import path from 'path';
-import fetch from 'node-fetch';
-
-const JIRA_URL = 'https://divinginasia.atlassian.net';
-const JIRA_PROJECT_KEY = 'pro';
-const JIRA_API_TOKEN = process.env.JIRA_API_TOKEN;
-const JIRA_USER_EMAIL = process.env.JIRA_USER_EMAIL || 'your-email@domain.com'; // Set your Jira user email here
+import { buildJiraIssuePayload, createJiraIssue, isJiraConfigured } from '../../../api/_lib/jira.js';
 
 // ES module compatible __dirname
 import { fileURLToPath } from 'url';
@@ -31,33 +26,21 @@ function parseCSV(csv) {
 async function createJiraIssue(booking) {
   const summary = `[Booking] ${booking.course_title} for ${booking.name}`;
   const description = `Booking Details:\n\nName: ${booking.name}\nEmail: ${booking.email}\nPhone: ${booking.phone}\nCourse: ${booking.course_title}\nPreferred Date: ${booking.preferred_date}\nExperience Level: ${booking.experience_level}\nMessage: ${booking.message}\nStatus: ${booking.status}\nCreated At: ${booking.created_at}`;
-  const payload = {
-    fields: {
-      project: { key: JIRA_PROJECT_KEY },
-      summary,
-      description,
-      issuetype: { name: 'Task' },
-      labels: ['booking'],
+  return createJiraIssue(buildJiraIssuePayload({
+    summary,
+    description,
+    labels: ['booking'],
+    extraFields: {
       duedate: booking.preferred_date || undefined,
     },
-  };
-  const res = await fetch(`${JIRA_URL}/rest/api/3/issue`, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Basic ${Buffer.from(`${JIRA_USER_EMAIL}:${JIRA_API_TOKEN}`).toString('base64')}`,
-      'Accept': 'application/json',
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(payload),
-  });
-  if (!res.ok) {
-    const err = await res.text();
-    throw new Error(`Jira issue creation failed: ${res.status} ${err}`);
-  }
-  return res.json();
+  }));
 }
 
 export async function syncBookingsToJira() {
+  if (!isJiraConfigured()) {
+    throw new Error('Jira credentials are not configured');
+  }
+
   const csv = fs.readFileSync(BOOKINGS_CSV, 'utf8');
   const bookings = parseCSV(csv);
   for (const booking of bookings) {

@@ -4,13 +4,10 @@
 
 
 import fetch from 'node-fetch';
+import { buildJiraIssuePayload, createJiraIssue, isJiraConfigured } from './api/_lib/jira.js';
 
 
-const JIRA_BASE_URL = 'https://divinginasia.atlassian.net';
-const JIRA_PROJECT_KEY = 'pro';
-const JIRA_USER_EMAIL = 'petergreaney@gmail.com';
-const JIRA_API_TOKEN = 'ATATT3xFfGF0iGRCC82fIlRox-1uHPqqujIap_KroHw-CpPROOKL3k5zdzA-WpFRqsZfcBsyzgR3yoGqcjb6_Dv6JbljThIs1bOVdbzFxt-Bf67j0KjbNuYeJWAx8RE1HJYO6OVsiNqdrA0p2mDn1wWsIlMAwNcKKLhHKvDxc1txlMFm8xXONOc=F0EBBE0D';
-const TARGET_URL = 'https://www.divinginasia.com/courses/open-water';
+const TARGET_URL = process.argv[2] || process.env.TARGET_URL || 'https://www.divinginasia.com/courses/open-water';
 
 
 async function fetchPageContent(url) {
@@ -24,40 +21,24 @@ async function fetchPageContent(url) {
 
 
 async function createJiraIssue(htmlContent) {
-  const summary = 'Imported: Open Water Course Page';
+  const summary = `Imported: ${TARGET_URL}`;
   // Use raw HTML as the description (Jira will store it as-is, but may not render all tags)
   const description = `Imported content from https://www.divinginasia.com/courses/open-water:\n\n<pre>${htmlContent.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre>`;
-
-  const payload = {
-    fields: {
-      project: { key: JIRA_PROJECT_KEY },
-      summary,
-      description,
-      issuetype: { name: 'Task' },
-      labels: ['imported', 'webpage', 'html'],
-    },
-  };
-
-  const res = await fetch(`${JIRA_BASE_URL}/rest/api/3/issue`, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Basic ${Buffer.from(`${JIRA_USER_EMAIL}:${JIRA_API_TOKEN}`).toString('base64')}`,
-      'Accept': 'application/json',
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(payload),
-  });
-  if (!res.ok) {
-    const err = await res.text();
-    throw new Error(`Jira issue creation failed: ${res.status} ${err}`);
-  }
-  return res.json();
+  return createJiraIssue(buildJiraIssuePayload({
+    summary,
+    description,
+    labels: ['imported', 'webpage', 'html'],
+  }));
 }
 
 
 // Run main logic
 const main = async () => {
   try {
+    if (!isJiraConfigured()) {
+      throw new Error('Jira credentials are not configured. Set JIRA_EMAIL or JIRA_USER_EMAIL and JIRA_API_TOKEN.');
+    }
+
     const htmlContent = await fetchPageContent(TARGET_URL);
     const result = await createJiraIssue(htmlContent);
     console.log('Jira issue created:', result.key);

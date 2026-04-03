@@ -98,12 +98,34 @@ const AdminBookings: React.FC = () => {
     setTimeout(() => setCopyStatus((prev) => ({ ...prev, [booking.id]: '' })), 2000);
   };
 
+  const adminAuthedFetch = async (url: string, init?: RequestInit) => {
+    const { data: { session } } = await supabase.auth.getSession();
+    const token = session?.access_token;
+    const adminLoginToken = window.localStorage.getItem('admin_login_token');
+
+    if (!token && !adminLoginToken) {
+      throw new Error('No authenticated admin session found');
+    }
+
+    const headers = new Headers(init?.headers || {});
+    if (token) {
+      headers.set('Authorization', `Bearer ${token}`);
+    }
+    if (adminLoginToken) {
+      headers.set('x-admin-login-token', adminLoginToken);
+    }
+    if (!headers.has('Content-Type')) {
+      headers.set('Content-Type', 'application/json');
+    }
+
+    return fetch(url, { ...init, headers });
+  };
+
   const escalateToJira = async (booking: Booking) => {
     setJiraStatus((prev) => ({ ...prev, [booking.id]: 'Sending...' }));
     try {
-      const res = await fetch('/api/create-jira-booking', {
+      const res = await adminAuthedFetch('/api/create-jira-booking', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: booking.name,
           email: booking.email,
@@ -330,7 +352,7 @@ const AdminBookings: React.FC = () => {
             setExporting(true);
             setExportResult(null);
             try {
-              const res = await fetch('/api/export-bookings-to-jira', { method: 'POST' });
+              const res = await adminAuthedFetch('/api/export-bookings-to-jira', { method: 'POST' });
               const data = await res.json();
               setExportResult(data.message || 'Export complete.');
             } catch (e) {

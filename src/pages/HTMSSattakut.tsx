@@ -62,6 +62,8 @@ const HTMSSattakut = () => {
         marineLifeHighlights={toList(content.marine_life_highlights)}
         divingTips={toList(content.diving_tips)}
         images={toList(content.images)}
+        heroImage={toList(content.images)[0]}
+        hideGallery
       />
       <div className="my-8 px-[20px]">
         <DropboxGallery folder="htms-sattakut" />

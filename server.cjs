@@ -27,6 +27,109 @@ const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_KEY || process.env.VITE_SUPABASE_ANON_KEY;
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, { realtime: { enabled: false } });
 
+const getJiraConfig = () => ({
+  domain: process.env.JIRA_DOMAIN || 'https://divinginasia.atlassian.net',
+  projectKey: process.env.JIRA_PROJECT_KEY || 'PRO',
+  email: process.env.JIRA_EMAIL || process.env.JIRA_USER_EMAIL || '',
+  apiToken: process.env.JIRA_API_TOKEN || '',
+});
+
+const toJiraAdfDescription = (description) => {
+  const text = typeof description === 'string' ? description : '';
+  const lines = text.split(/\r?\n/);
+  const content = lines.map((line) => ({
+    type: 'paragraph',
+    content: line
+      ? [{ type: 'text', text: line }]
+      : [],
+  }));
+
+  return {
+    version: 1,
+    type: 'doc',
+    content: content.length ? content : [{ type: 'paragraph', content: [] }],
+  };
+};
+
+const isJiraConfigured = () => {
+  const { email, apiToken } = getJiraConfig();
+  return Boolean(email && apiToken);
+};
+
+const buildJiraIssuePayload = ({
+  summary,
+  description,
+  labels = [],
+  issueType = 'Task',
+  extraFields = {},
+}) => {
+  const { projectKey } = getJiraConfig();
+
+  return {
+    fields: {
+      project: { key: projectKey },
+      summary,
+      description: typeof description === 'string' ? toJiraAdfDescription(description) : description,
+      issuetype: { name: issueType },
+      labels,
+      ...extraFields,
+    },
+  };
+};
+
+const createJiraIssue = async (payload) => {
+  const { domain, email, apiToken } = getJiraConfig();
+
+  if (!email || !apiToken) {
+    throw new Error('Jira is not configured');
+  }
+
+  const response = await fetch(`${domain}/rest/api/3/issue`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Basic ${Buffer.from(`${email}:${apiToken}`).toString('base64')}`,
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(errorText || `Jira issue creation failed: ${response.status}`);
+  }
+
+  return response.json();
+};
+
+const createManualBookingIssue = ({ name, email, bookingDetails }) => createJiraIssue(buildJiraIssuePayload({
+  summary: `Booking from ${name} (${email})`,
+  description: `Booking Details:\n${bookingDetails}\n\nCustomer Email: ${email}`,
+  labels: ['booking', 'manual-escalation'],
+}));
+
+const createBookingExportIssue = (booking) => createJiraIssue(buildJiraIssuePayload({
+  summary: `[Booking] ${booking.course_title || 'Booking'} for ${booking.name || 'Unknown customer'}`,
+  description: [
+    'Booking Details:',
+    '',
+    `Name: ${booking.name || '-'}`,
+    `Email: ${booking.email || '-'}`,
+    `Phone: ${booking.phone || '-'}`,
+    `Course: ${booking.course_title || '-'}`,
+    `Preferred Date: ${booking.preferred_date || '-'}`,
+    `Experience Level: ${booking.experience_level || '-'}`,
+    `Item Type: ${booking.item_type || '-'}`,
+    `Add-ons: ${booking.addons || booking.addons_json || '-'}`,
+    `Subtotal: ${booking.subtotal_amount ?? '-'}`,
+    `Payable Now: ${booking.total_payable_now ?? '-'}`,
+    `Status: ${booking.status || '-'}`,
+    `Notes: ${booking.internal_notes || booking.message || '-'}`,
+    `ID: ${booking.id || '-'}`,
+  ].join('\n'),
+  labels: ['booking', 'export'],
+}));
+
 const mutateFieldsForUnknown = (fields, unknownField) => {
   if (!unknownField || !Object.prototype.hasOwnProperty.call(fields, unknownField)) return null;
 
@@ -189,6 +292,82 @@ app.post('/api/bookings', async (req, res) => {
     return res.status(201).json(data[0]);
   } catch (err) {
     return res.status(500).json({ error: err.message });
+  }
+});
+
+app.options('/api/create-jira-booking', (req, res) => {
+  res.setHeader('Allow', 'POST, OPTIONS');
+  return res.status(200).end();
+});
+
+app.post('/api/create-jira-booking', async (req, res) => {
+  const adminUser = await requireAdmin(req, res);
+  if (!adminUser) return;
+
+  const { name, email, bookingDetails } = req.body || {};
+
+  if (!name || !email || !bookingDetails) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  if (!isJiraConfigured()) {
+    return res.status(500).json({ error: 'Jira is not configured' });
+  }
+
+  try {
+    const issue = await createManualBookingIssue({ name, email, bookingDetails });
+    return res.status(200).json({ success: true, issue });
+  } catch (err) {
+    return res.status(500).json({ error: err.message || 'Internal error' });
+  }
+});
+
+app.options('/api/export-bookings-to-jira', (req, res) => {
+  res.setHeader('Allow', 'POST, OPTIONS');
+  return res.status(200).end();
+});
+
+app.post('/api/export-bookings-to-jira', async (req, res) => {
+  const adminUser = await requireAdmin(req, res);
+  if (!adminUser) return;
+
+  if (!isJiraConfigured()) {
+    return res.status(500).json({ message: 'Jira is not configured' });
+  }
+
+  try {
+    if (req.body && Object.keys(req.body).length) {
+      const jira = await createBookingExportIssue(req.body);
+      return res.status(200).json({ message: 'Exported booking to Jira.', jira });
+    }
+
+    const { data, error } = await supabase
+      .from('bookings')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    if (!data || !data.length) {
+      throw new Error('No bookings found');
+    }
+
+    let success = 0;
+    let failed = 0;
+
+    for (const booking of data) {
+      try {
+        await createBookingExportIssue(booking);
+        success += 1;
+      } catch {
+        failed += 1;
+      }
+    }
+
+    return res.status(200).json({
+      message: `Exported ${success} bookings to Jira. ${failed ? `${failed} failed.` : ''}`.trim(),
+    });
+  } catch (err) {
+    return res.status(500).json({ message: `Export failed: ${err.message || err}` });
   }
 });
 
