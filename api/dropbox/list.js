@@ -1,19 +1,48 @@
-// /api/dropbox/list.js
-// Lists files/folders in the 'divingasia' Dropbox folder
+const DROPBOX_API_URL = 'https://api.dropboxapi.com/2/files/list_folder';
+const DEFAULT_FOLDER_PATH = '/divingasia';
 
-const { Dropbox } = require('dropbox');
-
-// Store your Dropbox access token securely (use env variable in production)
-const DROPBOX_ACCESS_TOKEN = process.env.DROPBOX_ACCESS_TOKEN || 'YOUR_ACCESS_TOKEN_HERE';
-
-const dbx = new Dropbox({ accessToken: DROPBOX_ACCESS_TOKEN });
-
-// Express handler example
-module.exports = async function listDropboxFolder(req, res) {
-  try {
-    const response = await dbx.filesListFolder({ path: '/divingasia' });
-    res.json(response.result.entries);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+export default async function handler(req, res) {
+  if (req.method === 'OPTIONS') {
+    res.setHeader('Allow', 'GET, OPTIONS');
+    return res.status(200).end();
   }
-};
+
+  if (req.method !== 'GET') {
+    res.setHeader('Allow', 'GET, OPTIONS');
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  const accessToken = process.env.DROPBOX_ACCESS_TOKEN;
+  if (!accessToken) {
+    return res.status(500).json({ error: 'Dropbox is not configured' });
+  }
+
+  const folderPath = typeof req.query.folder === 'string' && req.query.folder.trim()
+    ? req.query.folder.trim()
+    : DEFAULT_FOLDER_PATH;
+  const normalizedPath = folderPath.startsWith('/') ? folderPath : `/${folderPath}`;
+
+  try {
+    const dropboxResponse = await fetch(DROPBOX_API_URL, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ path: normalizedPath }),
+    });
+
+    const payload = await dropboxResponse.json();
+    if (!dropboxResponse.ok) {
+      return res.status(dropboxResponse.status).json({
+        error: payload.error_summary || 'Failed to list Dropbox folder',
+      });
+    }
+
+    return res.status(200).json(payload.entries || []);
+  } catch (error) {
+    return res.status(500).json({
+      error: error instanceof Error ? error.message : 'Internal server error',
+    });
+  }
+}

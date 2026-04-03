@@ -85,8 +85,8 @@ const parseBody = (req) => {
 
 const sendConfirmedEmails = async (booking) => {
   const resendApiKey = process.env.RESEND_API_KEY;
-  const fromEmail = process.env.RESEND_FROM_EMAIL || 'petergreaney@gmail.com';
-  const adminEmail = process.env.BOOKING_ADMIN_EMAIL || 'confirmed@divinginasia.com';
+  const fromEmail = process.env.RESEND_FROM_EMAIL || 'confirmed@divinginasia.com';
+  const adminEmail = process.env.BOOKING_ADMIN_EMAIL || process.env.RESEND_BOOKING_TO_EMAIL || 'bookings@divinginasia.com';
   if (!resendApiKey) {
     console.warn('Resend not configured, skipping confirmed booking emails');
     return;

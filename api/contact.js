@@ -25,8 +25,8 @@ export default async function handler(req, res) {
 
     // Use Resend to send the email
     const resendApiKey = process.env.RESEND_API_KEY;
-    const fromEmail = 'bookings@prodiving.asia';
-    const toEmail = 'confirmed@prodiving.asia';
+    const fromEmail = process.env.RESEND_FROM_EMAIL || 'confirmed@divinginasia.com';
+    const toEmail = process.env.RESEND_BOOKING_TO_EMAIL || 'bookings@divinginasia.com';
     if (!resendApiKey) {
       res.status(500).json({ success: false, error: 'Resend API key not configured' });
       return;
