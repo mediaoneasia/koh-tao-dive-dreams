@@ -226,7 +226,6 @@ const Navigation = ({ user, isAdmin, isAdminRoute }: { user?: any, isAdmin?: boo
                       </h4>
                       <ul className="space-y-1">
                         {cat.items
-                          .filter((item) => !(cat.label === labels.advancedCourses && item.to === '/courses/advanced'))
                           .map((item) => (
                             <li key={item.to}>
                               {item.to && item.to.startsWith('http') ? (
