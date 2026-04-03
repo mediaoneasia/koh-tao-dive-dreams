@@ -165,8 +165,11 @@ const FunDiving = () => {
             <Button size="lg" className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-4 text-lg" onClick={() => { try{ sessionStorage.setItem('scrollTo','course-openWater') }catch(_){ } ; navigate('/courses'); }}>{content.fun_diving_hero_cta2}</Button>
           </div>
           {showFunDiveBooking && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black bg-opacity-60 p-4">
-              <div className="relative z-50 w-full max-w-md">
+            <div
+              className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black bg-opacity-60 p-4"
+              onClick={() => setShowFunDiveBooking(false)}
+            >
+              <div className="relative z-50 w-full max-w-md" onClick={(event) => event.stopPropagation()}>
                 <FunDiveBooking />
                 <button
                   className="absolute top-2 right-2 bg-white rounded-full shadow p-2 text-gray-700 hover:bg-gray-100"

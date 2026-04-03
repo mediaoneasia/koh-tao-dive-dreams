@@ -69,8 +69,14 @@ const BookingModal: React.FC<BookingModalProps> = ({ open, onClose, onSubmit }) 
 
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black bg-opacity-50 p-4">
-      <div className="w-full max-w-xs max-h-[calc(100vh-4rem)] overflow-auto rounded-lg bg-white p-2 text-gray-900 shadow-lg sm:max-w-sm sm:p-4 md:max-w-md">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black bg-opacity-50 p-4"
+      onClick={onClose}
+    >
+      <div
+        className="w-full max-w-xs max-h-[calc(100vh-4rem)] overflow-auto rounded-lg bg-white p-2 text-gray-900 shadow-lg sm:max-w-sm sm:p-4 md:max-w-md"
+        onClick={(event) => event.stopPropagation()}
+      >
         <h2 className="text-lg sm:text-xl font-bold mb-2 sm:mb-4">New Booking</h2>
         <form onSubmit={handleSubmit} className="space-y-2 sm:space-y-3">
           <input name="name" value={form.name} onChange={handleChange} placeholder="Name" className="w-full border p-1.5 sm:p-2 rounded text-gray-900 text-sm sm:text-base" required />
