@@ -8,8 +8,11 @@ import { Fish, Waves, MapPin, Clock, DollarSign, Users } from 'lucide-react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useEffect, useState, useMemo } from 'react';
 import FunDiveBooking from '../components/FunDiveBooking';
+import DropboxGallerySection from '@/components/DropboxGallerySection';
 import { tryAutoScroll, scrollToWithOffset } from '@/lib/scroll';
 import { usePageContent } from '@/hooks/usePageContent';
+
+const FUN_DIVING_DROPBOX_FOLDER = 'fun-diving';
 
 const FunDiving = () => {
   const navigate = useNavigate();
@@ -203,6 +206,14 @@ const FunDiving = () => {
                   {content.fun_diving_overview_body}
                 </p>
               </div>
+
+              <DropboxGallerySection
+                folder={FUN_DIVING_DROPBOX_FOLDER}
+                title="Fun Diving Gallery"
+                description="Photos from recent fun dive trips around Koh Tao. Add images to the Dropbox folder to keep this section updated without editing the page."
+                unavailableMessage="Fun diving photos will appear here once the Dropbox folder is ready."
+                emptyMessage="Fun diving photos will appear here once images are added to Dropbox."
+              />
 
               <div className="grid md:grid-cols-2 gap-8 mb-12">
                 <Card>

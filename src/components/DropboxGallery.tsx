@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from 'react';
 
-const DROPBOX_API_ORIGIN = 'https://koh-tao-dive-dreams.vercel.app';
-
 const toFriendlyGalleryError = (value: unknown) => {
   if (typeof value !== 'string' || !value.trim()) {
     return 'Gallery unavailable right now.';
@@ -18,21 +16,23 @@ const toFriendlyGalleryError = (value: unknown) => {
 
 interface DropboxGalleryProps {
   folder: string; // e.g. "japanese-gardens" or "open-water-course"
+  unavailableMessage?: string;
+  emptyMessage?: string;
 }
 
-const DropboxGallery: React.FC<DropboxGalleryProps> = ({ folder }) => {
+const DropboxGallery: React.FC<DropboxGalleryProps> = ({
+  folder,
+  unavailableMessage = 'Gallery unavailable right now.',
+  emptyMessage = 'No images found for this section.',
+}) => {
   const [images, setImages] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const apiOrigin = typeof window !== 'undefined' && window.location.hostname === 'koh-tao-dive-dreams.vercel.app'
-      ? ''
-      : DROPBOX_API_ORIGIN;
-
     setLoading(true);
     setError(null);
-    fetch(`${apiOrigin}/api/dropbox-gallery?folder=${encodeURIComponent(folder)}`)
+    fetch(`/api/dropbox-gallery?folder=${encodeURIComponent(folder)}`)
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) {
@@ -42,18 +42,19 @@ const DropboxGallery: React.FC<DropboxGalleryProps> = ({ folder }) => {
         }
 
         setImages([]);
-        setError(toFriendlyGalleryError(data?.error));
+        const friendlyError = toFriendlyGalleryError(data?.error);
+        setError(friendlyError === 'Gallery unavailable right now.' ? unavailableMessage : friendlyError);
         setLoading(false);
       })
       .catch(err => {
-        setError('Gallery unavailable right now.');
+        setError(unavailableMessage);
         setLoading(false);
       });
   }, [folder]);
 
   if (loading) return <div>Loading gallery...</div>;
   if (error) return <div className="text-sm text-muted-foreground">{error}</div>;
-  if (!images.length) return <div>No images found for this section.</div>;
+  if (!images.length) return <div>{emptyMessage}</div>;
 
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 my-8">
