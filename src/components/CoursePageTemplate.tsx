@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { usePageContent } from '@/hooks/usePageContent';
 // PageContentEditor import removed
 import Contact from './Contact';
+import DropboxGallerySection from './DropboxGallerySection';
 import ImageRow from './ImageRow';
 
 export interface CourseSection {
@@ -44,6 +45,11 @@ export interface CoursePageProps {
   priceTHB?: number;
   priceConverted?: string;
   selectedCurrency?: string;
+  galleryFolder?: string;
+  galleryTitle?: string;
+  galleryDescription?: string;
+  galleryUnavailableMessage?: string;
+  galleryEmptyMessage?: string;
 }
 
 const CoursePageTemplate: React.FC<CoursePageProps> = ({
@@ -59,6 +65,11 @@ const CoursePageTemplate: React.FC<CoursePageProps> = ({
   bookingType = 'course',
   selectedCurrency,
   priceConverted,
+  galleryFolder,
+  galleryTitle,
+  galleryDescription,
+  galleryUnavailableMessage,
+  galleryEmptyMessage,
 }) => {
 
 
@@ -143,7 +154,7 @@ const CoursePageTemplate: React.FC<CoursePageProps> = ({
           className="absolute inset-0 w-full h-full object-cover object-center" 
         />
         <div className="absolute inset-0 bg-black/40" />
-        <div className="container mx-auto px-4 text-white z-10">
+        <div className="container mx-auto px-[20px] text-white z-10">
           <h1 className="text-4xl md:text-5xl font-bold">{content.hero_title}</h1>
           <p className="mt-4 max-w-2xl text-lg">{content.hero_subtitle}</p>
           <div className="mt-6">
@@ -154,8 +165,20 @@ const CoursePageTemplate: React.FC<CoursePageProps> = ({
         </div>
       </section>
 
-      <main className="container mx-auto px-4 py-12">
+      <main className="container mx-auto px-[20px] py-12">
         {images.length > 0 && <ImageRow images={images} />}
+
+        {galleryFolder ? (
+          <div className="mt-10">
+            <DropboxGallerySection
+              folder={galleryFolder}
+              title={galleryTitle || (locale === 'nl' ? 'Galerij' : 'Gallery')}
+              description={galleryDescription}
+              unavailableMessage={galleryUnavailableMessage}
+              emptyMessage={galleryEmptyMessage}
+            />
+          </div>
+        ) : null}
         
         <div className="grid md:grid-cols-3 gap-8 mt-8">
           <div className="md:col-span-2">

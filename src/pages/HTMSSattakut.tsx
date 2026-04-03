@@ -48,7 +48,7 @@ const HTMSSattakut = () => {
   const { content } = usePageContent({ pageSlug: 'htms-sattakut', locale, fallbackContent });
 
   return (
-    <div className="px-4 md:px-8">
+    <>
       <DiveSiteDetail
         name="HTMS Sattakut"
         overview={content.overview}
@@ -63,10 +63,10 @@ const HTMSSattakut = () => {
         divingTips={toList(content.diving_tips)}
         images={toList(content.images)}
       />
-      <div className="my-8">
+      <div className="my-8 px-[20px]">
         <DropboxGallery folder="htms-sattakut" />
       </div>
-    </div>
+    </>
   );
 };
 

@@ -101,7 +101,7 @@ const DiveSiteDetail: React.FC<DiveSiteDetailProps> = ({
       };
 
   return (
-    <div className="min-h-screen bg-background py-8">
+    <div className="min-h-screen bg-background px-[20px] py-8">
       {/* Hero Section */}
       <section className="relative flex items-center justify-center overflow-hidden rounded-xl shadow-lg mb-8 h-72">
         <img src={hero} alt={name} className="absolute inset-0 w-full h-full object-cover" />

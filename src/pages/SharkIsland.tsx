@@ -47,22 +47,20 @@ const SharkIsland = () => {
   const { content } = usePageContent({ pageSlug: 'shark-island', locale, fallbackContent });
 
   return (
-    <div className="px-4 md:px-8">
-      <DiveSiteDetail
-        name="Shark Island"
-        overview={content.overview}
-        quickFacts={{
-          depth: content.quick_facts_depth,
-          difficulty: content.quick_facts_difficulty,
-          location: content.quick_facts_location,
-          bestTime: content.quick_facts_best_time,
-        }}
-        whatYouCanSee={toList(content.what_you_can_see)}
-        marineLifeHighlights={toList(content.marine_life_highlights)}
-        divingTips={toList(content.diving_tips)}
-        images={toList(content.images)}
-      />
-    </div>
+    <DiveSiteDetail
+      name="Shark Island"
+      overview={content.overview}
+      quickFacts={{
+        depth: content.quick_facts_depth,
+        difficulty: content.quick_facts_difficulty,
+        location: content.quick_facts_location,
+        bestTime: content.quick_facts_best_time,
+      }}
+      whatYouCanSee={toList(content.what_you_can_see)}
+      marineLifeHighlights={toList(content.marine_life_highlights)}
+      divingTips={toList(content.diving_tips)}
+      images={toList(content.images)}
+    />
   );
 };
 
