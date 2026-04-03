@@ -1,5 +1,16 @@
 const DROPBOX_TEMP_LINK_URL = 'https://api.dropboxapi.com/2/files/get_temporary_link';
 
+const readDropboxPayload = async (response) => {
+  const text = await response.text();
+  if (!text) return { json: null, text: '' };
+
+  try {
+    return { json: JSON.parse(text), text };
+  } catch {
+    return { json: null, text };
+  }
+};
+
 export default async function handler(req, res) {
   if (req.method === 'OPTIONS') {
     res.setHeader('Allow', 'GET, OPTIONS');
@@ -31,10 +42,10 @@ export default async function handler(req, res) {
       body: JSON.stringify({ path }),
     });
 
-    const payload = await dropboxResponse.json();
-    if (!dropboxResponse.ok || !payload.link) {
+    const { json: payload, text } = await readDropboxPayload(dropboxResponse);
+    if (!dropboxResponse.ok || !payload?.link) {
       return res.status(dropboxResponse.ok ? 502 : dropboxResponse.status).json({
-        error: payload.error_summary || 'Failed to fetch Dropbox file',
+        error: payload?.error_summary || text || 'Failed to fetch Dropbox file',
       });
     }
 

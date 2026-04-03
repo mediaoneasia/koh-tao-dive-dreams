@@ -1,6 +1,17 @@
 const DROPBOX_LIST_FOLDER_URL = 'https://api.dropboxapi.com/2/files/list_folder';
 const DROPBOX_TEMP_LINK_URL = 'https://api.dropboxapi.com/2/files/get_temporary_link';
 
+const readDropboxPayload = async (response) => {
+  const text = await response.text();
+  if (!text) return { json: null, text: '' };
+
+  try {
+    return { json: JSON.parse(text), text };
+  } catch {
+    return { json: null, text };
+  }
+};
+
 export default async function handler(req, res) {
   if (req.method === 'OPTIONS') {
     res.setHeader('Allow', 'GET, OPTIONS');
@@ -33,14 +44,14 @@ export default async function handler(req, res) {
       body: JSON.stringify({ path: `/${folder}` }),
     });
 
-    const listPayload = await listResponse.json();
+    const { json: listPayload, text: listText } = await readDropboxPayload(listResponse);
     if (!listResponse.ok) {
       return res.status(listResponse.status).json({
-        error: listPayload.error_summary || 'Dropbox API error',
+        error: listPayload?.error_summary || listText || 'Dropbox API error',
       });
     }
 
-    const imageFiles = (listPayload.entries || []).filter(
+    const imageFiles = (listPayload?.entries || []).filter(
       (entry) => entry['.tag'] === 'file' && /\.(jpe?g|png|webp|gif|avif|svg)$/i.test(entry.name)
     );
 
@@ -55,8 +66,8 @@ export default async function handler(req, res) {
           body: JSON.stringify({ path: file.path_lower }),
         });
 
-        const tempLinkPayload = await tempLinkResponse.json();
-        return tempLinkResponse.ok ? tempLinkPayload.link || null : null;
+        const { json: tempLinkPayload } = await readDropboxPayload(tempLinkResponse);
+        return tempLinkResponse.ok ? tempLinkPayload?.link || null : null;
       })
     );
 

@@ -1,5 +1,16 @@
 const DROPBOX_API_URL = 'https://api.dropboxapi.com/2/files/list_folder';
-const DEFAULT_FOLDER_PATH = '/divingasia';
+const DEFAULT_FOLDER_PATH = '/diving_in_asia';
+
+const readDropboxPayload = async (response) => {
+  const text = await response.text();
+  if (!text) return { json: null, text: '' };
+
+  try {
+    return { json: JSON.parse(text), text };
+  } catch {
+    return { json: null, text };
+  }
+};
 
 export default async function handler(req, res) {
   if (req.method === 'OPTIONS') {
@@ -32,14 +43,14 @@ export default async function handler(req, res) {
       body: JSON.stringify({ path: normalizedPath }),
     });
 
-    const payload = await dropboxResponse.json();
+    const { json: payload, text } = await readDropboxPayload(dropboxResponse);
     if (!dropboxResponse.ok) {
       return res.status(dropboxResponse.status).json({
-        error: payload.error_summary || 'Failed to list Dropbox folder',
+        error: payload?.error_summary || text || 'Failed to list Dropbox folder',
       });
     }
 
-    return res.status(200).json(payload.entries || []);
+    return res.status(200).json(payload?.entries || []);
   } catch (error) {
     return res.status(500).json({
       error: error instanceof Error ? error.message : 'Internal server error',
