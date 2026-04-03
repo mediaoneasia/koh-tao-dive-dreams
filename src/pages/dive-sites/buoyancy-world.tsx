@@ -33,8 +33,8 @@ const BuoyancyWorld = () => {
       diving_tips: isDutch
         ? 'Perfect om drijfvermogen en trim te oefenen\nIdeaal voor Open Water en Peak Performance Buoyancy\nBlijf langzaam en precies rond de structuren\nGoed voor camera-oefening in ondiep licht'
         : 'Perfect for practicing buoyancy and trim\nIdeal for Open Water and Peak Performance Buoyancy\nMove slowly and precisely around the structures\nGood for camera practice in shallow light',
-      hero_image: '/images/buoyancy-hero1.jpg',
-      images: '/images/buoyancy-hero1.jpg\n/images/buoyancy-hero2.jpg\n/images/buoyancy-hero3.jpg',
+      hero_image: '/images/bu1.jpg',
+      images: '/images/bu1.jpg\n/images/bu2.jpg\n/images/bu3.jpg',
     }),
     [isDutch]
   );
