@@ -55,7 +55,7 @@ export default async function handler(req, res) {
       (entry) => entry['.tag'] === 'file' && /\.(jpe?g|png|webp|gif|avif|svg)$/i.test(entry.name)
     );
 
-    const links = await Promise.all(
+    const linkResults = await Promise.all(
       imageFiles.map(async (file) => {
         const tempLinkResponse = await fetch(DROPBOX_TEMP_LINK_URL, {
           method: 'POST',
@@ -63,15 +63,35 @@ export default async function handler(req, res) {
             Authorization: `Bearer ${accessToken}`,
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ path: file.path_lower }),
+          body: JSON.stringify({ path: file.id || file.path_display || file.path_lower }),
         });
 
-        const { json: tempLinkPayload } = await readDropboxPayload(tempLinkResponse);
-        return tempLinkResponse.ok ? tempLinkPayload?.link || null : null;
+        const { json: tempLinkPayload, text: tempLinkText } = await readDropboxPayload(tempLinkResponse);
+
+        if (!tempLinkResponse.ok) {
+          return {
+            link: null,
+            error: tempLinkPayload?.error_summary || tempLinkText || `Failed to create temporary link for ${file.name}`,
+          };
+        }
+
+        return {
+          link: tempLinkPayload?.link || null,
+          error: tempLinkPayload?.link ? null : `Missing temporary link for ${file.name}`,
+        };
       })
     );
 
-    return res.status(200).json(links.filter(Boolean));
+    const links = linkResults.map((result) => result.link).filter(Boolean);
+
+    if (!links.length && imageFiles.length) {
+      const firstError = linkResults.find((result) => result.error)?.error;
+      return res.status(502).json({
+        error: firstError || 'Dropbox returned image files, but no temporary links could be created',
+      });
+    }
+
+    return res.status(200).json(links);
   } catch (error) {
     return res.status(500).json({
       error: error instanceof Error ? error.message : 'Internal server error',

@@ -15,7 +15,13 @@ const DropboxGallery: React.FC<DropboxGalleryProps> = ({ folder }) => {
     fetch(`/api/dropbox-gallery?folder=${encodeURIComponent(folder)}`)
       .then(res => res.json())
       .then(data => {
-        setImages(Array.isArray(data) ? data : []);
+        if (Array.isArray(data)) {
+          setImages(data);
+          return;
+        }
+
+        setImages([]);
+        setError(typeof data?.error === 'string' ? data.error : 'Failed to load gallery');
         setLoading(false);
       })
       .catch(err => {
