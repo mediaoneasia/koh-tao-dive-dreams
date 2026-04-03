@@ -11,7 +11,7 @@ import { usePageContent } from '@/hooks/usePageContent';
 
 const SUPPORTED_CURRENCIES = ['THB', 'USD', 'EUR'] as const;
 type Currency = typeof SUPPORTED_CURRENCIES[number];
-const IDC_DROPBOX_FOLDER = 'apps/Diveasianew/instructor';
+const IDC_DROPBOX_FOLDER = 'instructor';
 
 const Instructor: React.FC = () => {
   // Currency state

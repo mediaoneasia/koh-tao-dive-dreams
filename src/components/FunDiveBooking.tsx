@@ -1,25 +1,52 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import BookingModal from './BookingModal';
 
 const DIVE_SITES = [
+  'Aow Leuk',
+  'Buoyancy World',
   'Chumphon Pinnacle',
-  'Southwest Pinnacle',
+  'HTMS Sattakut',
+  'Hin Ngam',
+  'Japanese Gardens',
+  'Junkyard Reef',
+  'Mango Bay',
   'Sail Rock',
+  'Shark Island',
+  'South West Pinnacle',
+  'Tanote Bay',
+  'Twins Pinnacle',
   'White Rock',
   'Green Rock',
-  'Japanese Gardens',
-  'Shark Island',
-  'Twins',
-  'HTMS Sattakut',
 ];
 
+interface FunDiveBookingProps {
+  initialSite?: string;
+}
 
-const FunDiveBooking: React.FC = () => {
+const FunDiveBooking: React.FC<FunDiveBookingProps> = ({ initialSite }) => {
   const [selectedSite, setSelectedSite] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [showNotice, setShowNotice] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [processing, setProcessing] = useState(false);
+
+  const availableSites = useMemo(() => {
+    if (!initialSite || DIVE_SITES.includes(initialSite)) {
+      return DIVE_SITES;
+    }
+
+    return [initialSite, ...DIVE_SITES];
+  }, [initialSite]);
+
+  useEffect(() => {
+    if (!initialSite) {
+      return;
+    }
+
+    setSelectedSite(initialSite);
+    setShowNotice(true);
+    setShowConfirmation(false);
+  }, [initialSite]);
 
 
   const handleSiteSelect = (site: string) => {
@@ -35,8 +62,7 @@ const FunDiveBooking: React.FC = () => {
     setShowConfirmation(false);
   };
 
-  // Handle Escape key to close modal
-  React.useEffect(() => {
+  useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         setModalOpen(false);
@@ -49,9 +75,12 @@ const FunDiveBooking: React.FC = () => {
 
   return (
     <div className="max-w-md mx-auto p-6 bg-white rounded-xl shadow-lg border border-gray-200">
-      <h1 className="text-3xl font-extrabold mb-6 text-center text-blue-900">Book a Fun Dive</h1>
+      <h1 className="text-3xl font-extrabold mb-6 text-center text-blue-900">
+        {selectedSite ? `Book ${selectedSite}` : 'Book a Fun Dive'}
+      </h1>
+      {!initialSite && (
       <ul className="mb-8 flex flex-col gap-4">
-        {DIVE_SITES.map(site => (
+        {availableSites.map(site => (
           <li key={site}>
             <button
               className={`w-full px-6 py-3 rounded-lg border font-semibold text-lg transition-all duration-150 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 ${selectedSite === site ? 'bg-blue-100 border-blue-500 text-blue-900' : 'bg-pink-100 border-pink-300 text-pink-800 hover:bg-pink-200'}`}
@@ -62,8 +91,12 @@ const FunDiveBooking: React.FC = () => {
           </li>
         ))}
       </ul>
+      )}
       {showNotice && (
         <div className="mb-6 p-4 bg-yellow-50 border-l-4 border-yellow-400 text-yellow-900 rounded-lg shadow">
+          {selectedSite && (
+            <p className="mb-2"><strong>Selected site:</strong> {selectedSite}</p>
+          )}
           <p className="mb-2"><strong>Notice:</strong> Due to weather and unforeseeable conditions, schedules may change. We will confirm your booking and keep you updated.</p>
           <button
             className="mt-2 px-5 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition"

@@ -2,6 +2,7 @@ import { handleOptions, applyCors } from '../_lib/cors.js';
 
 import { createClient } from '@supabase/supabase-js';
 import { Resend } from 'resend';
+import nodemailer from 'nodemailer';
 
 const BOOKING_TABLE = 'bookings';
 const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
@@ -83,15 +84,16 @@ const parseBody = (req) => {
   return req.body;
 };
 
+const hasSmtpConfig = () => Boolean(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS);
+
+const getResendFromCandidates = () => {
+  const primary = process.env.RESEND_FROM_EMAIL || 'confirmed@divinginasia.com';
+  return Array.from(new Set([primary, 'onboarding@resend.dev']));
+};
+
 const sendConfirmedEmails = async (booking) => {
   const resendApiKey = process.env.RESEND_API_KEY;
-  const fromEmail = process.env.RESEND_FROM_EMAIL || 'confirmed@divinginasia.com';
   const adminEmail = process.env.BOOKING_ADMIN_EMAIL || process.env.RESEND_BOOKING_TO_EMAIL || 'bookings@divinginasia.com';
-  if (!resendApiKey) {
-    console.warn('Resend not configured, skipping confirmed booking emails');
-    return;
-  }
-  const resend = new Resend(resendApiKey);
   const subject = `Booking Confirmed: ${booking.course_title || 'Booking Inquiry'}`;
   const customerText = [
     `Hi ${booking.name || 'Customer'},`,
@@ -112,27 +114,70 @@ const sendConfirmedEmails = async (booking) => {
     `Course: ${booking.course_title || 'N/A'}`,
     `Preferred Date: ${booking.preferred_date || 'N/A'}`,
   ].join('\n');
-  // Send to admin
-  const { error: adminSendError } = await resend.emails.send({
-    from: fromEmail,
+
+  if (resendApiKey) {
+    const resend = new Resend(resendApiKey);
+
+    for (const fromEmail of getResendFromCandidates()) {
+      const { error: adminSendError } = await resend.emails.send({
+        from: fromEmail,
+        to: adminEmail,
+        subject,
+        text: adminText,
+      });
+
+      if (!adminSendError && booking.email) {
+        const { error: customerSendError } = await resend.emails.send({
+          from: fromEmail,
+          to: booking.email,
+          subject,
+          text: customerText,
+        });
+
+        if (!customerSendError) {
+          return;
+        }
+
+        console.error('Resend send error (customer booking):', customerSendError);
+        continue;
+      }
+
+      if (!adminSendError) {
+        return;
+      }
+
+      console.error('Resend send error (admin booking):', adminSendError);
+    }
+  }
+
+  if (!hasSmtpConfig()) {
+    console.warn('SMTP not configured, skipping confirmed booking emails');
+    return;
+  }
+
+  const smtpPort = Number(process.env.SMTP_PORT || 587);
+  const transporter = nodemailer.createTransport({
+    host: process.env.SMTP_HOST,
+    port: smtpPort,
+    secure: smtpPort === 465,
+    auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
+  });
+
+  await transporter.sendMail({
+    from: process.env.SMTP_USER,
     to: adminEmail,
     subject,
+    replyTo: booking.email || undefined,
     text: adminText,
   });
-  if (adminSendError) {
-    console.error('Resend send error (admin booking):', adminSendError);
-  }
-  // Send to customer
+
   if (booking.email) {
-    const { error: customerSendError } = await resend.emails.send({
-      from: fromEmail,
+    await transporter.sendMail({
+      from: process.env.SMTP_USER,
       to: booking.email,
       subject,
       text: customerText,
     });
-    if (customerSendError) {
-      console.error('Resend send error (customer booking):', customerSendError);
-    }
   }
 };
 

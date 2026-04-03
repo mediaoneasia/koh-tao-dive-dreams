@@ -122,6 +122,9 @@ const BookingForm: React.FC<BookingFormProps> = ({ isOpen, onClose, itemType, it
       }
 
       if (response.ok && responseData.success) {
+        if (responseData.warning) {
+          toast.warning(`Booking saved, but email notification needs attention: ${responseData.warning}`);
+        }
         toast.success('Booking inquiry sent. We will contact you shortly.');
         form.reset();
         onClose();

@@ -1,5 +1,5 @@
-import React, { useMemo, useState, Suspense } from 'react';
-const FunDiveBooking = React.lazy(() => import('@/components/FunDiveBooking'));
+import React, { useMemo } from 'react';
+import DiveSiteBookingCTA from '@/components/DiveSiteBookingCTA';
 import DiveSiteDetail from '@/components/DiveSiteDetail';
 import { useTranslation } from 'react-i18next';
 import { usePageContent } from '@/hooks/usePageContent';
@@ -40,8 +40,6 @@ const MangoBay = () => {
 
   const { content } = usePageContent({ pageSlug: 'mango-bay', locale, fallbackContent });
 
-  const [showBooking, setShowBooking] = useState(false);
-
   return (
     <>
       <DiveSiteDetail
@@ -58,30 +56,7 @@ const MangoBay = () => {
         divingTips={toList(content.diving_tips)}
         images={toList(content.images)}
       />
-      <div className="flex justify-center my-8">
-        <button
-          className="px-6 py-3 bg-blue-600 text-white rounded-lg shadow-lg hover:bg-blue-700 transition-colors text-lg font-semibold"
-          onClick={() => setShowBooking(true)}
-        >
-          Book a Fun Dive
-        </button>
-      </div>
-      {showBooking && (
-        <Suspense fallback={<div className="text-center py-8">Loading booking form…</div>}>
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-            <div className="bg-white rounded-lg shadow-xl max-w-lg w-full p-4 relative">
-              <button
-                className="absolute top-2 right-2 text-gray-500 hover:text-gray-800 text-2xl font-bold"
-                onClick={() => setShowBooking(false)}
-                aria-label="Close"
-              >
-                ×
-              </button>
-              <FunDiveBooking />
-            </div>
-          </div>
-        </Suspense>
-      )}
+      <DiveSiteBookingCTA siteName="Mango Bay" />
     </>
   );
 };

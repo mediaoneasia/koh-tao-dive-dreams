@@ -63,37 +63,9 @@ const HTMSSattakut = () => {
         divingTips={toList(content.diving_tips)}
         images={toList(content.images)}
       />
-      {/* Dropbox Gallery restored below. Remove this block to hide again. */}
       <div className="my-8">
-        <DropboxGallery folder="diving_in_asiahtms-sattakut" />
+        <DropboxGallery folder="htms-sattakut" />
       </div>
-        {/* Show images at the bottom for all users, with captions for Dutch users */}
-        <div className="mt-8 flex flex-col gap-6 items-center">
-          <figure>
-            <img src="/images/htms-sattakut.jpg" alt="HTMS Sattakut" className="rounded shadow max-w-full h-auto" />
-            {isDutch && (
-              <figcaption className="text-center text-sm mt-2 text-gray-500">HTMS Sattakut - Overzicht</figcaption>
-            )}
-          </figure>
-          <figure>
-            <img src="/images/htms-sattakut-wreck.jpg" alt="HTMS Sattakut Wreck" className="rounded shadow max-w-full h-auto" />
-            {isDutch && (
-              <figcaption className="text-center text-sm mt-2 text-gray-500">HTMS Sattakut - Wrak</figcaption>
-            )}
-          </figure>
-            <figure>
-              <img src="https://www.divinginasia.com/images/wreck.jpeg" alt="Extern wrakafbeelding" className="rounded shadow max-w-full h-auto" />
-              {isDutch && (
-                <figcaption className="text-center text-sm mt-2 text-gray-500">Externe afbeelding: divinginasia.com</figcaption>
-              )}
-            </figure>
-          {isDutch && (
-            <figure>
-              <img src="https://www.divinginasia.com/images/wreck.jpeg" alt="Extern wrakafbeelding" className="rounded shadow max-w-full h-auto" />
-              <figcaption className="text-center text-sm mt-2 text-gray-500">Externe afbeelding: divinginasia.com</figcaption>
-            </figure>
-          )}
-        </div>
     </div>
   );
 };

@@ -4,7 +4,6 @@ import { toast } from 'sonner';
 import { usePageContent } from '@/hooks/usePageContent';
 import { useTranslation } from 'react-i18next';
 import CalendarSubscribe from './CalendarSubscribe';
-import CalendarSubscribe from './CalendarSubscribe';
 
 // Do not call emailjs.init with the service ID — we'll pass the public key on send.
 
@@ -143,15 +142,18 @@ const Contact = () => {
         },
         body: JSON.stringify(payload),
       });
+      const data = await response.json().catch(() => null);
       
       if (!response.ok) {
-        throw new Error(`Server returned ${response.status}: ${response.statusText}`);
+        const errMsg = data?.message || data?.error || response.statusText || 'Request failed';
+        throw new Error(`Server returned ${response.status}: ${errMsg}`);
       }
-      
-      const data = await response.json();
-      
+
       if (data.success) {
         toast.success("Message sent successfully! We'll get back to you soon.");
+        if (data.warning) {
+          toast.warning(`Saved your inquiry, but email delivery needs attention: ${data.warning}`);
+        }
         setFormData({
           firstName: '',
           lastName: '',

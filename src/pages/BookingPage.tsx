@@ -254,6 +254,9 @@ const       BookingPage: React.FC = () => {
 
       // Notify user based on email API result, but booking is already persisted
       if (res.ok && responseData.success) {
+        if (responseData.warning) {
+          toast.warning(`Booking saved, but email notification needs attention: ${responseData.warning}`);
+        }
         if (data.paymentChoice === 'now' && amountMajor > 0) {
           setShowPaymentLinks(true);
         } else {
@@ -486,6 +489,8 @@ const       BookingPage: React.FC = () => {
                   <span className="text-sm text-muted-foreground flex-1">฿{a.amount}</span>
                   <select
                     className="border rounded px-2 py-1 text-sm"
+                    title={`${a.label} selection`}
+                    aria-label={`${a.label} selection`}
                     value={selectedAddons[a.id] ? '1' : '0'}
                     onChange={e => setSelectedAddons(s => ({ ...s, [a.id]: e.target.value === '1' }))}
                   >
