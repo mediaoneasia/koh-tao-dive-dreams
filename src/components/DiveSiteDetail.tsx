@@ -76,7 +76,18 @@ const DiveSiteDetail: React.FC<DiveSiteDetailProps> = ({
       .filter(Boolean);
   })();
 
-  const hero = heroImage || normalizedImages[0] || '/images/photo-1682686580849-3e7f67df4015.avif';
+  const normalizedHero = (() => {
+    if (!heroImage) return '';
+
+    const extracted = extractImagePaths(heroImage);
+    if (extracted.length > 0) {
+      return cleanImageToken(extracted[0]);
+    }
+
+    return cleanImageToken(heroImage);
+  })();
+
+  const hero = normalizedHero || normalizedImages[0] || '/images/photo-1682686580849-3e7f67df4015.avif';
 
   const labels = isDutch
     ? {
