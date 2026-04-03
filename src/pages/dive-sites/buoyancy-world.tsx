@@ -18,22 +18,22 @@ const BuoyancyWorld = () => {
   const fallbackContent = useMemo(
     () => ({
       overview: isDutch
-        ? 'Buoyancy World is speciaal ontworpen om drijfvermogen en controle te oefenen in ondiep water. De kunstmatige structuren trekken ook klein zeeleven aan, waardoor de site zowel leerzaam als verrassend leuk blijft.'
-        : 'Buoyancy World was designed specifically for buoyancy and control practice in shallow water. Its artificial structures also attract small marine life, so the site stays educational without feeling boring.',
+        ? 'Buoyancy World is een kunstmatig rif en onderwater-speeltuin bij Koh Tao, vlakbij de populaire duikstek Twins. Het werd in 2009 aangelegd door lokale duikscholen en natuurbeschermers om een leuke trainingsplek te bieden en de druk op natuurlijke riffen te verlichten. Je vindt er betonnen kubussen, piramides, hoepels en zelfs een modelskelet van een haai. Perfect om drijfvermogen, trim en navigatie te oefenen. Je ziet vaak jonge rifvissen, blennies, gobies en koraal dat zich op de structuren vestigt.'
+        : 'Buoyancy World is an artificial reef and underwater playground near Koh Tao, close to the popular dive site Twins. Created in 2009 by local dive schools and conservation groups, it provides a fun training area for divers and relieves pressure on natural reefs. The site features sunken concrete cubes, pyramids, hoops, and even a model shark skeleton, all designed for practicing buoyancy, trim, and navigation. You’ll often see juvenile reef fish, blennies, gobies, and coral growing on the structures.',
       quick_facts_depth: '5-12m',
       quick_facts_difficulty: isDutch ? 'Beginner' : 'Beginner',
-      quick_facts_location: 'Aow Leuk',
+      quick_facts_location: 'Near Twins, Koh Tao',
       quick_facts_best_time: isDutch ? 'Hele jaar, rustig in kalm weer' : 'Year-round, calm in settled weather',
       what_you_can_see: isDutch
-        ? 'Betonstructuren\nNieuwe koraalgroei\nKlein zeeleven\nTrainingsplatforms'
-        : 'Concrete structures\nNew coral growth\nSmall marine life\nTraining platforms',
+        ? 'Betonnen kubussen en piramides\nHoepels en trainingsobjecten\nKunstmatige haai\nNieuwe koraalgroei\nJonge rifvissen'
+        : 'Concrete cubes and pyramids\nHoops and training objects\nArtificial shark\nNew coral growth\nJuvenile reef fish',
       marine_life_highlights: isDutch
-        ? 'Juveniele rifvissen\nBlennies en gobies\nKoraal op structuren\nEducatieve habitats'
-        : 'Juvenile reef fish\nBlennies and gobies\nCoral on structures\nEducational habitats',
+        ? 'Juveniele rifvissen\nBlennies en gobies\nKoraal op structuren\nSoms kleine scholen vis'
+        : 'Juvenile reef fish\nBlennies and gobies\nCoral on structures\nOccasional small fish schools',
       diving_tips: isDutch
-        ? 'Perfect om trim en controle te oefenen\nIdeaal voor Open Water en Peak Performance Buoyancy\nBlijf langzaam en precies rond de structuren\nGoed voor camera-oefening in ondiep licht'
-        : 'Perfect for practicing trim and control\nIdeal for Open Water and Peak Performance Buoyancy\nMove slowly and precisely around the structures\nGood for camera practice in shallow light',
-      images: '/images/aowluk.jpg\n/images/tanote.png',
+        ? 'Perfect om drijfvermogen en trim te oefenen\nIdeaal voor Open Water en Peak Performance Buoyancy\nBlijf langzaam en precies rond de structuren\nGoed voor camera-oefening in ondiep licht'
+        : 'Perfect for practicing buoyancy and trim\nIdeal for Open Water and Peak Performance Buoyancy\nMove slowly and precisely around the structures\nGood for camera practice in shallow light',
+      images: '/images/aowluk.jpg\n/images/tanote.png\n/images/twins-header.png\n/images/scubadiver-hero.png',
     }),
     [isDutch]
   );
