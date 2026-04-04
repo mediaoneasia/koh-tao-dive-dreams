@@ -21,9 +21,15 @@ export default async function handler(req, res) {
 			},
 			body: JSON.stringify({ path: `/${folder}` }),
 		});
-		const listData = await listRes.json();
+		const listText = await listRes.text();
+		let listData;
+		try {
+			listData = JSON.parse(listText);
+		} catch (e) {
+			listData = { parseError: true, raw: listText };
+		}
 		if (!listRes.ok) {
-			return res.status(listRes.status).json({ error: listData.error_summary || 'Dropbox API error' });
+			return res.status(listRes.status).json({ error: listData.error_summary || listData.raw || 'Dropbox API error', details: listData });
 		}
 		const imageFiles = (listData.entries || []).filter(
 			(f) => f['.tag'] === 'file' && /\.(jpe?g|png|webp|gif|avif|svg)$/i.test(f.name)
@@ -40,13 +46,22 @@ export default async function handler(req, res) {
 					},
 					body: JSON.stringify({ path: file.path_lower }),
 				});
-				const tempData = await tempRes.json();
+				const tempText = await tempRes.text();
+				let tempData;
+				try {
+					tempData = JSON.parse(tempText);
+				} catch (e) {
+					tempData = { parseError: true, raw: tempText };
+				}
+				if (!tempRes.ok) {
+					return { error: tempData.error_summary || tempData.raw || 'Dropbox temp link error', details: tempData };
+				}
 				return tempData.link || null;
 			})
 		);
 		res.status(200).json(links.filter(Boolean));
 	} catch (err) {
-		res.status(500).json({ error: err.message || 'Internal server error' });
+		res.status(500).json({ error: err.message || 'Internal server error', stack: err.stack });
 	}
 }
  
