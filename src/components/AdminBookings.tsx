@@ -438,28 +438,28 @@ const AdminBookings: React.FC = () => {
       {view === 'calendar' ? (
         <BookingsCalendar bookings={bookings} />
       ) : (
-      <table className="min-w-full border">
+      <table className="w-full border">
         <thead>
           <tr>
-            <th className="border px-2 py-1">Name</th>
-            <th className="border px-2 py-1">Email</th>
-            <th className="border px-2 py-1">Phone</th>
-            <th className="border px-2 py-1">Course</th>
-            <th className="border px-2 py-1">Date</th>
-            <th className="border px-2 py-1">Status</th>
-            <th className="border px-2 py-1">Finance</th>
-            <th className="border px-2 py-1">PayPal</th>
+            <th className="border px-1 py-1 whitespace-nowrap">Name</th>
+            <th className="border px-1 py-1 whitespace-nowrap">Email</th>
+            <th className="border px-1 py-1 whitespace-nowrap">Phone</th>
+            <th className="border px-1 py-1 whitespace-nowrap">Course</th>
+            <th className="border px-1 py-1 whitespace-nowrap">Date</th>
+            <th className="border px-1 py-1 whitespace-nowrap">Status</th>
+            <th className="border px-1 py-1 whitespace-nowrap">Finance</th>
+            <th className="border px-1 py-1 whitespace-nowrap">PayPal</th>
           </tr>
         </thead>
         <tbody>
           {bookings.map((b) => (
             <tr key={b.id}>
-              <td className="border px-2 py-1">{b.name}</td>
-              <td className="border px-2 py-1">{b.email}</td>
-              <td className="border px-2 py-1">{b.phone || '-'}</td>
-              <td className="border px-2 py-1">{b.course_title}</td>
-              <td className="border px-2 py-1">{b.preferred_date || '-'}</td>
-              <td className="border px-2 py-1">
+              <td className="border px-1 py-1 whitespace-nowrap">{b.name}</td>
+              <td className="border px-1 py-1 whitespace-nowrap">{b.email}</td>
+              <td className="border px-1 py-1 whitespace-nowrap">{b.phone || '-'}</td>
+              <td className="border px-1 py-1 whitespace-nowrap">{b.course_title}</td>
+              <td className="border px-1 py-1 whitespace-nowrap">{b.preferred_date || '-'}</td>
+              <td className="border px-1 py-1 whitespace-nowrap">
                 <div className="flex items-center gap-2">
                   <select
                     className="border rounded px-2 py-1"
