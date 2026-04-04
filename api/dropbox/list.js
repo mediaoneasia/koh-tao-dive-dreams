@@ -32,6 +32,8 @@ export default async function handler(req, res) {
     ? req.query.folder.trim()
     : DEFAULT_FOLDER_PATH;
   const normalizedPath = folderPath.startsWith('/') ? folderPath : `/${folderPath}`;
+  // Debug: log the folder path being sent to Dropbox
+  console.log('[Dropbox API] Listing folder:', normalizedPath);
 
   try {
     const dropboxResponse = await fetch(DROPBOX_API_URL, {
@@ -45,8 +47,11 @@ export default async function handler(req, res) {
 
     const { json: payload, text } = await readDropboxPayload(dropboxResponse);
     if (!dropboxResponse.ok) {
+      // Debug: log the error response from Dropbox
+      console.error('[Dropbox API] Error response:', text);
       return res.status(dropboxResponse.status).json({
         error: payload?.error_summary || text || 'Failed to list Dropbox folder',
+        debug: { normalizedPath, dropboxStatus: dropboxResponse.status, dropboxText: text },
       });
     }
 
