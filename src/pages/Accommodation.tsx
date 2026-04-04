@@ -220,16 +220,11 @@ const Accommodation = () => {
   };
 
   const buildTripUrl = () => {
-    const baseUrl = 'https://www.trip.com/hotels/koh-tao-hotels/';
-    const params = new URLSearchParams();
-    params.set('locale', 'en-US');
-    params.set('curr', 'THB');
-    
-    if (TRIP_ALLIANCE_ID) params.set('allianceid', TRIP_ALLIANCE_ID);
-    if (TRIP_SITE_ID) params.set('sid', TRIP_SITE_ID);
-
-    const query = params.toString();
-    return query ? `${baseUrl}?${query}` : baseUrl;
+    // Full affiliate deep link for Trip.com Koh Tao hotels
+    const allianceId = TRIP_ALLIANCE_ID || '7864578';
+    const siteId = TRIP_SITE_ID || '295439656';
+    // You can make trip_sub1 and trip_sub3 dynamic if needed
+    return `https://www.trip.com/hotels/list?city=19957&display=Koh%20Tao&optionId=19957&optionType=City&optionName=Koh%20Tao&Allianceid=${allianceId}&SID=${siteId}&trip_sub1=tao1&trip_sub3=D15055497`;
   };
 
 
