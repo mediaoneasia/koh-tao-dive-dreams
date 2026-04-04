@@ -208,7 +208,7 @@ export default async function handler(req, res) {
 
 
     if (req.method === 'GET') {
-      // Require authentication
+      // Enforce authentication for ALL GET requests
       const authHeader = req.headers['authorization'] || req.headers['Authorization'];
       const token = authHeader && authHeader.startsWith('Bearer ')
         ? authHeader.slice(7)
@@ -231,6 +231,7 @@ export default async function handler(req, res) {
       if (!userId) {
         return res.status(401).json({ error: 'Not authenticated' });
       }
+      // Only allow admins to see all bookings
       try {
         let rows = [];
         if (isAdmin) {
