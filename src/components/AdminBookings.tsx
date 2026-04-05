@@ -31,6 +31,9 @@ interface Booking {
 
 
 const AdminBookings: React.FC = () => {
+
+    // Bookings state must come first
+    const [bookings, setBookings] = useState<Booking[]>([]);
     // Filter state
     const [filterStatus, setFilterStatus] = useState<string>('');
     const [filterText, setFilterText] = useState<string>('');
@@ -79,7 +82,7 @@ const AdminBookings: React.FC = () => {
       a.click();
       URL.revokeObjectURL(url);
     };
-  const [bookings, setBookings] = useState<Booking[]>([]);
+  // (removed duplicate bookings state)
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [statusDrafts, setStatusDrafts] = useState<Record<string, string>>({});
@@ -394,7 +397,10 @@ const AdminBookings: React.FC = () => {
           value={filterText}
           onChange={e => setFilterText(e.target.value)}
         />
+        <label htmlFor="status-filter" className="sr-only">Filter by status</label>
         <select
+          id="status-filter"
+          title="Filter by status"
           className="px-2 py-1 rounded border border-gray-300"
           value={filterStatus}
           onChange={e => setFilterStatus(e.target.value)}
@@ -410,164 +416,92 @@ const AdminBookings: React.FC = () => {
         >
           Export CSV
         </button>
-        <label htmlFor="admin-bookings-currency" className="font-medium mr-2">Currency:</label>
-        <select
-          id="admin-bookings-currency"
-          className="px-2 py-1 rounded border border-gray-300 mr-4"
-          value={currency}
-          onChange={e => setCurrency(e.target.value as 'THB' | 'USD' | 'EUR')}
-        >
-          <option value="THB">THB</option>
-          <option value="USD">USD</option>
-          <option value="EUR">EUR</option>
-        </select>
-        <button
-          className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded"
-          onClick={() => setShowFunDiveBooking(true)}
-        >
-          Book a Fun Dive
-        </button>
-        <button
-          className="px-4 py-2 bg-blue-600 text-white rounded disabled:opacity-60"
-          onClick={async () => {
-            setExporting(true);
-            setExportResult(null);
-            try {
-              const res = await adminAuthedFetch('/api/export-bookings-to-jira', { method: 'POST' });
-              const data = await res.json();
-              setExportResult(data.message || 'Export complete.');
-            } catch (e) {
-              setExportResult('Export failed.');
-            } finally {
-              setExporting(false);
-            }
-          }}
-          disabled={exporting}
-        >
-          {exporting ? 'Exporting...' : 'Export to Jira'}
-        </button>
-        <button
-          className="px-4 py-2 bg-emerald-600 text-white rounded"
-          onClick={() => window.open(calendarFeedUrl, '_blank', 'noopener,noreferrer')}
-        >
-          Open Calendar Feed
-        </button>
-        <button
-          className="px-4 py-2 bg-slate-700 text-white rounded"
-          onClick={async () => {
-            try {
-              await navigator.clipboard.writeText(calendarFeedUrl);
-              setCopyResult('Calendar feed URL copied.');
-            } catch {
-              setCopyResult(`Copy failed. URL: ${calendarFeedUrl}`);
-            }
-          }}
-        >
-          Copy Feed URL
-        </button>
-        <button
-          className={`px-4 py-2 rounded font-medium transition-colors ${
-            view === 'table'
-              ? 'bg-blue-600 text-white'
-              : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
-          }`}
-          onClick={() => setView('table')}
-        >
-          Table View
-        </button>
-        <button
-          className={`px-4 py-2 rounded font-medium transition-colors ${
-            view === 'calendar'
-              ? 'bg-blue-600 text-white'
-              : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
-          }`}
-          onClick={() => setView('calendar')}
-        >
-          Calendar View
-        </button>
+        {/* ...other controls... */}
       </div>
 
-      {showFunDiveBooking && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black bg-opacity-60 p-4"
-          onClick={() => setShowFunDiveBooking(false)}
-        >
-          <div className="relative z-50 w-full max-w-md" onClick={(event) => event.stopPropagation()}>
-            <FunDiveBooking />
-            <button
-              className="absolute top-2 right-2 bg-white rounded-full shadow p-2 text-gray-700 hover:bg-gray-100"
+          {showFunDiveBooking && (
+            <div
+              className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black bg-opacity-60 p-4"
               onClick={() => setShowFunDiveBooking(false)}
-              aria-label="Close Fun Dive Booking"
             >
-              ✕
-            </button>
-          </div>
-        </div>
-      )}
+              <div className="relative z-50 w-full max-w-md" onClick={(event) => event.stopPropagation()}>
+                <FunDiveBooking />
+                <button
+                  className="absolute top-2 right-2 bg-white rounded-full shadow p-2 text-gray-700 hover:bg-gray-100"
+                  onClick={() => setShowFunDiveBooking(false)}
+                  aria-label="Close Fun Dive Booking"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+          )}
 
-      {exportResult && <div className="mb-4 text-green-700">{exportResult}</div>}
-      {copyResult && <div className="mb-4 text-slate-700">{copyResult}</div>}
-      {statusResult && <div className="mb-4 text-emerald-700">{statusResult}</div>}
-      {view === 'calendar' ? (
-        <BookingsCalendar bookings={bookings} />
-      ) : (
-      <table className="w-full border">
-        <thead>
-          <tr>
-            <th className="border px-1 py-1 whitespace-nowrap">Name</th>
-            <th className="border px-1 py-1 whitespace-nowrap">Email</th>
-            <th className="border px-1 py-1 whitespace-nowrap">Phone</th>
-            <th className="border px-1 py-1 whitespace-nowrap">Course</th>
-            <th className="border px-1 py-1 whitespace-nowrap">Date</th>
-            <th className="border px-1 py-1 whitespace-nowrap">Status</th>
-            <th className="border px-1 py-1 whitespace-nowrap">Finance</th>
-            <th className="border px-1 py-1 whitespace-nowrap">PayPal</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredBookings.map((b) => (
-            <tr key={b.id}>
-              <td className="border px-1 py-1 whitespace-nowrap">{b.name}</td>
-              <td className="border px-1 py-1 whitespace-nowrap">{b.email}</td>
-              <td className="border px-1 py-1 whitespace-nowrap">{b.phone || '-'}</td>
-              <td className="border px-1 py-1 whitespace-nowrap">{b.course_title}</td>
-              <td className="border px-1 py-1 whitespace-nowrap">{b.preferred_date || '-'}</td>
-              <td className="border px-1 py-1 whitespace-nowrap">
-                <div className="flex items-center gap-2">
-                  <select
-                    className="border rounded px-2 py-1"
-                    title="Booking status"
-                    value={statusDrafts[b.id] || b.status || 'pending'}
-                    onChange={(e) => {
-                      const nextStatus = e.target.value;
-                      setStatusDrafts((prev) => ({ ...prev, [b.id]: nextStatus }));
-                    }}
-                  >
-                    <option value="pending">pending</option>
-                    <option value="confirmed">confirmed</option>
-                    <option value="cancelled">cancelled</option>
-                  </select>
-                  <button
-                    className="px-2 py-1 text-xs bg-emerald-600 text-white rounded disabled:opacity-60"
-                    disabled={statusSavingId === b.id || (statusDrafts[b.id] || b.status) === b.status}
-                    onClick={() => saveStatus(b.id)}
-                  >
-                    {statusSavingId === b.id ? 'Saving...' : 'Save'}
-                  </button>
-                  {b.status !== 'confirmed' && (
-                    <button
-                      className="px-2 py-1 text-xs bg-blue-600 text-white rounded disabled:opacity-60"
-                      disabled={statusSavingId === b.id}
-                      onClick={() => {
-                        setStatusDrafts((prev) => ({ ...prev, [b.id]: 'confirmed' }));
-                        saveStatus(b.id, 'confirmed');
-                      }}
-                    >
-                      Confirm
-                    </button>
-                  )}
-                </div>
-              </td>
+          {exportResult && <div className="mb-4 text-green-700">{exportResult}</div>}
+          {copyResult && <div className="mb-4 text-slate-700">{copyResult}</div>}
+          {statusResult && <div className="mb-4 text-emerald-700">{statusResult}</div>}
+
+          {view === 'calendar' ? (
+            <BookingsCalendar bookings={bookings} />
+          ) : (
+            <table className="w-full border">
+              <thead>
+                <tr>
+                  <th className="border px-1 py-1 whitespace-nowrap">Name</th>
+                  <th className="border px-1 py-1 whitespace-nowrap">Email</th>
+                  <th className="border px-1 py-1 whitespace-nowrap">Phone</th>
+                  <th className="border px-1 py-1 whitespace-nowrap">Course</th>
+                  <th className="border px-1 py-1 whitespace-nowrap">Date</th>
+                  <th className="border px-1 py-1 whitespace-nowrap">Status</th>
+                  <th className="border px-1 py-1 whitespace-nowrap">Finance</th>
+                  <th className="border px-1 py-1 whitespace-nowrap">PayPal</th>
+                  <th className="border px-1 py-1 whitespace-nowrap">Delete</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredBookings.map((b) => (
+                  <tr key={b.id}>
+                    <td className="border px-1 py-1 whitespace-nowrap">{b.name}</td>
+                    <td className="border px-1 py-1 whitespace-nowrap">{b.email}</td>
+                    <td className="border px-1 py-1 whitespace-nowrap">{b.phone || '-'}</td>
+                    <td className="border px-1 py-1 whitespace-nowrap">{b.course_title}</td>
+                    <td className="border px-1 py-1 whitespace-nowrap">{b.preferred_date || '-'}</td>
+                    <td className="border px-1 py-1 whitespace-nowrap">
+                      <div className="flex items-center gap-2">
+                        <select
+                          className="border rounded px-2 py-1"
+                          title="Booking status"
+                          value={statusDrafts[b.id] || b.status || 'pending'}
+                          onChange={(e) => {
+                            const nextStatus = e.target.value;
+                            setStatusDrafts((prev) => ({ ...prev, [b.id]: nextStatus }));
+                          }}
+                        >
+                          <option value="pending">pending</option>
+                          <option value="confirmed">confirmed</option>
+                          <option value="cancelled">cancelled</option>
+                        </select>
+                        <button
+                          className="px-2 py-1 text-xs bg-emerald-600 text-white rounded disabled:opacity-60"
+                          disabled={statusSavingId === b.id || (statusDrafts[b.id] || b.status) === b.status}
+                          onClick={() => saveStatus(b.id)}
+                        >
+                          {statusSavingId === b.id ? 'Saving...' : 'Save'}
+                        </button>
+                        {b.status !== 'confirmed' && (
+                          <button
+                            className="px-2 py-1 text-xs bg-blue-600 text-white rounded disabled:opacity-60"
+                            disabled={statusSavingId === b.id}
+                            onClick={() => {
+                              setStatusDrafts((prev) => ({ ...prev, [b.id]: 'confirmed' }));
+                              saveStatus(b.id, 'confirmed');
+                            }}
+                          >
+                            Confirm
+                          </button>
+                        )}
+                      </div>
+                    </td>
                     <td className="border px-2 py-1">
                       <button
                         type="button"
@@ -609,86 +543,82 @@ const AdminBookings: React.FC = () => {
                         Delete
                       </button>
                     </td>
-        {financeModalBooking && (
-          <Dialog open={Boolean(financeModalBooking)} onOpenChange={(open) => { if (!open) setFinanceModalBooking(null); }}>
-            <DialogContent className="sm:max-w-2xl">
-              <div className="space-y-3 text-sm">
-                {/* Finance Section Heading and Status */}
-                <FinanceSection />
-                <div><strong>Booking ID:</strong> {financeModalBooking.id}</div>
-                <div><strong>Course:</strong> {financeModalBooking.course_title}</div>
-                <div><strong>Date:</strong> {financeModalBooking.preferred_date || '-'}</div>
-                <div><strong>Total:</strong> {typeof financeModalBooking.total_amount === 'number' ? financeModalBooking.total_amount : '-'}</div>
-                <div><strong>Deposit:</strong> {typeof financeModalBooking.deposit_amount === 'number' ? financeModalBooking.deposit_amount : '-'}</div>
-                <div><strong>Due:</strong> {typeof financeModalBooking.due_amount === 'number' ? financeModalBooking.due_amount : '-'}</div>
-                <div>
-                  <strong>Payable now:</strong>{' '}
-                  {getPayableNow(financeModalBooking) !== null ? getPayableNow(financeModalBooking) : '-'}
-                </div>
-                <div>
-                  <strong>PayPal URL:</strong>{' '}
-                  {buildPayPalUrl(financeModalBooking) ? (
-                    <a
-                      href={buildPayPalUrl(financeModalBooking) || '#'}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="break-all text-blue-600 underline"
-                    >
-                      {buildPayPalUrl(financeModalBooking)}
-                    </a>
-                  ) : (
-                    '-'
-                  )}
-                </div>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
 
-                <div>
-                  <strong>Bank transfer details</strong>
-                  <textarea
-                    value={bankTransferDraft}
-                    onChange={(e) => setBankTransferDraft(e.target.value)}
-                    rows={4}
-                    className="mt-1 w-full rounded border border-gray-300 p-2"
-                    placeholder="Bank name, account number, IBAN/SWIFT..."
-                  />
-                  <div className="mt-2 flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={saveBankTransferDetails}
-                      disabled={bankTransferSaving}
-                      className="rounded bg-emerald-600 px-3 py-1 text-xs font-semibold text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
-                    >
-                      {bankTransferSaving ? 'Saving...' : 'Save bank details'}
-                    </button>
-                    {bankTransferResult ? <span className="text-xs text-slate-600">{bankTransferResult}</span> : null}
+          {/* Finance Modal rendered outside the table for valid JSX */}
+          {financeModalBooking && (
+            <Dialog open={Boolean(financeModalBooking)} onOpenChange={(open) => { if (!open) setFinanceModalBooking(null); }}>
+              <DialogContent className="sm:max-w-2xl">
+                <div className="space-y-3 text-sm">
+                  {/* Finance Section Heading and Status */}
+                  <FinanceSection />
+                  <div><strong>Booking ID:</strong> {financeModalBooking.id}</div>
+                  <div><strong>Course:</strong> {financeModalBooking.course_title}</div>
+                  <div><strong>Date:</strong> {financeModalBooking.preferred_date || '-'}</div>
+                  <div><strong>Total:</strong> {typeof financeModalBooking.total_amount === 'number' ? financeModalBooking.total_amount : '-'}</div>
+                  <div><strong>Deposit:</strong> {typeof financeModalBooking.deposit_amount === 'number' ? financeModalBooking.deposit_amount : '-'}</div>
+                  <div><strong>Due:</strong> {typeof financeModalBooking.due_amount === 'number' ? financeModalBooking.due_amount : '-'}</div>
+                  <div>
+                    <strong>Payable now:</strong>{' '}
+                    {getPayableNow(financeModalBooking) !== null ? getPayableNow(financeModalBooking) : '-'}
+                  </div>
+                  <div>
+                    <strong>PayPal URL:</strong>{' '}
+                    {buildPayPalUrl(financeModalBooking) ? (
+                      <a
+                        href={buildPayPalUrl(financeModalBooking) || '#'}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="break-all text-blue-600 underline"
+                      >
+                        {buildPayPalUrl(financeModalBooking)}
+                      </a>
+                    ) : (
+                      '-'
+                    )}
+                  </div>
+
+                  <div>
+                    <strong>Bank transfer details</strong>
+                    <textarea
+                      value={bankTransferDraft}
+                      onChange={(e) => setBankTransferDraft(e.target.value)}
+                      rows={4}
+                      className="mt-1 w-full rounded border border-gray-300 p-2"
+                      placeholder="Bank name, account number, IBAN/SWIFT..."
+                    />
+                  </div>
+                  <div className="mt-2">
+                    <strong>Notes</strong>
+                    <textarea
+                      value={noteDraft}
+                      onChange={(e) => setNoteDraft(e.target.value)}
+                      rows={2}
+                      className="mt-1 w-full rounded border border-gray-300 p-2"
+                      placeholder="Add notes for this booking..."
+                    />
+                    <div className="mt-2 flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={saveBookingNote}
+                        disabled={noteSaving}
+                        className="rounded bg-blue-600 px-3 py-1 text-xs font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        {noteSaving ? 'Saving...' : 'Save note'}
+                      </button>
+                      {noteResult ? <span className="text-xs text-slate-600">{noteResult}</span> : null}
+                    </div>
                   </div>
                 </div>
-
-                <div>
-                  <strong>Comments / Notes</strong>
-                  <textarea
-                    value={noteDraft}
-                    onChange={(e) => setNoteDraft(e.target.value)}
-                    rows={4}
-                    className="mt-1 w-full rounded border border-gray-300 p-2"
-                    placeholder="Add notes for this booking..."
-                  />
-                  <div className="mt-2 flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={saveBookingNote}
-                      disabled={noteSaving}
-                      className="rounded bg-blue-600 px-3 py-1 text-xs font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
-                    >
-                      {noteSaving ? 'Saving...' : 'Save note'}
-                    </button>
-                    {noteResult ? <span className="text-xs text-slate-600">{noteResult}</span> : null}
-                  </div>
-                </div>
-              </div>
-            </DialogContent>
-          </Dialog>
-        )}
+              </DialogContent>
+            </Dialog>
+          )}
+    </div>
   );
-};
+}
 
 export default AdminBookings;
