@@ -1,3 +1,4 @@
+import Papa from 'papaparse';
 // AdminBookings.tsx
 // Clean admin bookings table: shows Name, Email, Phone, Course, Date, Total, Deposit, To Be Paid, PayPal link.
 // To add more columns or features, edit below. For comments or notes, add a new column and input logic as needed.
