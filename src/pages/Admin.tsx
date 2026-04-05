@@ -16,7 +16,6 @@ const Admin = () => {
     // Add more admin tabs here
     const tabs = [
       { key: 'bookings', label: 'Bookings' },
-      { key: 'affiliate-clicks', label: 'Affiliate Clicks' },
       { key: 'pages', label: 'Pages Manager' },
       { key: 'project-manager', label: 'Project Manager' },
     ];
@@ -251,11 +250,7 @@ const Admin = () => {
               <AdminBookings />
             </div>
           )}
-          {activeTab === 'affiliate-clicks' && (
-            <div className="bg-white rounded-2xl shadow-xl p-6 mb-6 border border-gray-100">
-              <AffiliateClicksAdmin />
-            </div>
-          )}
+          {/* Affiliate Clicks tab removed */}
           {activeTab === 'pages' && (
             <div className="bg-white rounded-2xl shadow-xl p-6 mb-6 border border-gray-100">
               <React.Suspense fallback={<div>Loading Pages Manager...</div>}>
