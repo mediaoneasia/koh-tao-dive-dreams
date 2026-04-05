@@ -315,7 +315,7 @@ const FunDiving = () => {
                       <li>Premium equipment</li>
                       <li>Max 4 divers per guide</li>
                     </ul>
-                          <Button variant="secondary" onClick={() => { navigate(`/booking?item=${encodeURIComponent('Fun Dive')}&type=dive&price=1800&currency=THB&dives=2`); }}>Inquire / Book</Button>
+                          <Button variant="secondary" onClick={() => { window.open('https://booking.divinginasia.com/booking?item=Fun%20Dive&type=dive&price=1800&currency=THB&dives=2', '_blank', 'noopener'); }}>Inquire / Book</Button>
                   </CardContent>
                 </Card>
 
@@ -338,7 +338,7 @@ const FunDiving = () => {
                       <Button variant="outline" asChild>
                         <Link to="/courses/discover-scuba">View Program</Link>
                       </Button>
-                      <Button variant="secondary" onClick={() => { navigate(`/booking?item=${encodeURIComponent('Discover Scuba')}&type=dive&price=2500&currency=THB`); }}>Inquire / Book</Button>
+                      <Button variant="secondary" onClick={() => { window.open('https://booking.divinginasia.com/booking?item=Discover%20Scuba&type=dive&price=2500&currency=THB', '_blank', 'noopener'); }}>Inquire / Book</Button>
                     </div>
                   </CardContent>
                 </Card>
@@ -358,7 +358,7 @@ const FunDiving = () => {
                       <li>Experienced guides and briefings</li>
                       <li>Pickup & return to Koh Tao</li>
                     </ul>
-                    <Button variant="secondary" onClick={() => { navigate(`/booking?item=${encodeURIComponent('Sail Rock Special')}&type=dive&price=2900&currency=THB`); }}>Inquire / Book</Button>
+                    <Button variant="secondary" onClick={() => { window.open('https://booking.divinginasia.com/booking?item=Sail%20Rock%20Special&type=dive&price=2900&currency=THB', '_blank', 'noopener'); }}>Inquire / Book</Button>
                   </CardContent>
                 </Card>
               </div>

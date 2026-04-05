@@ -403,7 +403,10 @@ const Courses = () => {
                     <Button variant="outline" className="w-full">{t('courses.viewCourse', 'View course')}</Button>
                   </Link>
                   <button
-                    onClick={() => navigate(`/booking?item=${encodeURIComponent(course.title)}&type=${course.bookingType || 'course'}&price=${parsePriceMajor(course.price)}&currency=${course.depositCurrency}`)}
+                    onClick={() => {
+                      const url = `https://booking.divinginasia.com/booking?item=${encodeURIComponent(course.title)}&type=${course.bookingType || 'course'}&price=${parsePriceMajor(course.price)}&currency=${course.depositCurrency}`;
+                      window.open(url, '_blank', 'noopener');
+                    }}
                     className="flex-1 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors duration-200 font-semibold"
                   >
                     {t('courses.bookButton')}
@@ -443,7 +446,9 @@ const Courses = () => {
               </div>
               <Button 
                 className="w-full mt-4 bg-background text-emerald-600 hover:bg-emerald-50"
-                onClick={() => navigate('/booking?item=3%20Specialty%20Bundle&type=course&price=18000&currency=THB')}
+                onClick={() => {
+                  window.open('https://booking.divinginasia.com/booking?item=3%20Specialty%20Bundle&type=course&price=18000&currency=THB', '_blank', 'noopener');
+                }}
               >
                 {isDutch ? 'Boek Bundel' : 'Book Bundle'}
               </Button>

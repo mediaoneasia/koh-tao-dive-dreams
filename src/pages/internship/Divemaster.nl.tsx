@@ -235,7 +235,7 @@ export default function DivemasterInternship() {
         <Card className="mb-8 p-6 bg-green-50">
           <h2 className="text-2xl font-bold mb-6">Klaar om PADI Divemaster te worden?</h2>
           <p className="text-gray-700 mb-4">Start je professionele duikcarrière met ons uitgebreide divemaster internship-programma.</p>
-          <Button size="lg" onClick={() => navigate('/booking?course=divemaster-internship&type=course')}>Boek nu</Button>
+          <Button size="lg" onClick={() => window.open('https://booking.divinginasia.com/booking?course=divemaster-internship&type=course', '_blank', 'noopener')}>Boek nu</Button>
         </Card>
 
         <div className="mt-12">

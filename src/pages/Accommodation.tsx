@@ -261,7 +261,8 @@ const Accommodation = () => {
     const message = encodeURIComponent(
       `Accommodation request: ${roomLabel}. Guests: ${peopleCount}. Nights: ${nightCount}. Details: ${accommodationDetails || 'None'}`
     );
-    navigate(`/booking?item=Resort%20Accommodation%20-%20${encodeURIComponent(roomLabel)}&type=stay&currency=THB&people=${peopleCount}&nights=${nightCount}&message=${message}`);
+    const url = `https://booking.divinginasia.com/booking?item=Resort%20Accommodation%20-%20${encodeURIComponent(roomLabel)}&type=stay&currency=THB&people=${peopleCount}&nights=${nightCount}&message=${message}`;
+    window.open(url, '_blank', 'noopener');
   };
 
   return (

@@ -61,7 +61,8 @@ const SpecialtyDetail: React.FC = () => {
                 <div className="mt-6">
                   <Button onClick={() => {
                     const priceMajor = data.priceMajor || (data.depositMajor ? data.depositMajor * 5 : '');
-                    navigate(`/booking?item=${encodeURIComponent(data.title)}&type=course&price=${priceMajor}&currency=${data.depositCurrency || ''}`);
+                    const url = `https://booking.divinginasia.com/booking?item=${encodeURIComponent(data.title)}&type=course&price=${priceMajor}&currency=${data.depositCurrency || ''}`;
+                    window.open(url, '_blank', 'noopener');
                   }}>Enquire / Book</Button>
                 </div>
               </div>
