@@ -609,8 +609,6 @@ const AdminBookings: React.FC = () => {
                         Delete
                       </button>
                     </td>
-        </DialogContent>
-      </Dialog>
         {financeModalBooking && (
           <Dialog open={Boolean(financeModalBooking)} onOpenChange={(open) => { if (!open) setFinanceModalBooking(null); }}>
             <DialogContent className="sm:max-w-2xl">
@@ -690,7 +688,6 @@ const AdminBookings: React.FC = () => {
             </DialogContent>
           </Dialog>
         )}
-    </div>
   );
 };
 
