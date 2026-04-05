@@ -3,6 +3,7 @@ import { useCurrency, CurrencySelector } from '@/hooks/useCurrency';
 import CoursePageTemplate from '@/components/CoursePageTemplate';
 import { useTranslation } from 'react-i18next';
 
+const DIVEMASTER_DROPBOX_FOLDER = 'divemaster';
 
 const Divemaster: React.FC = () => {
   const { i18n } = useTranslation();
@@ -65,6 +66,17 @@ const Divemaster: React.FC = () => {
         priceTHB={priceTHB}
         priceConverted={currency !== 'THB' ? convertCurrency(priceTHB, 'THB') : undefined}
         selectedCurrency={currency}
+        galleryFolder={DIVEMASTER_DROPBOX_FOLDER}
+        galleryTitle={isNl ? 'Divemaster galerij' : 'Divemaster Gallery'}
+        galleryDescription={isNl
+          ? 'Foto\'s van de Divemaster-cursus en training op Koh Tao. Voeg beelden toe aan de Dropbox-map om deze sectie automatisch bij te werken.'
+          : 'Photos from the Divemaster course and training around Koh Tao. Add images to the Dropbox folder to keep this section updated automatically.'}
+        galleryUnavailableMessage={isNl
+          ? 'Divemaster-foto\'s verschijnen hier zodra de Dropbox-map klaar is.'
+          : 'Divemaster photos will appear here once the Dropbox folder is ready.'}
+        galleryEmptyMessage={isNl
+          ? 'Divemaster-foto\'s verschijnen hier zodra er afbeeldingen aan Dropbox zijn toegevoegd.'
+          : 'Divemaster photos will appear here once images are added to Dropbox.'}
       />
     </>
   );

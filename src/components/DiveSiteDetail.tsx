@@ -17,6 +17,8 @@ interface DiveSiteDetailProps {
   marineLifeHighlights: string[];
   divingTips: string[];
   images: string[];
+  heroImage?: string;
+  hideGallery?: boolean;
 }
 
 const cleanImageToken = (value: string) => {
@@ -54,7 +56,9 @@ const DiveSiteDetail: React.FC<DiveSiteDetailProps> = ({
   whatYouCanSee,
   marineLifeHighlights,
   divingTips,
-  images
+  images,
+  heroImage,
+  hideGallery = false,
 }) => {
   const { i18n } = useTranslation();
   const isDutch = i18n.language.startsWith('nl');
@@ -72,7 +76,18 @@ const DiveSiteDetail: React.FC<DiveSiteDetailProps> = ({
       .filter(Boolean);
   })();
 
-  const hero = normalizedImages.length > 0 ? normalizedImages[0] : '/images/photo-1682686580849-3e7f67df4015.avif';
+  const normalizedHero = (() => {
+    if (!heroImage) return '';
+
+    const extracted = extractImagePaths(heroImage);
+    if (extracted.length > 0) {
+      return cleanImageToken(extracted[0]);
+    }
+
+    return cleanImageToken(heroImage);
+  })();
+
+  const hero = normalizedHero || normalizedImages[0] || '/images/photo-1682686580849-3e7f67df4015.avif';
 
   const labels = isDutch
     ? {
@@ -101,7 +116,7 @@ const DiveSiteDetail: React.FC<DiveSiteDetailProps> = ({
       };
 
   return (
-    <div className="min-h-screen bg-background py-8">
+    <div className="min-h-screen bg-background px-[20px] py-8">
       {/* Hero Section */}
       <section className="relative flex items-center justify-center overflow-hidden rounded-xl shadow-lg mb-8 h-72">
         <img src={hero} alt={name} className="absolute inset-0 w-full h-full object-cover" />
@@ -187,24 +202,26 @@ const DiveSiteDetail: React.FC<DiveSiteDetailProps> = ({
       </div>
 
       {/* Gallery Section */}
-      <Card className="mb-8">
-        <CardHeader>
-          <CardTitle>{labels.gallery}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {normalizedImages.map((image, index) => (
-              <div key={index} className="aspect-video bg-muted rounded-lg overflow-hidden">
-                <img
-                  src={image}
-                  alt={`${name} ${index + 1}`}
-                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                />
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+      {!hideGallery && normalizedImages.length > 0 && (
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle>{labels.gallery}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {normalizedImages.map((image, index) => (
+                <div key={index} className="aspect-video bg-muted rounded-lg overflow-hidden">
+                  <img
+                    src={image}
+                    alt={`${name} ${index + 1}`}
+                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                  />
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };

@@ -1,40 +1,3 @@
-    // Copy booking details to clipboard
-    const [copyStatus, setCopyStatus] = useState<Record<string, string>>({});
-    const copyBookingDetails = async (booking: Booking) => {
-      const details = `Name: ${booking.name}\nEmail: ${booking.email}\nPhone: ${booking.phone || '-'}\nCourse: ${booking.course_title}\nDate: ${booking.preferred_date || '-'}\nStatus: ${booking.status}\nNotes: ${booking.internal_notes || ''}`;
-      try {
-        await navigator.clipboard.writeText(details);
-        setCopyStatus((prev) => ({ ...prev, [booking.id]: 'Copied!' }));
-      } catch {
-        setCopyStatus((prev) => ({ ...prev, [booking.id]: 'Copy failed!' }));
-      }
-      setTimeout(() => setCopyStatus((prev) => ({ ...prev, [booking.id]: '' })), 2000);
-    };
-  // Escalate booking to Jira
-  const [jiraStatus, setJiraStatus] = useState<Record<string, string>>({});
-  const escalateToJira = async (booking: Booking) => {
-    setJiraStatus((prev) => ({ ...prev, [booking.id]: 'Sending...' }));
-    try {
-      const res = await fetch('/api/create-jira-booking', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: booking.name,
-          email: booking.email,
-          bookingDetails: `Course: ${booking.course_title}\nDate: ${booking.preferred_date || '-'}\nPhone: ${booking.phone || '-'}\nStatus: ${booking.status}\nNotes: ${booking.internal_notes || ''}`,
-        }),
-      });
-      if (res.ok) {
-        setJiraStatus((prev) => ({ ...prev, [booking.id]: 'Escalated!' }));
-      } else {
-        setJiraStatus((prev) => ({ ...prev, [booking.id]: 'Failed!' }));
-      }
-    } catch {
-      setJiraStatus((prev) => ({ ...prev, [booking.id]: 'Error!' }));
-    }
-    setTimeout(() => setJiraStatus((prev) => ({ ...prev, [booking.id]: '' })), 3000);
-  };
-
 // AdminBookings.tsx
 // Clean admin bookings table: shows Name, Email, Phone, Course, Date, Total, Deposit, To Be Paid, PayPal link.
 // To add more columns or features, edit below. For comments or notes, add a new column and input logic as needed.
@@ -44,6 +7,7 @@ import FunDiveBooking from './FunDiveBooking';
 import FinanceSection from './FinanceSection';
 import BookingsCalendar from './BookingsCalendar';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { supabase } from '@/integrations/supabase/client';
 
 interface Booking {
   total_payable_now?: number | null;
@@ -87,6 +51,8 @@ const AdminBookings: React.FC = () => {
   const [exporting, setExporting] = useState(false);
   const [exportResult, setExportResult] = useState<string | null>(null);
   const [copyResult, setCopyResult] = useState<string | null>(null);
+  const [copyStatus, setCopyStatus] = useState<Record<string, string>>({});
+  const [jiraStatus, setJiraStatus] = useState<Record<string, string>>({});
 
   // Currency state
   const [currency, setCurrency] = useState<'THB' | 'USD' | 'EUR'>('THB');
@@ -96,7 +62,8 @@ const AdminBookings: React.FC = () => {
   useEffect(() => {
     const fetchRates = async () => {
       try {
-        const res = await fetch(`https://openexchangerates.org/api/latest.json?app_id=${process.env.OPENEXCHANGERATES_API_KEY}&symbols=THB,USD,EUR`);
+        const apiKey = import.meta.env.VITE_OPENEXCHANGERATES_API_KEY || '';
+        const res = await fetch(`https://openexchangerates.org/api/latest.json?app_id=${apiKey}&symbols=THB,USD,EUR`);
         const data = await res.json();
         if (data && data.rates) {
           setExchangeRates({
@@ -121,30 +88,90 @@ const AdminBookings: React.FC = () => {
     return `${converted.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${currency}`;
   };
 
-  const calendarFeedUrl = (() => {
-    const origin = typeof window !== 'undefined' ? window.location.origin : '';
-    return `${origin}/api/bookings/calendar`;
-  })();
+  const copyBookingDetails = async (booking: Booking) => {
+    const details = `Name: ${booking.name}\nEmail: ${booking.email}\nPhone: ${booking.phone || '-'}\nCourse: ${booking.course_title}\nDate: ${booking.preferred_date || '-'}\nStatus: ${booking.status}\nNotes: ${booking.internal_notes || ''}`;
+    try {
+      await navigator.clipboard.writeText(details);
+      setCopyStatus((prev) => ({ ...prev, [booking.id]: 'Copied!' }));
+    } catch {
+      setCopyStatus((prev) => ({ ...prev, [booking.id]: 'Copy failed!' }));
+    }
+    setTimeout(() => setCopyStatus((prev) => ({ ...prev, [booking.id]: '' })), 2000);
+  };
+
+  const adminAuthedFetch = async (url: string, init?: RequestInit) => {
+    const { data: { session } } = await supabase.auth.getSession();
+    const token = session?.access_token;
+    const adminLoginToken = window.localStorage.getItem('admin_login_token');
+
+    if (!token && !adminLoginToken) {
+      throw new Error('No authenticated admin session found');
+    }
+
+    const headers = new Headers(init?.headers || {});
+    if (token) {
+      headers.set('Authorization', `Bearer ${token}`);
+    }
+    if (adminLoginToken) {
+      headers.set('x-admin-login-token', adminLoginToken);
+    }
+    if (!headers.has('Content-Type')) {
+      headers.set('Content-Type', 'application/json');
+    }
+
+    return fetch(url, { ...init, headers });
+  };
+
+  const escalateToJira = async (booking: Booking) => {
+    setJiraStatus((prev) => ({ ...prev, [booking.id]: 'Sending...' }));
+    try {
+      const res = await adminAuthedFetch('/api/create-jira-booking', {
+        method: 'POST',
+        body: JSON.stringify({
+          name: booking.name,
+          email: booking.email,
+          bookingDetails: `Course: ${booking.course_title}\nDate: ${booking.preferred_date || '-'}\nPhone: ${booking.phone || '-'}\nStatus: ${booking.status}\nNotes: ${booking.internal_notes || ''}`,
+        }),
+      });
+      if (res.ok) {
+        setJiraStatus((prev) => ({ ...prev, [booking.id]: 'Escalated!' }));
+      } else {
+        setJiraStatus((prev) => ({ ...prev, [booking.id]: 'Failed!' }));
+      }
+    } catch {
+      setJiraStatus((prev) => ({ ...prev, [booking.id]: 'Error!' }));
+    }
+    setTimeout(() => setJiraStatus((prev) => ({ ...prev, [booking.id]: '' })), 3000);
+  };
+
+  const calendarFeedUrl = 'https://koh-tao-dive-dreams.vercel.app/api/bookings/calendar';
 
   useEffect(() => {
-    fetch('/api/bookings')
-      .then((res) => {
+    async function fetchBookings() {
+      setLoading(true);
+      setError(null);
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        const token = session?.access_token;
+        if (!token) throw new Error('Not authenticated');
+        const res = await fetch('/api/bookings', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
         if (!res.ok) throw new Error('Failed to fetch bookings');
-        return res.json();
-      })
-      .then((data) => {
+        const data = await res.json();
         setBookings(data);
         const initialDrafts: Record<string, string> = {};
         data.forEach((booking: Booking) => {
           initialDrafts[booking.id] = booking.status || 'pending';
         });
         setStatusDrafts(initialDrafts);
+      } catch (err: any) {
+        setError(err.message || 'Failed to fetch bookings');
+      } finally {
         setLoading(false);
-      })
-      .catch((err) => {
-        setError(err.message);
-        setLoading(false);
-      });
+      }
+    }
+    fetchBookings();
   }, []);
 
   useEffect(() => {
@@ -174,7 +201,10 @@ const AdminBookings: React.FC = () => {
   const buildPayPalUrl = (booking: Booking) => {
     const amount = getPayableNow(booking);
     if (amount === null) return null;
-    return `${paypalLink}/${amount}`;
+    // Add account_id and site_id as query parameters for commission tracking
+    const accountId = '7864578';
+    const siteId = '295439656';
+    return `${paypalLink}/${amount}?account_id=${accountId}&site_id=${siteId}`;
   };
 
   useEffect(() => {
@@ -306,12 +336,13 @@ const AdminBookings: React.FC = () => {
   if (error) return <div>Error: {error}</div>;
 
   return (
-    <div className="overflow-x-auto">
+    <div>
       <h2 className="text-xl font-bold mb-4">Bookings</h2>
       {/* Unified horizontal control bar */}
       <div className="flex flex-wrap items-center gap-3 mb-6">
-        <label className="font-medium mr-2">Currency:</label>
+        <label htmlFor="admin-bookings-currency" className="font-medium mr-2">Currency:</label>
         <select
+          id="admin-bookings-currency"
           className="px-2 py-1 rounded border border-gray-300 mr-4"
           value={currency}
           onChange={e => setCurrency(e.target.value as 'THB' | 'USD' | 'EUR')}
@@ -332,7 +363,7 @@ const AdminBookings: React.FC = () => {
             setExporting(true);
             setExportResult(null);
             try {
-              const res = await fetch('/api/export-bookings-to-jira', { method: 'POST' });
+              const res = await adminAuthedFetch('/api/export-bookings-to-jira', { method: 'POST' });
               const data = await res.json();
               setExportResult(data.message || 'Export complete.');
             } catch (e) {
@@ -387,8 +418,11 @@ const AdminBookings: React.FC = () => {
       </div>
 
       {showFunDiveBooking && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
-          <div className="relative z-50">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black bg-opacity-60 p-4"
+          onClick={() => setShowFunDiveBooking(false)}
+        >
+          <div className="relative z-50 w-full max-w-md" onClick={(event) => event.stopPropagation()}>
             <FunDiveBooking />
             <button
               className="absolute top-2 right-2 bg-white rounded-full shadow p-2 text-gray-700 hover:bg-gray-100"
@@ -404,28 +438,31 @@ const AdminBookings: React.FC = () => {
       {exportResult && <div className="mb-4 text-green-700">{exportResult}</div>}
       {copyResult && <div className="mb-4 text-slate-700">{copyResult}</div>}
       {statusResult && <div className="mb-4 text-emerald-700">{statusResult}</div>}
-      <table className="min-w-full border">
+      {view === 'calendar' ? (
+        <BookingsCalendar bookings={bookings} />
+      ) : (
+      <table className="w-full border">
         <thead>
           <tr>
-            <th className="border px-2 py-1">Name</th>
-            <th className="border px-2 py-1">Email</th>
-            <th className="border px-2 py-1">Phone</th>
-            <th className="border px-2 py-1">Course</th>
-            <th className="border px-2 py-1">Date</th>
-            <th className="border px-2 py-1">Status</th>
-            <th className="border px-2 py-1">Finance</th>
-            <th className="border px-2 py-1">PayPal</th>
+            <th className="border px-1 py-1 whitespace-nowrap">Name</th>
+            <th className="border px-1 py-1 whitespace-nowrap">Email</th>
+            <th className="border px-1 py-1 whitespace-nowrap">Phone</th>
+            <th className="border px-1 py-1 whitespace-nowrap">Course</th>
+            <th className="border px-1 py-1 whitespace-nowrap">Date</th>
+            <th className="border px-1 py-1 whitespace-nowrap">Status</th>
+            <th className="border px-1 py-1 whitespace-nowrap">Finance</th>
+            <th className="border px-1 py-1 whitespace-nowrap">PayPal</th>
           </tr>
         </thead>
         <tbody>
           {bookings.map((b) => (
             <tr key={b.id}>
-              <td className="border px-2 py-1">{b.name}</td>
-              <td className="border px-2 py-1">{b.email}</td>
-              <td className="border px-2 py-1">{b.phone || '-'}</td>
-              <td className="border px-2 py-1">{b.course_title}</td>
-              <td className="border px-2 py-1">{b.preferred_date || '-'}</td>
-              <td className="border px-2 py-1">
+              <td className="border px-1 py-1 whitespace-nowrap">{b.name}</td>
+              <td className="border px-1 py-1 whitespace-nowrap">{b.email}</td>
+              <td className="border px-1 py-1 whitespace-nowrap">{b.phone || '-'}</td>
+              <td className="border px-1 py-1 whitespace-nowrap">{b.course_title}</td>
+              <td className="border px-1 py-1 whitespace-nowrap">{b.preferred_date || '-'}</td>
+              <td className="border px-1 py-1 whitespace-nowrap">
                 <div className="flex items-center gap-2">
                   <select
                     className="border rounded px-2 py-1"
@@ -481,17 +518,8 @@ const AdminBookings: React.FC = () => {
                     PayPal
                   </a>
                 )}
-                <button
-                  className="ml-2 px-2 py-1 text-xs bg-blue-700 text-white rounded"
-                  onClick={() => escalateToJira(b)}
-                  disabled={jiraStatus[b.id] === 'Sending...'}
-                  title="Escalate this booking to Jira"
-                >
-                  {jiraStatus[b.id] === 'Sending...' ? 'Escalating...' : 'Escalate to Jira'}
-                </button>
-                {jiraStatus[b.id] && jiraStatus[b.id] !== 'Sending...' && (
-                  <span className="ml-2 text-xs text-emerald-700">{jiraStatus[b.id]}</span>
-                )}
+                {/* Trip.com link removed as requested */}
+                {/* Escalate to Jira button removed as export to Jira now works */}
                 <button
                   className="ml-2 px-2 py-1 text-xs bg-slate-600 text-white rounded"
                   onClick={() => copyBookingDetails(b)}
@@ -507,6 +535,7 @@ const AdminBookings: React.FC = () => {
           ))}
         </tbody>
       </table>
+      )}
 
       <Dialog open={Boolean(financeModalBooking)} onOpenChange={(open) => { if (!open) setFinanceModalBooking(null); }}>
         <DialogContent className="sm:max-w-2xl">

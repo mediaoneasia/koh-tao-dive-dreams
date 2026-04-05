@@ -23,6 +23,21 @@ const parseSiteList = (value: string) => {
   });
 };
 
+const SITE_PATHS: Record<string, string> = {
+  'Sail Rock': '/dive-sites/sail-rock',
+  'Chumphon Pinnacle': '/dive-sites/chumphon-pinnacle',
+  'South West Pinnacle': '/dive-sites/south-west-pinnacle',
+  'Japanese Gardens': '/dive-sites/japanese-gardens',
+  'Shark Island': '/dive-sites/shark-island',
+  'Mango Bay': '/dive-sites/mango-bay',
+  'HTMS Sattakut': '/dive-sites/htms-sattakut',
+  'Junkyard Reef': '/dive-sites/junkyard-reef',
+  'Buoyancy World': '/dive-sites/buoyancy-world',
+  'Aow Leuk': '/dive-sites/aow-leuk',
+  'Hin Ngam': '/dive-sites/hin-ngam',
+  'Tanote Bay': '/dive-sites/tanote-bay',
+};
+
 const DiveSitesPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -89,6 +104,8 @@ const DiveSitesPage = () => {
   const artificialSites = parseSiteList(pageContent.artificial_sites);
   const shallowSites = parseSiteList(pageContent.shallow_sites);
 
+  const resolveSitePath = (site: { name: string; path: string }) => site.path || SITE_PATHS[site.name] || '';
+
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
       case 'Beginner': return 'bg-green-100 text-green-800';
@@ -112,6 +129,55 @@ const DiveSitesPage = () => {
       default:
         return difficulty;
     }
+  };
+
+  const renderSiteCard = (site: {
+    name: string;
+    path: string;
+    description: string;
+    depth: string;
+    highlights: string[];
+    difficulty: string;
+    location: string;
+  }, index: number) => {
+    const linkPath = resolveSitePath(site);
+
+    return (
+      <Card key={index} className="overflow-hidden">
+        <CardHeader>
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <MapPin className="w-5 h-5 text-blue-600" />
+              <CardTitle className="text-xl">
+                {linkPath ? (
+                  <Link to={linkPath} className="hover:text-blue-600 underline-offset-4 hover:underline">
+                    {site.name}
+                  </Link>
+                ) : (
+                  site.name
+                )}
+              </CardTitle>
+            </div>
+            <Badge className={getDifficultyColor(site.difficulty)}>{difficultyLabel(site.difficulty)}</Badge>
+          </div>
+          <div className="flex items-center gap-4 text-sm text-muted-foreground mb-2">
+            <span>{pageContent.depth_label}: {site.depth}</span>
+            <span className="flex items-center gap-1">
+              <Clock className="w-4 h-4" />
+              {site.location}
+            </span>
+          </div>
+          <CardDescription>{site.description}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-wrap gap-2">
+            {site.highlights.map((highlight, i) => (
+              <Badge key={i} variant="outline">{highlight}</Badge>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    );
   };
 
   return (
@@ -188,45 +254,7 @@ const DiveSitesPage = () => {
         <div className="max-w-6xl mx-auto">
           <h2 className="text-4xl font-bold text-center mb-12">{pageContent.deep_title}</h2>
           <div className="grid md:grid-cols-1 lg:grid-cols-3 gap-8">
-            {deepDiveSites.map((site, index) => {
-              const linkPath = site.path;
-              return (
-                <Card key={index} className="overflow-hidden">
-                  <CardHeader>
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <MapPin className="w-5 h-5 text-blue-600" />
-                        <CardTitle className="text-xl">
-                          {linkPath ? (
-                            <Link to={linkPath} className="hover:text-blue-600 underline-offset-4 hover:underline">
-                              {site.name}
-                            </Link>
-                          ) : (
-                            site.name
-                          )}
-                        </CardTitle>
-                      </div>
-                      <Badge className={getDifficultyColor(site.difficulty)}>{difficultyLabel(site.difficulty)}</Badge>
-                    </div>
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground mb-2">
-                      <span>{pageContent.depth_label}: {site.depth}</span>
-                      <span className="flex items-center gap-1">
-                        <Clock className="w-4 h-4" />
-                        {site.location}
-                      </span>
-                    </div>
-                    <CardDescription>{site.description}</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex flex-wrap gap-2">
-                      {site.highlights.map((highlight, i) => (
-                        <Badge key={i} variant="outline">{highlight}</Badge>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
+            {deepDiveSites.map(renderSiteCard)}
           </div>
         </div>
       </section>
@@ -236,34 +264,7 @@ const DiveSitesPage = () => {
         <div className="max-w-6xl mx-auto">
           <h2 className="text-4xl font-bold text-center mb-12">{pageContent.coral_title}</h2>
           <div className="grid md:grid-cols-1 lg:grid-cols-3 gap-8">
-            {coralReefSites.map((site, index) => (
-              <Card key={index} className="overflow-hidden">
-                <CardHeader>
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <MapPin className="w-5 h-5 text-blue-600" />
-                      <CardTitle className="text-xl">{site.name}</CardTitle>
-                    </div>
-                    <Badge className={getDifficultyColor(site.difficulty)}>{difficultyLabel(site.difficulty)}</Badge>
-                  </div>
-                  <div className="flex items-center gap-4 text-sm text-muted-foreground mb-2">
-                    <span>{pageContent.depth_label}: {site.depth}</span>
-                    <span className="flex items-center gap-1">
-                      <Clock className="w-4 h-4" />
-                      {site.location}
-                    </span>
-                  </div>
-                  <CardDescription>{site.description}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex flex-wrap gap-2">
-                    {site.highlights.map((highlight, i) => (
-                      <Badge key={i} variant="outline">{highlight}</Badge>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+            {coralReefSites.map(renderSiteCard)}
           </div>
         </div>
       </section>
@@ -273,34 +274,7 @@ const DiveSitesPage = () => {
         <div className="max-w-6xl mx-auto">
           <h2 className="text-4xl font-bold text-center mb-12">{pageContent.artificial_title}</h2>
           <div className="grid md:grid-cols-1 lg:grid-cols-3 gap-8">
-            {artificialSites.map((site, index) => (
-              <Card key={index} className="overflow-hidden">
-                <CardHeader>
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <MapPin className="w-5 h-5 text-blue-600" />
-                      <CardTitle className="text-xl">{site.name}</CardTitle>
-                    </div>
-                    <Badge className={getDifficultyColor(site.difficulty)}>{difficultyLabel(site.difficulty)}</Badge>
-                  </div>
-                  <div className="flex items-center gap-4 text-sm text-muted-foreground mb-2">
-                    <span>{pageContent.depth_label}: {site.depth}</span>
-                    <span className="flex items-center gap-1">
-                      <Clock className="w-4 h-4" />
-                      {site.location}
-                    </span>
-                  </div>
-                  <CardDescription>{site.description}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex flex-wrap gap-2">
-                    {site.highlights.map((highlight, i) => (
-                      <Badge key={i} variant="outline">{highlight}</Badge>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+            {artificialSites.map(renderSiteCard)}
           </div>
         </div>
       </section>
@@ -310,34 +284,7 @@ const DiveSitesPage = () => {
         <div className="max-w-6xl mx-auto">
           <h2 className="text-4xl font-bold text-center mb-12">{pageContent.shallow_title}</h2>
           <div className="grid md:grid-cols-1 lg:grid-cols-3 gap-8">
-            {shallowSites.map((site, index) => (
-              <Card key={index} className="overflow-hidden">
-                <CardHeader>
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <MapPin className="w-5 h-5 text-blue-600" />
-                      <CardTitle className="text-xl">{site.name}</CardTitle>
-                    </div>
-                    <Badge className={getDifficultyColor(site.difficulty)}>{difficultyLabel(site.difficulty)}</Badge>
-                  </div>
-                  <div className="flex items-center gap-4 text-sm text-muted-foreground mb-2">
-                    <span>{pageContent.depth_label}: {site.depth}</span>
-                    <span className="flex items-center gap-1">
-                      <Clock className="w-4 h-4" />
-                      {site.location}
-                    </span>
-                  </div>
-                  <CardDescription>{site.description}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex flex-wrap gap-2">
-                    {site.highlights.map((highlight, i) => (
-                      <Badge key={i} variant="outline">{highlight}</Badge>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+            {shallowSites.map(renderSiteCard)}
           </div>
         </div>
       </section>

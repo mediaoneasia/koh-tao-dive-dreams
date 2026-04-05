@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
 const BookingToJiraForm = () => {
   const [form, setForm] = useState({
@@ -16,9 +17,22 @@ const BookingToJiraForm = () => {
     e.preventDefault();
     setStatus('Submitting...');
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      const adminLoginToken = window.localStorage.getItem('admin_login_token');
+      const headers = { 'Content-Type': 'application/json' };
+
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+      }
+
+      if (adminLoginToken) {
+        headers['x-admin-login-token'] = adminLoginToken;
+      }
+
       const res = await fetch('/api/create-jira-booking', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify(form),
       });
       if (res.ok) {

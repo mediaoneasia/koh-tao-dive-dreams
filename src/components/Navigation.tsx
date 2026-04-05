@@ -226,7 +226,6 @@ const Navigation = ({ user, isAdmin, isAdminRoute }: { user?: any, isAdmin?: boo
                       </h4>
                       <ul className="space-y-1">
                         {cat.items
-                          .filter((item) => !(cat.label === labels.advancedCourses && item.to === '/courses/advanced'))
                           .map((item) => (
                             <li key={item.to}>
                               {item.to && item.to.startsWith('http') ? (
@@ -278,6 +277,9 @@ const Navigation = ({ user, isAdmin, isAdminRoute }: { user?: any, isAdmin?: boo
                         {labels.diveSitesOverview}
                       </Link>
                     </li>
+                    <li className="pt-2 text-[11px] font-bold uppercase tracking-wider text-blue-400">
+                      Deep Sites
+                    </li>
                     <li>
                       <Link
                         to="/dive-sites/sail-rock"
@@ -293,6 +295,17 @@ const Navigation = ({ user, isAdmin, isAdminRoute }: { user?: any, isAdmin?: boo
                       >
                         Chumphon Pinnacle
                       </Link>
+                    </li>
+                    <li>
+                      <Link
+                        to="/dive-sites/south-west-pinnacle"
+                        className="block py-1.5 text-sm text-gray-300 hover:text-white hover:pl-1 transition-all duration-150"
+                      >
+                        South West Pinnacle
+                      </Link>
+                    </li>
+                    <li className="pt-2 text-[11px] font-bold uppercase tracking-wider text-blue-400">
+                      Coral Reefs
                     </li>
                     <li>
                       <Link
@@ -320,14 +333,6 @@ const Navigation = ({ user, isAdmin, isAdminRoute }: { user?: any, isAdmin?: boo
                     </li>
                     <li>
                       <Link
-                        to="/dive-sites/twins-pinnacle"
-                        className="block py-1.5 text-sm text-gray-300 hover:text-white hover:pl-1 transition-all duration-150"
-                      >
-                        Twins Pinnacle
-                      </Link>
-                    </li>
-                    <li>
-                      <Link
                         to="/dive-sites/mango-bay"
                         className="block py-1.5 text-sm text-gray-300 hover:text-white hover:pl-1 transition-all duration-150"
                       >
@@ -336,10 +341,64 @@ const Navigation = ({ user, isAdmin, isAdminRoute }: { user?: any, isAdmin?: boo
                     </li>
                     <li>
                       <Link
-                        to="/dive-sites/south-west-pinnacle"
+                        to="/dive-sites/twins-pinnacle"
                         className="block py-1.5 text-sm text-gray-300 hover:text-white hover:pl-1 transition-all duration-150"
                       >
-                        South West Pinnacle
+                        Twins Pinnacle
+                      </Link>
+                    </li>
+                    <li className="pt-2 text-[11px] font-bold uppercase tracking-wider text-blue-400">
+                      Artificial Reefs
+                    </li>
+                    <li>
+                      <Link
+                        to="/dive-sites/htms-sattakut"
+                        className="block py-1.5 text-sm text-gray-300 hover:text-white hover:pl-1 transition-all duration-150"
+                      >
+                        HTMS Sattakut
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        to="/dive-sites/junkyard-reef"
+                        className="block py-1.5 text-sm text-gray-300 hover:text-white hover:pl-1 transition-all duration-150"
+                      >
+                        Junkyard Reef
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        to="/dive-sites/buoyancy-world"
+                        className="block py-1.5 text-sm text-gray-300 hover:text-white hover:pl-1 transition-all duration-150"
+                      >
+                        Buoyancy World
+                      </Link>
+                    </li>
+                    <li className="pt-2 text-[11px] font-bold uppercase tracking-wider text-blue-400">
+                      Beginner Sites
+                    </li>
+                    <li>
+                      <Link
+                        to="/dive-sites/aow-leuk"
+                        className="block py-1.5 text-sm text-gray-300 hover:text-white hover:pl-1 transition-all duration-150"
+                      >
+                        Aow Leuk
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        to="/dive-sites/hin-ngam"
+                        className="block py-1.5 text-sm text-gray-300 hover:text-white hover:pl-1 transition-all duration-150"
+                      >
+                        Hin Ngam
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        to="/dive-sites/tanote-bay"
+                        className="block py-1.5 text-sm text-gray-300 hover:text-white hover:pl-1 transition-all duration-150"
+                      >
+                        Tanote Bay
                       </Link>
                     </li>
                   </ul>
@@ -649,20 +708,19 @@ const Navigation = ({ user, isAdmin, isAdminRoute }: { user?: any, isAdmin?: boo
                     <Link to="/koh-tao-dive-sites" className="block px-3 py-1.5 text-sm text-gray-600 hover:text-blue-600" onClick={() => setIsOpen(false)}>
                       {labels.diveSitesOverview}
                     </Link>
+                    <div className="px-3 pt-2 text-xs font-semibold uppercase tracking-wider text-blue-600">Deep Sites</div>
                     <Link to="/dive-sites/sail-rock" className="block px-3 py-1.5 text-sm text-gray-600 hover:text-blue-600" onClick={() => setIsOpen(false)}>
                       Sail Rock
                     </Link>
                     <Link to="/dive-sites/chumphon-pinnacle" className="block px-3 py-1.5 text-sm text-gray-600 hover:text-blue-600" onClick={() => setIsOpen(false)}>
                       Chumphon Pinnacle
                     </Link>
+                    <Link to="/dive-sites/south-west-pinnacle" className="block px-3 py-1.5 text-sm text-gray-600 hover:text-blue-600" onClick={() => setIsOpen(false)}>
+                      South West Pinnacle
+                    </Link>
+                    <div className="px-3 pt-2 text-xs font-semibold uppercase tracking-wider text-blue-600">Coral Reefs</div>
                     <Link to="/dive-sites/japanese-gardens" className="block px-3 py-1.5 text-sm text-gray-600 hover:text-blue-600" onClick={() => setIsOpen(false)}>
                       Japanese Gardens
-                    </Link>
-                    <Link to="/dive-sites/htms-sattakut" className="block px-3 py-1.5 text-sm text-gray-600 hover:text-blue-600" onClick={() => setIsOpen(false)}>
-                      HTMS Sattakut
-                    </Link>
-                    <Link to="/dive-sites/twins-pinnacle" className="block px-3 py-1.5 text-sm text-gray-600 hover:text-blue-600" onClick={() => setIsOpen(false)}>
-                      Twins Pinnacle
                     </Link>
                     <Link to="/dive-sites/shark-island" className="block px-3 py-1.5 text-sm text-gray-600 hover:text-blue-600" onClick={() => setIsOpen(false)}>
                       Shark Island
@@ -670,8 +728,28 @@ const Navigation = ({ user, isAdmin, isAdminRoute }: { user?: any, isAdmin?: boo
                     <Link to="/dive-sites/mango-bay" className="block px-3 py-1.5 text-sm text-gray-600 hover:text-blue-600" onClick={() => setIsOpen(false)}>
                       Mango Bay
                     </Link>
-                    <Link to="/dive-sites/south-west-pinnacle" className="block px-3 py-1.5 text-sm text-gray-600 hover:text-blue-600" onClick={() => setIsOpen(false)}>
-                      South West Pinnacle
+                    <Link to="/dive-sites/twins-pinnacle" className="block px-3 py-1.5 text-sm text-gray-600 hover:text-blue-600" onClick={() => setIsOpen(false)}>
+                      Twins Pinnacle
+                    </Link>
+                    <div className="px-3 pt-2 text-xs font-semibold uppercase tracking-wider text-blue-600">Artificial Reefs</div>
+                    <Link to="/dive-sites/htms-sattakut" className="block px-3 py-1.5 text-sm text-gray-600 hover:text-blue-600" onClick={() => setIsOpen(false)}>
+                      HTMS Sattakut
+                    </Link>
+                    <Link to="/dive-sites/junkyard-reef" className="block px-3 py-1.5 text-sm text-gray-600 hover:text-blue-600" onClick={() => setIsOpen(false)}>
+                      Junkyard Reef
+                    </Link>
+                    <Link to="/dive-sites/buoyancy-world" className="block px-3 py-1.5 text-sm text-gray-600 hover:text-blue-600" onClick={() => setIsOpen(false)}>
+                      Buoyancy World
+                    </Link>
+                    <div className="px-3 pt-2 text-xs font-semibold uppercase tracking-wider text-blue-600">Beginner Sites</div>
+                    <Link to="/dive-sites/aow-leuk" className="block px-3 py-1.5 text-sm text-gray-600 hover:text-blue-600" onClick={() => setIsOpen(false)}>
+                      Aow Leuk
+                    </Link>
+                    <Link to="/dive-sites/hin-ngam" className="block px-3 py-1.5 text-sm text-gray-600 hover:text-blue-600" onClick={() => setIsOpen(false)}>
+                      Hin Ngam
+                    </Link>
+                    <Link to="/dive-sites/tanote-bay" className="block px-3 py-1.5 text-sm text-gray-600 hover:text-blue-600" onClick={() => setIsOpen(false)}>
+                      Tanote Bay
                     </Link>
                   </div>
                 )}

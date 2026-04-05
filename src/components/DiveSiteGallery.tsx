@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import HTMLFlipBook from 'react-pageflip';
 
+const DEFAULT_DROPBOX_FOLDER = 'diving_in_asia';
+
 const DiveSiteGallery = () => {
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://your-app-name.vercel.app';
-    fetch(`${API_BASE_URL}/api/dropbox/list`)
+    fetch(`/api/dropbox/list?folder=${encodeURIComponent(DEFAULT_DROPBOX_FOLDER)}`)
       .then((res) => res.json())
       .then((data) => {
         setFiles(data);

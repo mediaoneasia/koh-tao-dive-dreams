@@ -8,8 +8,11 @@ import { Fish, Waves, MapPin, Clock, DollarSign, Users } from 'lucide-react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useEffect, useState, useMemo } from 'react';
 import FunDiveBooking from '../components/FunDiveBooking';
+import DropboxGallerySection from '@/components/DropboxGallerySection';
 import { tryAutoScroll, scrollToWithOffset } from '@/lib/scroll';
 import { usePageContent } from '@/hooks/usePageContent';
+
+const FUN_DIVING_DROPBOX_FOLDER = 'fun-diving';
 
 const FunDiving = () => {
   const navigate = useNavigate();
@@ -162,8 +165,11 @@ const FunDiving = () => {
             <Button size="lg" className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-4 text-lg" onClick={() => { try{ sessionStorage.setItem('scrollTo','course-openWater') }catch(_){ } ; navigate('/courses'); }}>{content.fun_diving_hero_cta2}</Button>
           </div>
           {showFunDiveBooking && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
-              <div className="relative z-50">
+            <div
+              className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black bg-opacity-60 p-4"
+              onClick={() => setShowFunDiveBooking(false)}
+            >
+              <div className="relative z-50 w-full max-w-md" onClick={(event) => event.stopPropagation()}>
                 <FunDiveBooking />
                 <button
                   className="absolute top-2 right-2 bg-white rounded-full shadow p-2 text-gray-700 hover:bg-gray-100"
@@ -203,6 +209,14 @@ const FunDiving = () => {
                   {content.fun_diving_overview_body}
                 </p>
               </div>
+
+              <DropboxGallerySection
+                folder={FUN_DIVING_DROPBOX_FOLDER}
+                title="Fun Diving Gallery"
+                description="Photos from recent fun dive trips around Koh Tao. Add images to the Dropbox folder to keep this section updated without editing the page."
+                unavailableMessage="Fun diving photos will appear here once the Dropbox folder is ready."
+                emptyMessage="Fun diving photos will appear here once images are added to Dropbox."
+              />
 
               <div className="grid md:grid-cols-2 gap-8 mb-12">
                 <Card>
@@ -287,7 +301,6 @@ const FunDiving = () => {
               <h2 className="text-4xl font-bold text-center mb-8">{content.fun_diving_trips_title}</h2>
               <div className="grid md:grid-cols-3 gap-6">
                 <Card className="overflow-hidden">
-                  <img src="/images/fun.png" alt="Fun Dive" className="w-full h-40 object-cover" />
                   <CardHeader>
                     <div className="flex items-center justify-between">
                       <CardTitle>Fun Dive</CardTitle>
@@ -307,7 +320,6 @@ const FunDiving = () => {
                 </Card>
 
                 <Card className="overflow-hidden">
-                  <img src="/images/discover.png" alt="Discover Scuba Diving - Pool Training" className="w-full h-40 object-cover" />
                   <CardHeader>
                     <div className="flex items-center justify-between">
                       <CardTitle>Discover Scuba (Try Dive)</CardTitle>
@@ -332,7 +344,6 @@ const FunDiving = () => {
                 </Card>
 
                 <Card className="overflow-hidden">
-                  <img src="/images/sailrock.webp" alt="Sail Rock Special" className="w-full h-40 object-cover" onError={(e)=>{(e.target as HTMLImageElement).src='/images/photo-1618865181016-a80ad83a06d3.avif'}} />
                   <CardHeader>
                     <div className="flex items-center justify-between">
                       <CardTitle>Sail Rock Special</CardTitle>

@@ -1,9 +1,14 @@
-import React, {useMemo, useState, Suspense } from 'react';
-import DropboxGallery from '@/components/DropboxGallery';
-const FunDiveBooking = React.lazy(() => import('@/components/FunDiveBooking'));
+import React, { useMemo } from 'react';
+import DiveSiteBookingCTA from '@/components/DiveSiteBookingCTA';
 import DiveSiteDetail from '@/components/DiveSiteDetail';
 import { useTranslation } from 'react-i18next';
 import { usePageContent } from '@/hooks/usePageContent';
+
+const PAGE_GALLERY_IMAGES = [
+  '/images/japanandwins.jpg',
+  '/images/green-sea-turtle.png',
+  '/images/hawksbill-sea-turtle.jpg',
+];
 
 const JapaneseGardens = () => {
   const { i18n } = useTranslation();
@@ -37,53 +42,25 @@ const JapaneseGardens = () => {
   }), [isDutch]);
 
   const { content } = usePageContent({ pageSlug: 'japanese-gardens', locale, fallbackContent });
-
-  const [showBooking, setShowBooking] = useState(false);
+  const galleryImages = Array.from(new Set([...toList(content.images), ...PAGE_GALLERY_IMAGES]));
 
   return (
     <>
-      <div className="px-4 md:px-8">
-        <DiveSiteDetail
-          name="Japanese Gardens"
-          overview={content.overview}
-          quickFacts={{
-            depth: content.quick_facts_depth,
-            difficulty: content.quick_facts_difficulty,
-            location: content.quick_facts_location,
-            bestTime: content.quick_facts_best_time,
-          }}
-          whatYouCanSee={toList(content.what_you_can_see)}
-          marineLifeHighlights={toList(content.marine_life_highlights)}
-          divingTips={toList(content.diving_tips)}
-          images={toList(content.images)}
-        />
-      </div>
-      <div className="flex justify-center my-8">
-        <button
-          className="px-6 py-3 bg-blue-600 text-white rounded-lg shadow-lg hover:bg-blue-700 transition-colors text-lg font-semibold"
-          onClick={() => setShowBooking(true)}
-        >
-          Book a Fun Dive
-        </button>
-      </div>
-      {showBooking && (
-        <Suspense fallback={<div className="text-center py-8">Loading booking form…</div>}>
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-            <div className="bg-white rounded-lg shadow-xl max-w-lg w-full p-4 relative">
-              <button
-                className="absolute top-2 right-2 text-gray-500 hover:text-gray-800 text-2xl font-bold"
-                onClick={() => setShowBooking(false)}
-                aria-label="Close"
-              >
-                ×
-              </button>
-              <FunDiveBooking />
-            </div>
-          </div>
-        </Suspense>
-      )}
-      <h2 className="text-2xl font-bold mt-8 mb-4">Gallery</h2>
-      <DropboxGallery folder="japanese-gardens" />
+      <DiveSiteDetail
+        name="Japanese Gardens"
+        overview={content.overview}
+        quickFacts={{
+          depth: content.quick_facts_depth,
+          difficulty: content.quick_facts_difficulty,
+          location: content.quick_facts_location,
+          bestTime: content.quick_facts_best_time,
+        }}
+        whatYouCanSee={toList(content.what_you_can_see)}
+        marineLifeHighlights={toList(content.marine_life_highlights)}
+        divingTips={toList(content.diving_tips)}
+        images={galleryImages}
+      />
+      <DiveSiteBookingCTA siteName="Japanese Gardens" />
     </>
   );
 };

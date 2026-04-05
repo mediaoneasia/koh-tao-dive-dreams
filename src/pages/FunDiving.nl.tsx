@@ -9,6 +9,9 @@ import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useEffect, useState, useMemo } from 'react';
 import { usePageContent } from '@/hooks/usePageContent';
 import { tryAutoScroll, scrollToWithOffset } from '@/lib/scroll';
+import DropboxGallerySection from '@/components/DropboxGallerySection';
+
+const FUN_DIVING_DROPBOX_FOLDER = 'fun-diving';
 
 const FunDiving = () => {
   const navigate = useNavigate();
@@ -194,6 +197,14 @@ const FunDiving = () => {
                 </p>
               </div>
 
+              <DropboxGallerySection
+                folder={FUN_DIVING_DROPBOX_FOLDER}
+                title="Fun diving galerij"
+                description="Foto's van recente fun duiktrips rond Koh Tao. Voeg beelden toe aan de Dropbox-map om deze sectie bij te werken zonder de pagina aan te passen."
+                unavailableMessage="Fun diving foto's verschijnen hier zodra de Dropbox-map klaar is."
+                emptyMessage="Fun diving foto's verschijnen hier zodra er afbeeldingen aan Dropbox zijn toegevoegd."
+              />
+
               <div className="grid md:grid-cols-2 gap-8 mb-12">
                 <Card>
                   <CardHeader>
@@ -277,7 +288,6 @@ const FunDiving = () => {
               <h2 className="text-4xl font-bold text-center mb-8">{content.fun_diving_trips_title}</h2>
               <div className="grid md:grid-cols-3 gap-6">
                 <Card className="overflow-hidden">
-                  <img src="/images/fun.png" alt="Fun duik" className="w-full h-40 object-cover" />
                   <CardHeader>
                     <div className="flex items-center justify-between">
                       <CardTitle>Fun duik</CardTitle>
@@ -297,7 +307,6 @@ const FunDiving = () => {
                 </Card>
 
                 <Card className="overflow-hidden">
-                  <img src="/images/discover.png" alt="Discover Scuba - zwembadtraining" className="w-full h-40 object-cover" />
                   <CardHeader>
                     <div className="flex items-center justify-between">
                       <CardTitle>Discover Scuba (proefduik)</CardTitle>
@@ -322,7 +331,6 @@ const FunDiving = () => {
                 </Card>
 
                 <Card className="overflow-hidden">
-                  <img src="/images/sailrock.webp" alt="Sail Rock-special" className="w-full h-40 object-cover" onError={(e)=>{(e.target as HTMLImageElement).src='/images/photo-1618865181016-a80ad83a06d3.avif'}} />
                   <CardHeader>
                     <div className="flex items-center justify-between">
                       <CardTitle>Sail Rock-special</CardTitle>

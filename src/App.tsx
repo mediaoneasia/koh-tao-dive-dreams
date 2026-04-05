@@ -46,6 +46,11 @@ import TwinsPinnacle from './pages/dive-sites/twins-pinnacle';
 import SharkIsland from './pages/SharkIsland';
 import MangoBay from './pages/dive-sites/mango-bay';
 import SouthWestPinnacle from './pages/dive-sites/south-west-pinnacle';
+import AowLeuk from './pages/dive-sites/aow-leuk';
+import HinNgam from './pages/dive-sites/hin-ngam';
+import TanoteBay from './pages/dive-sites/tanote-bay';
+import JunkyardReef from './pages/dive-sites/junkyard-reef';
+import BuoyancyWorld from './pages/dive-sites/buoyancy-world';
 
 import MarineLifePage from './pages/MarineLifePage';
 import Whaleshark from './pages/Whaleshark';
@@ -98,6 +103,7 @@ import UnderwaterNaturalist from './pages/specialty/UnderwaterNaturalist';
 import DivemasterInternship from './pages/internship/Divemaster';
 import InstructorInternship from './pages/internship/Instructor';
 import FacebookFeedPage from './pages/FacebookFeedPage';
+import BookingToJiraForm from './components/BookingToJiraForm';
 
 import './i18n';
 
@@ -247,13 +253,27 @@ const App = () => (
               <Route path="/fun-diving-koh-tao" element={<FunDiving />} />
               <Route path="/koh-tao-dive-sites" element={<DiveSitesPage />} />
               <Route path="/dive-sites/sail-rock" element={<SailRock />} />
+              <Route path="/dive-sites/chumphon-pinnacles" element={<Navigate to="/dive-sites/chumphon-pinnacle" replace />} />
               <Route path="/dive-sites/chumphon-pinnacle" element={<ChumphonPinnacle />} />
+              <Route path="/dive-sites/japanese-garden" element={<Navigate to="/dive-sites/japanese-gardens" replace />} />
               <Route path="/dive-sites/japanese-gardens" element={<JapaneseGardens />} />
+              <Route path="/dive-sites/htms-sattukut" element={<Navigate to="/dive-sites/htms-sattakut" replace />} />
+              <Route path="/dive-sites/htms-sattakut-wreck" element={<Navigate to="/dive-sites/htms-sattakut" replace />} />
               <Route path="/dive-sites/htms-sattakut" element={<HTMSSattakut />} />
+              <Route path="/dive-sites/twins" element={<Navigate to="/dive-sites/twins-pinnacle" replace />} />
               <Route path="/dive-sites/twins-pinnacle" element={<TwinsPinnacle />} />
               <Route path="/dive-sites/shark-island" element={<SharkIsland />} />
               <Route path="/dive-sites/mango-bay" element={<MangoBay />} />
+              <Route path="/dive-sites/southwest-pinnacle" element={<Navigate to="/dive-sites/south-west-pinnacle" replace />} />
               <Route path="/dive-sites/south-west-pinnacle" element={<SouthWestPinnacle />} />
+              <Route path="/dive-sites/ao-leuk" element={<Navigate to="/dive-sites/aow-leuk" replace />} />
+              <Route path="/dive-sites/aow-luek" element={<Navigate to="/dive-sites/aow-leuk" replace />} />
+              <Route path="/dive-sites/aow-leuk" element={<AowLeuk />} />
+              <Route path="/dive-sites/hin-ngam" element={<HinNgam />} />
+              <Route path="/dive-sites/tanote" element={<Navigate to="/dive-sites/tanote-bay" replace />} />
+              <Route path="/dive-sites/tanote-bay" element={<TanoteBay />} />
+              <Route path="/dive-sites/junkyard-reef" element={<JunkyardReef />} />
+              <Route path="/dive-sites/buoyancy-world" element={<BuoyancyWorld />} />
               <Route path="/marine-life" element={<MarineLifePage />} />
               <Route path="/marine-life/whaleshark" element={<Whaleshark />} />
               <Route path="/marine-life/green-sea-turtle" element={<GreenSeaTurtle />} />
@@ -278,7 +298,7 @@ const App = () => (
               <Route path="/VisasKohTao" element={<VisasKohTao />} />
               <Route path="/WeatherKohTao" element={<WeatherKohTao />} />
               <Route path="/facebook" element={<FacebookFeedPage />} />
-              <Route path="/booking-to-jira" element={<BookingToJiraForm />} />
+              <Route path="/booking-to-jira" element={<RequireAdmin><BookingToJiraForm /></RequireAdmin>} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Layout>
