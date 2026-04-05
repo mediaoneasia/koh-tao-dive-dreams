@@ -87,19 +87,28 @@ const       BookingPage: React.FC = () => {
   const apiUrl = (path: string) => `${apiBase}${path}`;
   const courseSlug = (searchParams.get('course') || '').trim();
   const fallbackCourse = courseSlug ? COURSE_FALLBACKS[courseSlug] : undefined;
+  // Always default to course booking if no context is present
   const hasDirectBookingContext = Boolean(
     searchParams.get('item') ||
     searchParams.get('type') ||
     searchParams.get('price') ||
     fallbackCourse
   );
-  const selectedBookingKind = (searchParams.get('bookingKind') || '').trim();
+  // bookingKind param or fallback to 'course' if no context
+  const selectedBookingKind = (searchParams.get('bookingKind') || (!hasDirectBookingContext ? 'course' : '')).trim();
   const bookingSource = (searchParams.get('source') || 'direct').trim();
   const rawType = (searchParams.get('type') || '').trim();
-  const genericType: BookingItemType = selectedBookingKind === 'course' ? 'course' : 'dive';
-  const itemType: BookingItemType = rawType === 'dive' || rawType === 'stay' || rawType === 'course'
-    ? rawType
-    : (hasDirectBookingContext ? 'course' : genericType);
+  // Determine itemType: explicit type param, or fallback to selectedBookingKind, or 'course'
+  let itemType: BookingItemType;
+  if (rawType === 'dive' || rawType === 'stay' || rawType === 'course') {
+    itemType = rawType as BookingItemType;
+  } else if (hasDirectBookingContext) {
+    itemType = 'course';
+  } else if (selectedBookingKind === 'dive') {
+    itemType = 'dive';
+  } else {
+    itemType = 'course';
+  }
   const itemTitle = searchParams.get('item') || fallbackCourse?.item || (itemType === 'course' ? 'Course Booking' : 'Fun Dive');
   const isDiveBooking = itemType === 'dive';
   const isCourseBooking = itemType === 'course';
@@ -333,10 +342,16 @@ const       BookingPage: React.FC = () => {
                   <span className="text-emerald-700 line-through text-xl">฿24,000</span>
                   <span className="text-sm text-emerald-700">(3 courses of your choice)</span>
                 </div>
-                <Button 
+                <Button
                   variant="default"
                   className="bg-emerald-600 hover:bg-emerald-700"
-                  onClick={() => window.location.href = '/booking?item=3%20Specialty%20Bundle&type=course&price=18000&currency=THB'}
+                  onClick={() => {
+                    window.open(
+                      `${window.location.origin}/booking?item=3%20Specialty%20Bundle&type=course&price=18000&currency=THB`,
+                      '_blank',
+                      'noopener,noreferrer'
+                    );
+                  }}
                 >
                   Book 3 Specialty Bundle
                 </Button>
@@ -672,7 +687,6 @@ const       BookingPage: React.FC = () => {
           setShowSkipPaymentPopup(open);
           if (!open) {
             form.reset();
-            navigate('/');
           }
         }}
       >
@@ -684,7 +698,7 @@ const       BookingPage: React.FC = () => {
           <AlertDialogFooter>
             <AlertDialogAction onClick={() => {
               form.reset();
-              navigate('/');
+              setShowSkipPaymentPopup(false);
             }}>OK</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
