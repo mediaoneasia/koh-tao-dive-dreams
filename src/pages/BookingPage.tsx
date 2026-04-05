@@ -182,24 +182,11 @@ const BookingPage: React.FC = () => {
       const amountMajor = (isStayBooking ? 0 : depositMajor) + totalAddons;
       const selectedAddonsList = isDiveBooking
         ? availableAddons.filter((addon) => selectedAddons[addon.id]).map((addon) => ({
-            // ...existing code for the full booking form and logic (restored to previous state)...
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select your experience level" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="none">No diving experience</SelectItem>
-                    <SelectItem value="beginner">Beginner (1-10 dives)</SelectItem>
-                    <SelectItem value="intermediate">Intermediate (10-50 dives)</SelectItem>
-                    <SelectItem value="advanced">Advanced (50+ dives)</SelectItem>
-                    <SelectItem value="professional">Professional diver</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )} />
+            id: addon.id,
+            label: addon.label,
+            amount: addon.amount,
+          }))
+        : [];
 
             <FormField control={form.control} name="message" render={({ field }) => (
               <FormItem>
