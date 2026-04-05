@@ -523,16 +523,6 @@ const AdminBookings: React.FC = () => {
         </thead>
         <tbody>
           {filteredBookings.map((b) => (
-                          <td className="border px-2 py-1">
-                            <button
-                              className="px-2 py-1 text-xs bg-red-600 text-white rounded"
-                              onClick={() => setDeleteId(b.id)}
-                              disabled={deleting && deleteId === b.id}
-                              title="Delete booking"
-                            >
-                              Delete
-                            </button>
-                          </td>
             <tr key={b.id}>
               <td className="border px-1 py-1 whitespace-nowrap">{b.name}</td>
               <td className="border px-1 py-1 whitespace-nowrap">{b.email}</td>
@@ -608,6 +598,17 @@ const AdminBookings: React.FC = () => {
                   <span className="ml-2 text-xs text-emerald-700">{copyStatus[b.id]}</span>
                 )}
               </td>
+              <td className="border px-2 py-1">
+                <button
+                  className="px-2 py-1 text-xs bg-red-600 text-white rounded"
+                  onClick={() => setDeleteId(b.id)}
+                  disabled={deleting && deleteId === b.id}
+                  title="Delete booking"
+                >
+                  Delete
+                </button>
+              </td>
+            </tr>
             </tr>
           ))}
         </tbody>
