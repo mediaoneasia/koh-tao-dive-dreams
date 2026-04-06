@@ -1,6 +1,7 @@
 
 
 const allowedOrigins = [
+  'https://booking.divinginasia.com',
   'https://www.divinginasia.com',
   'https://koh-tao-dive-dreams.vercel.app',
 ];
