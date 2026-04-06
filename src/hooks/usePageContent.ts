@@ -155,6 +155,7 @@ export function usePageContent({ pageSlug, locale, fallbackContent }: UsePageCon
 
     fetchContent();
 
+
     const channel = supabase
       .channel(`page_content:${pageSlug}:${locale}`)
       .on(
