@@ -160,7 +160,12 @@ export function usePageContent({ pageSlug, locale, fallbackContent }: UsePageCon
 
     fetchContent();
 
-    const channel = supabase
+
+    // Prevent duplicate subscriptions by using a ref
+    let channel: any = null;
+    let unsubscribed = false;
+    console.log('[Supabase] Subscribing to channel:', `page_content:${pageSlug}:${locale}`);
+    channel = supabase
       .channel(`page_content:${pageSlug}:${locale}`)
       .on(
         'postgres_changes',
@@ -170,6 +175,7 @@ export function usePageContent({ pageSlug, locale, fallbackContent }: UsePageCon
           table: 'page_content',
         },
         (payload: RealtimePostgresChangesPayload<RealtimePageContentRow>) => {
+          if (unsubscribed) return;
           if (payload.eventType === 'DELETE') {
             const oldRow = payload.old;
             if (
@@ -184,7 +190,6 @@ export function usePageContent({ pageSlug, locale, fallbackContent }: UsePageCon
             }
             return;
           }
-
           if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
             applyRealtimeRow(payload.new);
           }
@@ -193,7 +198,11 @@ export function usePageContent({ pageSlug, locale, fallbackContent }: UsePageCon
       .subscribe();
 
     return () => {
-      supabase.removeChannel(channel);
+      unsubscribed = true;
+      if (channel) {
+        console.log('[Supabase] Removing channel:', `page_content:${pageSlug}:${locale}`);
+        supabase.removeChannel(channel);
+      }
     };
   }, [pageSlug, locale, fallbackContent]);
 
