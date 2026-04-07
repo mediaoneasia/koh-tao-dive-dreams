@@ -824,20 +824,31 @@ const FunDiving = () => {
             <div className="max-w-4xl mx-auto text-center">
               <h2 className="text-4xl font-bold mb-8">Book Your Fun Diving Adventure</h2>
               <p className="text-lg text-muted-foreground mb-8">
-                Ready to discover Koh Tao’s incredible underwater world? Get in touch to enquire, or use the form below to send your booking request directly.
+                Ready to discover Koh Tao’s incredible underwater world? Use the form below to send your booking request directly.
               </p>
-                <div className="mb-4 flex flex-col items-center gap-2">
-                  <Link to="/fun-diving-koh-tao#world-class-dive-sites" className="inline-block bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded font-semibold">Fun Dive Info</Link>
-                  <a href="/courses#course-openWater" className="inline-block bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded font-semibold">Book Course (PADI)</a>
-                  <a href="https://www.divinginasia.com/#contact" target="_blank" rel="noopener noreferrer" className="inline-block bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded font-semibold mb-2">Get in touch to book/enquire</a>
-                  <div className="text-muted-foreground text-sm mb-4">Or use the form below to send a booking request directly.</div>
-                </div>
-                <Button
-                  size="lg"
-                  onClick={() => navigate('/booking?item=Fun%20Dive&type=dive&price=1800&currency=THB&dives=2')}
-                >
-                  Send Booking Request
+              {/* Insert your internal booking form component here, or keep the FunDiveBooking modal trigger if desired */}
+              <div className="flex justify-center mt-8">
+                <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 text-lg" onClick={() => setShowFunDiveBooking(true)}>
+                  Book a Fun Dive
                 </Button>
+              </div>
+              {showFunDiveBooking && (
+                <div
+                  className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black bg-opacity-60 p-4"
+                  onClick={() => setShowFunDiveBooking(false)}
+                >
+                  <div className="relative z-50 w-full max-w-md" onClick={(event) => event.stopPropagation()}>
+                    <FunDiveBooking />
+                    <button
+                      className="absolute top-2 right-2 bg-white rounded-full shadow p-2 text-gray-700 hover:bg-gray-100"
+                      onClick={() => setShowFunDiveBooking(false)}
+                      aria-label="Close Fun Dive Booking"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </section>
         </TabsContent>
