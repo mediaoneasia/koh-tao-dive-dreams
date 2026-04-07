@@ -64,6 +64,31 @@ export default async function handler(req, res) {
 			if (error) {
 				return res.status(500).json({ error: error.message });
 			}
+			// Call Supabase Edge Function for booking notification
+			try {
+				await fetch(
+					process.env.BOOKING_NOTIFICATION_URL || 'https://koh-tao-dive-dreams-peach.vercel.app/api/send-booking-notification',
+					{
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify({
+							name,
+							email,
+							phone,
+							preferred_date,
+							experience_level,
+							message,
+							item_title: course_title,
+							deposit_amount: 0,
+							payment_choice: 'none',
+							paypal_link: '',
+						}),
+					}
+				);
+			} catch (notifyErr) {
+				// Log but do not block booking creation
+				console.error('Booking notification failed:', notifyErr);
+			}
 			return res.status(201).json({ booking: normalizeBooking(data[0]) });
 		} catch (err) {
 			return res.status(500).json({ error: err.message || 'Failed to create booking' });
