@@ -297,25 +297,11 @@ export default async function handler(req, res) {
       const primaryInsert = await supabase.from(BOOKING_TABLE).insert([payload]).select();
       if (!primaryInsert.error) {
         return res.status(201).json(normalizeBooking((primaryInsert.data || [])[0] || null));
-      }
-      const legacyPayload = {
-        name: payload.name,
-        email: payload.email,
-        phone: payload.phone,
-        course_title: payload.course_title,
-        preferred_date: payload.preferred_date,
-        experience_level: payload.experience_level,
-        message: payload.message,
-      };
-
-      const fallbackInsert = await supabase.from(LEGACY_BOOKING_TABLE).insert([legacyPayload]).select();
-      if (fallbackInsert.error) {
+      } else {
         return res.status(500).json({
-          error: primaryInsert.error?.message || fallbackInsert.error?.message || 'Failed to save booking',
+          error: primaryInsert.error?.message || 'Failed to save booking',
         });
       }
-
-      return res.status(201).json(normalizeBooking((fallbackInsert.data || [])[0] || null));
     }
 
     if (req.method === 'DELETE') {
