@@ -120,15 +120,13 @@ const sendConfirmedEmails = async (booking) => {
     'If you have questions, just reply to this email.',
   ].join('\n');
   const adminText = [
-    'A booking has been confirmed.',
+    'A booking has been confirmed in admin.',
     '',
     `Booking ID: ${booking.id || 'N/A'}`,
     `Name: ${booking.name || 'N/A'}`,
     `Email: ${booking.email || 'N/A'}`,
     `Course: ${booking.course_title || 'N/A'}`,
     `Preferred Date: ${booking.preferred_date || 'N/A'}`,
-    '',
-    'Admin panel: https://koh-tao-dive-dreams.vercel.app/admin'
   ].join('\n');
 
   if (resendApiKey) {

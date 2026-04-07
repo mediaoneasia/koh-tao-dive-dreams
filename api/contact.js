@@ -26,31 +26,6 @@ const sendWithResend = async ({ name, email, subject, message, course, preferred
   const subjectLine = subject || 'Contact/Booking Form Submission';
   const textBody = `Name: ${name}\nEmail: ${email}\nPhone: ${phone || ''}\nCourse: ${course || ''}\nPreferred Date: ${preferred_date || ''}\nExperience Level: ${experience_level || ''}\nSubject: ${subject || ''}\nMessage:\n${message}`;
 
-  const htmlBody = `
-    <div style="font-family: Arial, sans-serif; background: #f8fafc; padding: 32px 0;">
-      <div style="max-width: 520px; margin: 0 auto; background: #fff; border-radius: 12px; box-shadow: 0 2px 8px #0001; padding: 32px 24px;">
-        <div style="text-align: center; margin-bottom: 24px;">
-          <img src=\"https://www.divinginasia.com/images/logo.png\" alt=\"Diving In Asia\" style=\"max-width: 180px; margin-bottom: 8px;\" />
-        </div>
-        <h2 style=\"color: #0e7490; font-size: 1.5rem; margin-bottom: 16px;\">New Contact/Booking Form Submission</h2>
-        <table style=\"width: 100%; border-collapse: collapse; margin-bottom: 24px;\">
-          <tr><td style=\"font-weight: bold; padding: 4px 0;\">Name:</td><td style=\"padding: 4px 0;\">${name}</td></tr>
-          <tr><td style=\"font-weight: bold; padding: 4px 0;\">Email:</td><td style=\"padding: 4px 0;\">${email}</td></tr>
-          <tr><td style=\"font-weight: bold; padding: 4px 0;\">Phone:</td><td style=\"padding: 4px 0;\">${phone || '-'}</td></tr>
-          <tr><td style=\"font-weight: bold; padding: 4px 0;\">Course:</td><td style=\"padding: 4px 0;\">${course || '-'}</td></tr>
-          <tr><td style=\"font-weight: bold; padding: 4px 0;\">Preferred Date:</td><td style=\"padding: 4px 0;\">${preferred_date || '-'}</td></tr>
-          <tr><td style=\"font-weight: bold; padding: 4px 0;\">Experience Level:</td><td style=\"padding: 4px 0;\">${experience_level || '-'}</td></tr>
-          <tr><td style=\"font-weight: bold; padding: 4px 0;\">Subject:</td><td style=\"padding: 4px 0;\">${subject || '-'}</td></tr>
-        </table>
-        <div style=\"margin-bottom: 12px;\"><strong>Message:</strong></div>
-        <div style=\"background: #f1f5f9; border-radius: 6px; padding: 16px; color: #334155;\">${message.replace(/\n/g, '<br>')}</div>
-        <div style=\"margin-top: 32px; text-align: center; color: #64748b; font-size: 0.95em;\">
-          <em>Diving In Asia &middot; www.divinginasia.com</em>
-        </div>
-      </div>
-    </div>
-  `;
-
   let lastError = null;
 
   for (const fromEmail of getResendFromCandidates()) {
@@ -60,7 +35,6 @@ const sendWithResend = async ({ name, email, subject, message, course, preferred
       subject: subjectLine,
       reply_to: email,
       text: textBody,
-      html: htmlBody,
     });
 
     if (!resendError) {
@@ -102,26 +76,6 @@ const sendWithSmtp = async ({ name, email, subject, message, course, preferred_d
 };
 
 export default async function handler(req, res) {
-  // --- CORS headers ---
-  const allowedOrigins = [
-    'https://www.divinginasia.com',
-    'https://divinginasia.com',
-    'http://localhost:3000',
-    'http://localhost:5173',
-  ];
-  const origin = req.headers.origin;
-  if (allowedOrigins.includes(origin)) {
-    res.setHeader('Access-Control-Allow-Origin', origin);
-    res.setHeader('Vary', 'Origin');
-  } else {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-  }
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  if (req.method === 'OPTIONS') {
-    res.status(204).end();
-    return;
-  }
   try {
     if (req.method !== 'POST') {
       res.status(405).json({ error: 'Method not allowed' });

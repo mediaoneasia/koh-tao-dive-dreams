@@ -2,7 +2,6 @@
 
 import { Resend } from 'resend';
 import nodemailer from 'nodemailer';
-import { applyCors, handleOptions } from './_lib/cors.js';
 
 const hasSmtpConfig = () => Boolean(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS);
 
@@ -55,7 +54,7 @@ const buildAdminHtml = ({
             </tbody>
           </table>
           <div style="margin-top: 32px; text-align: center;">
-            <a href="https://koh-tao-dive-dreams.vercel.app/admin" style="display: inline-block; background: #2563eb; color: #fff; padding: 12px 28px; border-radius: 6px; font-weight: bold; text-decoration: none; font-size: 16px;">Open Project Manager</a>
+            <a href="https://www.divinginasia.com/admin/" style="display: inline-block; background: #2563eb; color: #fff; padding: 12px 28px; border-radius: 6px; font-weight: bold; text-decoration: none; font-size: 16px;">Open Project Manager</a>
           </div>
         </div>
       </div>
@@ -123,7 +122,26 @@ const sendWithSmtp = async ({ adminEmails, booking }) => {
     auth: { user: smtpUser, pass: smtpPass },
   });
 
-  const adminHtml = buildAdminHtml({ ...booking, body: booking.body });
+  const adminText = [
+    'New Booking (Pending)',
+    `Name: ${booking.name}`,
+    `Email: ${booking.email}`,
+    `Phone: ${booking.phone}`,
+    `Preferred Date: ${booking.preferred_date}`,
+    `Experience Level: ${booking.experience_level}`,
+    `Message: ${booking.message}`,
+    `Item: ${booking.item_title}`,
+    `Deposit: ${booking.deposit_amount}`,
+    `Payment Choice: ${booking.payment_choice}`,
+    `Paypal Link: ${booking.paypal_link}`,
+    `Internal Notes: ${booking.body.internal_notes || '-'}`,
+    `Bank Transfer: ${booking.body.bank_transfer_details || '-'}`,
+    `Subtotal: ${booking.body.subtotal_amount || '-'}`,
+    `Total: ${booking.body.total_amount || '-'}`,
+    `Due: ${booking.body.due_amount || '-'}`,
+    `Addons: ${booking.body.addons || '-'}`,
+    `Addons Total: ${booking.body.addons_total || '-'}`,
+  ].join('\n');
 
   const clientText = `Thank you for your booking! We have received your request and will confirm your booking soon.\n\nBooking Details:\nName: ${booking.name}\nEmail: ${booking.email}\nPhone: ${booking.phone}\nPreferred Date: ${booking.preferred_date}\nExperience Level: ${booking.experience_level}\nMessage: ${booking.message}\nItem: ${booking.item_title}\nDeposit: ${booking.deposit_amount}\nPayment Choice: ${booking.payment_choice}`;
 
@@ -132,8 +150,7 @@ const sendWithSmtp = async ({ adminEmails, booking }) => {
     to: adminEmails.join(', '),
     subject: `New Booking (Pending): ${booking.item_title}`,
     replyTo: booking.email,
-    text: undefined,
-    html: adminHtml,
+    text: adminText,
   });
 
   await transporter.sendMail({
@@ -146,8 +163,21 @@ const sendWithSmtp = async ({ adminEmails, booking }) => {
   return { attempted: true, delivered: true };
 };
 
-  applyCors(req, res);
-  if (handleOptions(req, res)) return;
+export default async function handler(req, res) {
+  // Allow production and any Vercel preview domain
+  const origin = req.headers.origin;
+  const isProd = origin === 'https://www.divinginasia.com';
+  const isVercelPreview = /^https:\/\/[a-z0-9-]+\.vercel\.app$/.test(origin);
+  if (isProd || isVercelPreview) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  }
+  res.setHeader('Vary', 'Origin');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  if (req.method === 'OPTIONS') {
+    res.status(200).end();
+    return;
+  }
   if (req.method !== 'POST') {
     res.status(405).json({ error: 'Method not allowed' });
     return;
