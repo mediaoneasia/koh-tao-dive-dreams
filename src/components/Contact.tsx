@@ -129,12 +129,13 @@ const Contact = () => {
     setIsSubmitting(true);
     try {
       const payload = {
+        type: 'contact',
         name: `${formData.firstName} ${formData.lastName}`,
         email: formData.email,
         subject: formData.subject || 'Contact Form Submission',
         message: formData.message
       };
-      const response = await fetch(apiUrl('/api/contact'), {
+      const response = await fetch(apiUrl('/api/submit'), {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
