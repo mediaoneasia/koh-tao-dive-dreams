@@ -1,7 +1,21 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { RealtimePostgresChangesPayload } from '@supabase/supabase-js';
+const supabaseClient = VITE_SUPABASE_URL && VITE_SUPABASE_ANON_KEY
+  ? createClient(VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY)
+  : null;
 
+
+// Remove top-level return; handle supabaseClient check inside functions/hooks instead
+if (!supabaseClient) {
+  console.warn("Supabase is not configured. Skipping API call.");
+  // Do not return at top-level; handle this in your hook or function
+}
+
+const { data, error } = await supabaseClient
+  .from("page_content")
+  .select("*")
+  .eq("slug", "home");
 interface PageContent {
   [key: string]: string;
 }

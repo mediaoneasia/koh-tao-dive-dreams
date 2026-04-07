@@ -120,15 +120,13 @@ const sendConfirmedEmails = async (booking) => {
     'If you have questions, just reply to this email.',
   ].join('\n');
   const adminText = [
-    'A booking has been confirmed.',
+    'A booking has been confirmed in admin.',
     '',
     `Booking ID: ${booking.id || 'N/A'}`,
     `Name: ${booking.name || 'N/A'}`,
     `Email: ${booking.email || 'N/A'}`,
     `Course: ${booking.course_title || 'N/A'}`,
     `Preferred Date: ${booking.preferred_date || 'N/A'}`,
-    '',
-    'Admin panel: https://koh-tao-dive-dreams.vercel.app/admin'
   ].join('\n');
 
   if (resendApiKey) {
@@ -276,7 +274,17 @@ export default async function handler(req, res) {
       try {
         const { data: inviteData, error: inviteError } = await supabase.auth.admin.inviteUserByEmail(payload.email);
         if (inviteError) {
-          console.error('Supabase invite error:', inviteError);
+          if (inviteError.status === 422 && inviteError.code === 'email_exists') {
+            // User already exists, fetch user by email
+            const { data: userData, error: userFetchError } = await supabase.auth.admin.listUsers({ email: payload.email });
+            if (userFetchError) {
+              console.error('Supabase fetch user error:', userFetchError);
+            } else if (userData && userData.users && userData.users.length > 0) {
+              userId = userData.users[0].id;
+            }
+          } else {
+            console.error('Supabase invite error:', inviteError);
+          }
         } else if (inviteData && inviteData.user && inviteData.user.id) {
           userId = inviteData.user.id;
         }
@@ -289,25 +297,11 @@ export default async function handler(req, res) {
       const primaryInsert = await supabase.from(BOOKING_TABLE).insert([payload]).select();
       if (!primaryInsert.error) {
         return res.status(201).json(normalizeBooking((primaryInsert.data || [])[0] || null));
-      }
-      const legacyPayload = {
-        name: payload.name,
-        email: payload.email,
-        phone: payload.phone,
-        course_title: payload.course_title,
-        preferred_date: payload.preferred_date,
-        experience_level: payload.experience_level,
-        message: payload.message,
-      };
-
-      const fallbackInsert = await supabase.from(LEGACY_BOOKING_TABLE).insert([legacyPayload]).select();
-      if (fallbackInsert.error) {
+      } else {
         return res.status(500).json({
-          error: primaryInsert.error?.message || fallbackInsert.error?.message || 'Failed to save booking',
+          error: primaryInsert.error?.message || 'Failed to save booking',
         });
       }
-
-      return res.status(201).json(normalizeBooking((fallbackInsert.data || [])[0] || null));
     }
 
     if (req.method === 'DELETE') {
