@@ -45,35 +45,69 @@ export function usePageContent({ pageSlug, locale, fallbackContent }: UsePageCon
 
         rows.forEach((row) => {
           const existing = latestBySection.get(row.section_key);
+
           if (!existing) {
             latestBySection.set(row.section_key, row);
             return;
           }
+
           const existingTs = Date.parse(existing.updated_at || '');
           const incomingTs = Date.parse(row.updated_at || '');
+
           const hasIncomingTs = Number.isFinite(incomingTs);
           const hasExistingTs = Number.isFinite(existingTs);
+
           if (!hasExistingTs && hasIncomingTs) {
             latestBySection.set(row.section_key, row);
             return;
           }
+
           if (hasIncomingTs && hasExistingTs && incomingTs > existingTs) {
             latestBySection.set(row.section_key, row);
             return;
           }
+
+          // If timestamps are missing or equal, keep the later row seen.
           if (!hasIncomingTs && !hasExistingTs) {
             latestBySection.set(row.section_key, row);
           }
         });
+
+        const stripHtml = (str: string) => str.replace(/<[^>]*>/g, '').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&nbsp;/g, ' ').trim();
+
         const dbContent: PageContent = {};
         latestBySection.forEach((row) => {
           const val = row.content_value;
-          dbContent[row.section_key] = val ? val : '';
+          if (val == null || val === '') return;
+          dbContent[row.section_key] = val.includes('<') ? stripHtml(val) : val;
         });
-        setContent(dbContent);
+
+        setContent({ ...fallbackContent, ...dbContent });
         return true;
       }
       return false;
+    };
+
+    const applyRealtimeRow = (row: Partial<RealtimePageContentRow> | null | undefined) => {
+      if (!row || row.page_slug !== pageSlug || row.locale !== locale) {
+        return;
+      }
+
+      const sectionKey = row.section_key;
+      const contentValue = row.content_value;
+
+      if (!sectionKey) {
+        return;
+      }
+
+      const safeValue = contentValue
+        ? (contentValue.includes('<') ? contentValue.replace(/<[^>]*>/g, '').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&nbsp;/g, ' ').trim() : contentValue)
+        : null;
+
+      setContent((prev) => ({
+        ...prev,
+        [sectionKey]: safeValue ?? fallbackContent[sectionKey] ?? '',
+      }));
     };
 
     const fetchContent = async () => {
@@ -119,16 +153,10 @@ export function usePageContent({ pageSlug, locale, fallbackContent }: UsePageCon
       }
     };
 
-
     fetchContent();
 
-
-    // Use a unique channel name for each effect run to avoid Supabase join errors
-    const uniqueId = Math.random().toString(36).substring(2, 10) + Date.now();
-    const channelName = `page_content:${pageSlug}:${locale}:${uniqueId}`;
-
-    let channel = supabase
-      .channel(channelName)
+    const channel = supabase
+      .channel(`page_content:${pageSlug}:${locale}`)
       .on(
         'postgres_changes',
         {
@@ -151,22 +179,16 @@ export function usePageContent({ pageSlug, locale, fallbackContent }: UsePageCon
             }
             return;
           }
+
           if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
-            setContent((prev) => ({
-              ...prev,
-              [payload.new.section_key]: payload.new.content_value ?? fallbackContent[payload.new.section_key] ?? '',
-            }));
+            applyRealtimeRow(payload.new);
           }
         }
-      );
-    channel.subscribe();
+      )
+      .subscribe();
 
     return () => {
-      if (channel) {
-        channel.unsubscribe && channel.unsubscribe();
-        supabase.removeChannel(channel);
-        channel = null;
-      }
+      supabase.removeChannel(channel);
     };
   }, [pageSlug, locale, fallbackContent]);
 

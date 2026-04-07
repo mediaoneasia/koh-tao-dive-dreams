@@ -60,7 +60,8 @@ const SpecialtyDetail: React.FC = () => {
                 <p className="text-muted-foreground">Detailed curriculum, prerequisites, and certification information available on request.</p>
                 <div className="mt-6">
                   <Button onClick={() => {
-                    const url = `/courses?course=${encodeURIComponent(data.title)}`;
+                    const priceMajor = data.priceMajor || (data.depositMajor ? data.depositMajor * 5 : '');
+                    const url = `https://booking.divinginasia.com/booking?item=${encodeURIComponent(data.title)}&type=course&price=${priceMajor}&currency=${data.depositCurrency || ''}`;
                     window.open(url, '_blank', 'noopener');
                   }}>Enquire / Book</Button>
                 </div>

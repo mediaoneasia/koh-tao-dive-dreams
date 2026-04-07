@@ -341,7 +341,7 @@ const DiveSitesPage = () => {
                 <Button 
                   className="w-full"
                   onClick={() => {
-                    // window.open removed (booking portal)
+                    window.open('https://booking.divinginasia.com/booking?item=Fun%20Dive&type=dive&price=1800&currency=THB&dives=2', '_blank', 'noopener');
                   }}
                 >
                   {pageContent.book_dive}
@@ -375,7 +375,7 @@ const DiveSitesPage = () => {
                 <Button 
                   className="w-full"
                   onClick={() => {
-                    // window.open removed (booking portal)
+                    window.open('https://booking.divinginasia.com/booking?item=Sail%20Rock%20Special&type=dive&price=2900&currency=THB', '_blank', 'noopener');
                   }}
                 >
                   {isDutch ? 'Boek Sail Rock' : 'Book Sail Rock'}

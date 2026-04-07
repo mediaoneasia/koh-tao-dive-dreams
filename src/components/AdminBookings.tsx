@@ -4,15 +4,6 @@ import Papa from 'papaparse';
 // To add more columns or features, edit below. For comments or notes, add a new column and input logic as needed.
 
 import React, { useEffect, useState } from 'react';
-// Comment type for booking comments
-interface BookingComment {
-  id: string;
-  booking_id: string;
-  user_id: string;
-  comment: string;
-  is_admin: boolean;
-  created_at: string;
-}
 import FunDiveBooking from './FunDiveBooking';
 import FinanceSection from './FinanceSection';
 import BookingsCalendar from './BookingsCalendar';
@@ -100,55 +91,6 @@ const AdminBookings: React.FC = () => {
   const [view, setView] = useState<'table' | 'calendar'>('table');
   const [showFunDiveBooking, setShowFunDiveBooking] = useState(false);
   const [financeModalBooking, setFinanceModalBooking] = useState<Booking | null>(null);
-  // Comments state for finance modal
-  const [comments, setComments] = useState<BookingComment[]>([]);
-  const [commentsLoading, setCommentsLoading] = useState(false);
-  const [commentDraft, setCommentDraft] = useState('');
-  const [commentSaving, setCommentSaving] = useState(false);
-  const [commentError, setCommentError] = useState<string | null>(null);
-    // Fetch comments when finance modal opens
-    useEffect(() => {
-      if (!financeModalBooking) return;
-      setCommentsLoading(true);
-      setComments([]);
-      setCommentError(null);
-      fetch(`/api/bookings/comments?booking_id=${financeModalBooking.id}`)
-        .then((res) => res.ok ? res.json() : Promise.reject(res))
-        .then((data) => setComments(Array.isArray(data) ? data : []))
-        .catch(() => setCommentError('Failed to load comments'))
-        .finally(() => setCommentsLoading(false));
-    }, [financeModalBooking]);
-
-    // Add new comment
-    const handleAddComment = async () => {
-      if (!financeModalBooking || !commentDraft.trim()) return;
-      setCommentSaving(true);
-      setCommentError(null);
-      try {
-        // Get admin user id from supabase session
-        const { data: { session } } = await supabase.auth.getSession();
-        const user_id = session?.user?.id;
-        if (!user_id) throw new Error('No admin user ID');
-        const res = await fetch('/api/bookings/comments', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            booking_id: financeModalBooking.id,
-            user_id,
-            comment: commentDraft,
-            is_admin: true,
-          }),
-        });
-        if (!res.ok) throw new Error('Failed to add comment');
-        const newComment = await res.json();
-        setComments((prev) => [...prev, newComment]);
-        setCommentDraft('');
-      } catch (err: any) {
-        setCommentError(err.message || 'Failed to add comment');
-      } finally {
-        setCommentSaving(false);
-      }
-    };
   const [paypalLink, setPaypalLink] = useState('https://paypal.me/prodivingasia');
   const [bankTransferDetails, setBankTransferDetails] = useState('');
   const [noteDraft, setNoteDraft] = useState('');
@@ -511,7 +453,6 @@ const AdminBookings: React.FC = () => {
                   <th className="border px-1 py-1 whitespace-nowrap">Course</th>
                   <th className="border px-1 py-1 whitespace-nowrap">Date</th>
                   <th className="border px-1 py-1 whitespace-nowrap">Status</th>
-                  <th className="border px-1 py-1 whitespace-nowrap">Notes</th>
                   <th className="border px-1 py-1 whitespace-nowrap">Finance</th>
                   <th className="border px-1 py-1 whitespace-nowrap">PayPal</th>
                   <th className="border px-1 py-1 whitespace-nowrap">Delete</th>
@@ -520,37 +461,11 @@ const AdminBookings: React.FC = () => {
               <tbody>
                 {filteredBookings.map((b) => (
                   <tr key={b.id}>
-                    {/* Inline editable fields for name, email, phone, course, date */}
-                    <td className="border px-1 py-1 whitespace-nowrap">
-                      <InlineEditCell
-                        value={b.name}
-                        onSave={async (val) => await handleInlineEdit(b.id, 'name', val)}
-                      />
-                    </td>
-                    <td className="border px-1 py-1 whitespace-nowrap">
-                      <InlineEditCell
-                        value={b.email}
-                        onSave={async (val) => await handleInlineEdit(b.id, 'email', val)}
-                      />
-                    </td>
-                    <td className="border px-1 py-1 whitespace-nowrap">
-                      <InlineEditCell
-                        value={b.phone || ''}
-                        onSave={async (val) => await handleInlineEdit(b.id, 'phone', val)}
-                      />
-                    </td>
-                    <td className="border px-1 py-1 whitespace-nowrap">
-                      <InlineEditCell
-                        value={b.course_title}
-                        onSave={async (val) => await handleInlineEdit(b.id, 'course_title', val)}
-                      />
-                    </td>
-                    <td className="border px-1 py-1 whitespace-nowrap">
-                      <InlineEditCell
-                        value={b.preferred_date || ''}
-                        onSave={async (val) => await handleInlineEdit(b.id, 'preferred_date', val)}
-                      />
-                    </td>
+                    <td className="border px-1 py-1 whitespace-nowrap">{b.name}</td>
+                    <td className="border px-1 py-1 whitespace-nowrap">{b.email}</td>
+                    <td className="border px-1 py-1 whitespace-nowrap">{b.phone || '-'}</td>
+                    <td className="border px-1 py-1 whitespace-nowrap">{b.course_title}</td>
+                    <td className="border px-1 py-1 whitespace-nowrap">{b.preferred_date || '-'}</td>
                     <td className="border px-1 py-1 whitespace-nowrap">
                       <div className="flex items-center gap-2">
                         <select
@@ -586,14 +501,6 @@ const AdminBookings: React.FC = () => {
                           </button>
                         )}
                       </div>
-                    </td>
-                    {/* Notes column with inline edit */}
-                    <td className="border px-1 py-1 whitespace-nowrap">
-                      <InlineEditCell
-                        value={b.internal_notes || ''}
-                        onSave={async (val) => await handleInlineEdit(b.id, 'internal_notes', val)}
-                        textarea
-                      />
                     </td>
                     <td className="border px-2 py-1">
                       <button
@@ -637,7 +544,6 @@ const AdminBookings: React.FC = () => {
                       </button>
                     </td>
                   </tr>
-
                 ))}
               </tbody>
             </table>
@@ -705,50 +611,6 @@ const AdminBookings: React.FC = () => {
                         {noteSaving ? 'Saving...' : 'Save note'}
                       </button>
                       {noteResult ? <span className="text-xs text-slate-600">{noteResult}</span> : null}
-                    </div>
-                  </div>
-
-                  {/* Comments Section */}
-                  <div className="mt-4">
-                    <strong>Comments</strong>
-                    <div className="border rounded bg-gray-50 p-2 max-h-40 overflow-y-auto mt-1">
-                      {commentsLoading ? (
-                        <div>Loading comments...</div>
-                      ) : commentError ? (
-                        <div className="text-red-600">{commentError}</div>
-                      ) : comments.length === 0 ? (
-                        <div className="text-gray-400">No comments yet.</div>
-                      ) : (
-                        <ul className="space-y-2">
-                          {comments.map((c) => (
-                            <li key={c.id} className="border-b pb-1 last:border-b-0">
-                              <div className="text-xs text-gray-600 flex justify-between">
-                                <span>{c.is_admin ? 'Admin' : 'User'} • {new Date(c.created_at).toLocaleString()}</span>
-                              </div>
-                              <div className="text-sm whitespace-pre-wrap">{c.comment}</div>
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                    </div>
-                    <div className="mt-2 flex gap-2">
-                      <input
-                        type="text"
-                        value={commentDraft}
-                        onChange={e => setCommentDraft(e.target.value)}
-                        className="flex-1 rounded border border-gray-300 p-2"
-                        placeholder="Add a comment..."
-                        disabled={commentSaving}
-                        onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleAddComment(); } }}
-                      />
-                      <button
-                        type="button"
-                        onClick={handleAddComment}
-                        disabled={commentSaving || !commentDraft.trim()}
-                        className="rounded bg-emerald-600 px-3 py-1 text-xs font-semibold text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
-                      >
-                        {commentSaving ? 'Saving...' : 'Add'}
-                      </button>
                     </div>
                   </div>
                 </div>

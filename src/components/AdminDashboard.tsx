@@ -5,7 +5,6 @@ const TABS = [
   { key: 'bookings', label: 'Bookings' },
   { key: 'tickets', label: 'Tickets' },
   { key: 'invoices', label: 'Invoices' },
-  { key: 'project', label: 'Project Manager' },
 ];
 
 const AdminDashboard: React.FC = () => {
@@ -13,15 +12,6 @@ const AdminDashboard: React.FC = () => {
 
   return (
     <div className="max-w-4xl mx-auto p-6">
-      <div className="mb-4 text-sm text-slate-700 text-center">
-        <a href="#" onClick={e => { e.preventDefault(); setActiveTab('pages'); }} className="hover:underline mx-2">Pages Manager</a>
-        |
-        <a href="#" onClick={e => { e.preventDefault(); setActiveTab('project'); }} className="hover:underline mx-2">Project Manager</a>
-        |
-        <a href="#" onClick={e => { e.preventDefault(); setActiveTab('finance'); }} className="hover:underline mx-2">Global Finance Defaults</a>
-        |
-        <a href="/" className="hover:underline mx-2">Back to Main Page</a>
-      </div>
       <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
       <div className="flex gap-4 mb-6 border-b pb-2">
         {TABS.map(tab => (
@@ -48,27 +38,6 @@ const AdminDashboard: React.FC = () => {
             <h2 className="text-xl font-semibold mb-4">Invoices</h2>
             {/* TODO: Generate/view/download invoices here */}
             <p>Invoice management coming soon...</p>
-          </div>
-        )}
-        {activeTab === 'project' && (
-          <div>
-            <h2 className="text-xl font-semibold mb-4">Project Manager</h2>
-            {/* TODO: Add project management features here */}
-            <p>Project management coming soon...</p>
-          </div>
-        )}
-        {activeTab === 'pages' && (
-          <div>
-            <h2 className="text-xl font-semibold mb-4">Pages Manager</h2>
-            {/* TODO: Add pages management features here */}
-            <p>Pages management coming soon...</p>
-          </div>
-        )}
-        {activeTab === 'finance' && (
-          <div>
-            <h2 className="text-xl font-semibold mb-4">Global Finance Defaults</h2>
-            {/* TODO: Add global finance defaults features here */}
-            <p>Finance defaults management coming soon...</p>
           </div>
         )}
       </div>
