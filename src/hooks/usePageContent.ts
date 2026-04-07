@@ -155,8 +155,10 @@ export function usePageContent({ pageSlug, locale, fallbackContent }: UsePageCon
 
     fetchContent();
 
+    let isMounted = true;
+    const channelName = `page_content:${pageSlug}:${locale}`;
     const channel = supabase
-      .channel(`page_content:${pageSlug}:${locale}`)
+      .channel(channelName)
       .on(
         'postgres_changes',
         {
@@ -165,6 +167,7 @@ export function usePageContent({ pageSlug, locale, fallbackContent }: UsePageCon
           table: 'page_content',
         },
         (payload: RealtimePostgresChangesPayload<RealtimePageContentRow>) => {
+          if (!isMounted) return;
           if (payload.eventType === 'DELETE') {
             const oldRow = payload.old;
             if (
@@ -188,6 +191,7 @@ export function usePageContent({ pageSlug, locale, fallbackContent }: UsePageCon
       .subscribe();
 
     return () => {
+      isMounted = false;
       supabase.removeChannel(channel);
     };
   }, [pageSlug, locale, fallbackContent]);
