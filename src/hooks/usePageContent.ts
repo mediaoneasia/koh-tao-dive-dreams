@@ -5,9 +5,11 @@ const supabaseClient = VITE_SUPABASE_URL && VITE_SUPABASE_ANON_KEY
   ? createClient(VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY)
   : null;
 
+
+// Remove top-level return; handle supabaseClient check inside functions/hooks instead
 if (!supabaseClient) {
   console.warn("Supabase is not configured. Skipping API call.");
-  return { data: null, error: "Supabase not configured" };
+  // Do not return at top-level; handle this in your hook or function
 }
 
 const { data, error } = await supabaseClient
