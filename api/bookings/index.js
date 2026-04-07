@@ -274,7 +274,17 @@ export default async function handler(req, res) {
       try {
         const { data: inviteData, error: inviteError } = await supabase.auth.admin.inviteUserByEmail(payload.email);
         if (inviteError) {
-          console.error('Supabase invite error:', inviteError);
+          if (inviteError.status === 422 && inviteError.code === 'email_exists') {
+            // User already exists, fetch user by email
+            const { data: userData, error: userFetchError } = await supabase.auth.admin.listUsers({ email: payload.email });
+            if (userFetchError) {
+              console.error('Supabase fetch user error:', userFetchError);
+            } else if (userData && userData.users && userData.users.length > 0) {
+              userId = userData.users[0].id;
+            }
+          } else {
+            console.error('Supabase invite error:', inviteError);
+          }
         } else if (inviteData && inviteData.user && inviteData.user.id) {
           userId = inviteData.user.id;
         }
