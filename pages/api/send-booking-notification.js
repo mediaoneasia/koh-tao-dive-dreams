@@ -24,7 +24,7 @@ export default async function handler(req, res) {
   try {
     const resend = new Resend(process.env.RESEND_API_KEY);
     await resend.emails.send({
-      from: process.env.SMTP_FROM || 'no-reply@divinginasia.com',
+      from: process.env.SMTP_FROM || 'bookings@divinginasia.com',
       to: process.env.CONTACT_RECEIVER_EMAIL || 'bookings@divinginasia.com',
       subject: 'New Booking Notification',
       text: `Name: ${name}\nEmail: ${email}\nCourse: ${course}\nPreferred Date: ${preferred_date}`,
