@@ -195,17 +195,9 @@ const sendConfirmedEmails = async (booking) => {
   }
 };
 
-export default function handler(req, res) {
-  // CORS headers
-  res.setHeader('Access-Control-Allow-Origin', '*'); // Or specify your domain instead of '*'
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
-  // Handle preflight request
-  if (req.method === 'OPTIONS') {
-    res.status(200).end();
-    return;
-  }
+export default async function handler(req, res) {
+  if (handleOptions(req, res)) return;
+  applyCors(res);
 
   // TEST: Respond to GET /api/bookings?test=1 with a simple message
   if (req.method === 'GET' && req.query && req.query.test === '1') {
@@ -304,13 +296,7 @@ export default function handler(req, res) {
 
       const primaryInsert = await supabase.from(BOOKING_TABLE).insert([payload]).select();
       if (!primaryInsert.error) {
-        const newBooking = normalizeBooking((primaryInsert.data || [])[0] || null);
-        try {
-          await sendConfirmedEmails(newBooking);
-        } catch (mailErr) {
-          console.error('Failed to send booking emails', mailErr);
-        }
-        return res.status(201).json(newBooking);
+        return res.status(201).json(normalizeBooking((primaryInsert.data || [])[0] || null));
       } else {
         return res.status(500).json({
           error: primaryInsert.error?.message || 'Failed to save booking',
