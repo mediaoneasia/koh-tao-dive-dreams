@@ -31,66 +31,28 @@ const bookingSchema = z.object({
   paymentChoice: z.enum(['now', 'link', 'none']).optional(),
 });
 
-// Simple booking/contact form (no payment, no database)
-// On submit, sends details to a single API endpoint (e.g., /api/simple-contact)
-import React, { useState } from 'react';
+// Simple Web3Forms-powered contact/booking form (no backend needed)
+import React from 'react';
 
-// You can style this form as you wish or use your UI library
+// Replace with your Web3Forms access key
+const WEB3FORMS_ACCESS_KEY = 'a237fd7a-99eb-4905-89f4-c25ede3abf8c'; // <-- Updated Web3Forms access key
+
 const BookingPage: React.FC = () => {
-  // Form state
-  const [form, setForm] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    message: '',
-    type: 'booking', // or 'contact'
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [success, setSuccess] = useState(false);
-  const [error, setError] = useState('');
-
-  // Handle form field changes
-  function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  }
-
-  // Handle form submit
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setIsSubmitting(true);
-    setError('');
-    setSuccess(false);
-    try {
-      // POST to your API route (should send email via Resend or similar)
-      const res = await fetch('/api/simple-contact', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
-      });
-      if (res.ok) {
-        setSuccess(true);
-        setForm({ name: '', email: '', phone: '', message: '', type: form.type });
-      } else {
-        const data = await res.json().catch(() => ({}));
-        setError(data.error || 'Failed to send. Please try again.');
-      }
-    } catch (err) {
-      setError('Failed to send. Please try again.');
-    } finally {
-      setIsSubmitting(false);
-    }
-  }
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-background py-16">
-      <form className="max-w-md w-full bg-white rounded-xl shadow-xl p-8 space-y-4" onSubmit={handleSubmit}>
+      <form
+        className="max-w-md w-full bg-white rounded-xl shadow-xl p-8 space-y-4"
+        action="https://api.web3forms.com/submit"
+        method="POST"
+      >
         <h1 className="text-2xl font-bold mb-2">Contact / Booking Form</h1>
         <p className="text-sm text-muted-foreground mb-4">Fill out the form and we’ll get back to you soon.</p>
 
-        {/* Type selector: booking or contact */}
+        <input type="hidden" name="access_key" value={WEB3FORMS_ACCESS_KEY} />
+
         <div>
           <label className="block mb-1 font-medium">Type</label>
-          <select name="type" value={form.type} onChange={handleChange} className="w-full border rounded p-2">
+          <select name="type" className="w-full border rounded p-2">
             <option value="booking">Booking</option>
             <option value="contact">Contact/Inquiry</option>
           </select>
@@ -98,27 +60,28 @@ const BookingPage: React.FC = () => {
 
         <div>
           <label className="block mb-1 font-medium">Name *</label>
-          <input name="name" value={form.name} onChange={handleChange} required className="w-full border rounded p-2" />
+          <input name="name" required className="w-full border rounded p-2" />
         </div>
         <div>
           <label className="block mb-1 font-medium">Email *</label>
-          <input name="email" type="email" value={form.email} onChange={handleChange} required className="w-full border rounded p-2" />
+          <input name="email" type="email" required className="w-full border rounded p-2" />
         </div>
         <div>
           <label className="block mb-1 font-medium">Phone</label>
-          <input name="phone" value={form.phone} onChange={handleChange} className="w-full border rounded p-2" />
+          <input name="phone" className="w-full border rounded p-2" />
         </div>
         <div>
           <label className="block mb-1 font-medium">Message *</label>
-          <textarea name="message" value={form.message} onChange={handleChange} required rows={4} className="w-full border rounded p-2" />
+          <textarea name="message" required rows={4} className="w-full border rounded p-2" />
         </div>
 
-        <button type="submit" disabled={isSubmitting} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-          {isSubmitting ? 'Sending...' : 'Send'}
-        </button>
+        {/* Web3Forms success/fail messages */}
+        <input type="hidden" name="subject" value="New Booking/Contact Submission" />
+        <input type="hidden" name="redirect" value="/thank-you" />
 
-        {success && <div className="text-green-600 font-medium mt-2">Your message has been sent!</div>}
-        {error && <div className="text-red-600 font-medium mt-2">{error}</div>}
+        <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+          Send
+        </button>
       </form>
     </div>
   );
