@@ -43,6 +43,32 @@ export default async function handler(req, res) {
 	await applyCors(req, res);
 	if (req.method === 'OPTIONS') return handleOptions(req, res);
 
+	if (req.method === 'GET') {
+		// Check authentication
+		const token = req.headers.authorization?.replace('Bearer ', '');
+		if (!token) {
+			return res.status(401).json({ error: 'Unauthorized' });
+		}
+		try {
+			const { data: { user }, error } = await supabase.auth.getUser(token);
+			if (error || !user) {
+				return res.status(401).json({ error: 'Unauthorized' });
+			}
+		} catch (authErr) {
+			return res.status(401).json({ error: 'Unauthorized' });
+		}
+
+		try {
+			const { data, error } = await supabase.from(BOOKING_TABLE).select('*').order('created_at', { ascending: false });
+			if (error) {
+				return res.status(500).json({ error: error.message });
+			}
+			return res.status(200).json(data.map(normalizeBooking));
+		} catch (err) {
+			return res.status(500).json({ error: err.message || 'Failed to fetch bookings' });
+		}
+	}
+
 	if (req.method === 'POST') {
 		try {
 			const { name, email, phone, course_title, preferred_date, experience_level, message } = req.body || {};
@@ -94,7 +120,7 @@ export default async function handler(req, res) {
 			return res.status(500).json({ error: err.message || 'Failed to create booking' });
 		}
 	} else {
-		res.setHeader('Allow', ['POST', 'OPTIONS']);
+		res.setHeader('Allow', ['GET', 'POST', 'OPTIONS']);
 		return res.status(405).end('Method Not Allowed');
 	}
 }

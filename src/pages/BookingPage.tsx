@@ -78,13 +78,17 @@ const       BookingPage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const apiBaseRaw = (import.meta.env.VITE_API_BASE_URL || '').trim();
-  const apiBaseNormalized = apiBaseRaw
-    ? (apiBaseRaw.startsWith('http://') || apiBaseRaw.startsWith('https://')
+  const apiBase = apiBaseRaw
+    ? ((apiBaseRaw.startsWith('http://') || apiBaseRaw.startsWith('https://'))
         ? apiBaseRaw
         : `https://${apiBaseRaw}`)
-    : 'https://koh-tao-dive-dreams-mocha.vercel.app';
-  const apiBase = apiBaseNormalized.replace(/\/+$/, '');
-  const apiUrl = (path: string) => `${apiBase}${path}`;
+    : (import.meta.env.DEV ? 'http://localhost:3002' : '');
+  const apiUrl = (path: string) => {
+    if (!apiBase) return path;
+    const base = apiBase.replace(/\/+$/, ''); // remove trailing slashes
+    const fullPath = base.endsWith('/api') ? `${base}${path.replace(/^\/api/, '')}` : `${base}${path}`;
+    return fullPath;
+  };
   const courseSlug = (searchParams.get('course') || '').trim();
   const fallbackCourse = courseSlug ? COURSE_FALLBACKS[courseSlug] : undefined;
   const hasDirectBookingContext = Boolean(
@@ -211,7 +215,7 @@ const       BookingPage: React.FC = () => {
 
       let persisted = false;
       try {
-        const dbRes = await fetch(`${import.meta.env.VITE_API_URL}/api/bookings`, {
+        const dbRes = await fetch(apiUrl('/api/bookings'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(apiBookingPayload),

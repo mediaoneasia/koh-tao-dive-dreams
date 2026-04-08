@@ -30,6 +30,9 @@ const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_KEY;
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, { realtime: { enabled: false } });
 
+const { Resend } = require('resend');
+const resend = new Resend(process.env.RESEND_API_KEY);
+
 const getJiraConfig = () => ({
   domain: process.env.JIRA_DOMAIN || 'https://divinginasia.atlassian.net',
   projectKey: process.env.JIRA_PROJECT_KEY || 'PRO',
@@ -422,6 +425,42 @@ app.post('/api/affiliate-clicks', async (req, res) => {
   }
 
   return res.status(201).json({ ok: true, id: event.id });
+});
+
+app.post('/api/send-booking-notification', async (req, res) => {
+  try {
+    const { item_title, name, email, phone, preferred_date, experience_level, payment_choice, deposit_amount, message } = req.body;
+
+    const from = process.env.RESEND_FROM_EMAIL || "noreply@divinginasia.com";
+    const to = process.env.RESEND_BOOKING_TO_EMAIL || "bookings@divinginasia.com";
+
+    const subject = `New Booking Inquiry: ${item_title}`;
+    const text = `
+Name: ${name}
+Email: ${email}
+Phone: ${phone || 'N/A'}
+Preferred Date: ${preferred_date || 'N/A'}
+Experience Level: ${experience_level || 'N/A'}
+Payment Choice: ${payment_choice || 'N/A'}
+Deposit Amount: ${deposit_amount || 'N/A'}
+Message: ${message || 'N/A'}
+    `.trim();
+
+    const { data, error } = await resend.emails.send({
+      from,
+      to,
+      subject,
+      text,
+    });
+
+    if (error) {
+      return res.status(500).json({ error: error.message });
+    }
+
+    return res.status(200).json({ success: true, data });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
 });
 
 // Catch-all handler: send back index.html for client-side routing

@@ -14,10 +14,12 @@ export default async function handler(req, res) {
     return;
   }
 
-  const { name, email, course, preferred_date } = req.body || {};
+  const { name, email, preferred_date } = req.body || {};
+  const course = req.body?.course || req.body?.item_title || req.body?.course_title || 'Booking Inquiry';
+  const preferredDate = preferred_date || 'N/A';
 
-  if (!name || !email || !course || !preferred_date) {
-    res.status(400).json({ error: 'Missing required fields' });
+  if (!name || !email) {
+    res.status(400).json({ success: false, error: 'Missing required fields: name and email' });
     return;
   }
 
@@ -27,11 +29,11 @@ export default async function handler(req, res) {
       from: process.env.SMTP_FROM || 'no-reply@divinginasia.com',
       to: process.env.CONTACT_RECEIVER_EMAIL || 'bookings@divinginasia.com',
       subject: 'New Booking Notification',
-      text: `Name: ${name}\nEmail: ${email}\nCourse: ${course}\nPreferred Date: ${preferred_date}`,
+      text: `Name: ${name}\nEmail: ${email}\nCourse: ${course}\nPreferred Date: ${preferredDate}`,
       reply_to: email,
     });
-    res.status(200).json({ message: 'Notification sent' });
+    res.status(200).json({ success: true, message: 'Notification sent' });
   } catch (err) {
-    res.status(500).json({ error: err.message || 'Failed to send notification' });
+    res.status(500).json({ success: false, error: err.message || 'Failed to send notification' });
   }
 }
