@@ -6,7 +6,7 @@ import DiveSites from '../components/DiveSites';
 import Courses from '../components/Courses';
 import Gallery from '../components/Gallery';
 import About from '../components/About';
-import BookingInquiryForm from '../components/BookingInquiryForm';
+// import BookingInquiryForm from '../components/BookingInquiryForm';
 import FunDiving from './FunDiving';
 import CurrencyExchange from '../components/CurrencyExchange';
 
@@ -34,7 +34,7 @@ const Index = () => {
 			<Courses />
 			<FunDiving />
 			<Gallery />
-			<section id="contact" className="py-20 bg-gray-900 text-white">
+// Contact/booking form is now handled by booking-form.html. Remove React form from homepage.
 				<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 					<BookingInquiryForm />
 				</div>
