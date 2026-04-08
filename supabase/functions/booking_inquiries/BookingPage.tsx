@@ -31,269 +31,100 @@ const bookingSchema = z.object({
   paymentChoice: z.enum(['now', 'link', 'none']).optional(),
 });
 
+// Simple booking/contact form (no payment, no database)
+// On submit, sends details to a single API endpoint (e.g., /api/simple-contact)
+import React, { useState } from 'react';
 
-type BookingFormData = z.infer<typeof bookingSchema>;
-
-const PAYPAL_LINK = 'https://paypal.me/prodivingasia';
-const COURSE_DEPOSIT_RATE = 0.2;
-const SKIP_PAYMENT_MESSAGE = 'You have chosen not to pay right now, no problem! We will contact you soon to arrange bookings and payment. Thank You, Pro Diving Asia Team.';
-
-const COURSE_FALLBACKS: Record<string, { item: string; price?: number; currency?: string }> = {
-  'wreck-diver': { item: 'PADI Wreck Diver Specialty', price: 8000, currency: 'THB' },
-  'deep-diver': { item: 'PADI Deep Diver Specialty', price: 8000, currency: 'THB' },
-  'self-reliant': { item: 'PADI Self-Reliant Diver Specialty', price: 8000, currency: 'THB' },
-  'sidemount': { item: 'PADI Sidemount Diver Specialty', price: 8000, currency: 'THB' },
-  'night-diver': { item: 'PADI Night Diver Specialty', price: 8000, currency: 'THB' },
-  'peak-buoyancy': { item: 'PADI Peak Performance Buoyancy', price: 8000, currency: 'THB' },
-  'navigator': { item: 'PADI Underwater Navigator Specialty', price: 3000, currency: 'THB' },
-  'enriched-air': { item: 'PADI Enriched Air Diver Specialty', price: 8000, currency: 'THB' },
-  'emergency-o2': { item: 'Emergency Oxygen Provider', price: 8000, currency: 'THB' },
-  'dpv': { item: 'PADI DPV Diver Specialty', price: 4200, currency: 'THB' },
-  'search-recovery': { item: 'PADI Search & Recovery Specialty', price: 8000, currency: 'THB' },
-  'coral-watch': { item: 'Coral Watch Specialty', price: 2300, currency: 'THB' },
-  'sea-turtle': { item: 'Sea Turtle Awareness Specialty', price: 2200, currency: 'THB' },
-  'fish-id': { item: 'Fish Identification Specialty', price: 8000, currency: 'THB' },
-  'dive-against-debris': { item: 'Dive Against Debris Specialty', price: 8000, currency: 'THB' },
-  'shark-conservation': { item: 'Shark Conservation Specialty', price: 2500, currency: 'THB' },
-  'whaleshark': { item: 'Whale Shark Awareness Specialty', price: 3500, currency: 'THB' },
-  'underwater-naturalist': { item: 'PADI Underwater Naturalist Specialty', price: 3500, currency: 'THB' },
-  'adaptive-support': { item: 'Adaptive Support Diver Specialty', price: 4000, currency: 'THB' },
-  'current-diver': { item: 'PADI Current Diver Specialty', currency: 'THB' },
-  'photography': { item: 'PADI Underwater Photography Specialty', price: 8000, currency: 'THB' },
-  'equipment-specialist': { item: 'PADI Equipment Specialist', currency: 'THB' },
-  'boat-diver': { item: 'PADI Boat Diver Specialty', currency: 'THB' },
-  'divemaster-internship': { item: 'PADI Divemaster Internship', currency: 'THB' },
-  'instructor-internship': { item: 'PADI Instructor Internship', currency: 'THB' },
-};
-
-const ADDONS = [
-  { id: 'equipment', label: 'Equipment rental', amount: 300 },
-  { id: 'photos', label: 'Underwater photos', amount: 500 },
-  { id: 'lunch', label: 'Lunch & drinks', amount: 200 },
-];
-
-type BookingItemType = 'course' | 'dive' | 'stay';
-
-const       BookingPage: React.FC = () => {
-  const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
-  const apiBaseRaw = (import.meta.env.VITE_API_BASE_URL || '').trim();
-  const apiBaseNormalized = apiBaseRaw
-    ? (apiBaseRaw.startsWith('http://') || apiBaseRaw.startsWith('https://')
-        ? apiBaseRaw
-        : `https://${apiBaseRaw}`)
-    : 'https://koh-tao-dive-dreams-mocha.vercel.app';
-  const apiBase = apiBaseNormalized.replace(/\/+$/, '');
-  const apiUrl = (path: string) => `${apiBase}${path}`;
-  const courseSlug = (searchParams.get('course') || '').trim();
-  const fallbackCourse = courseSlug ? COURSE_FALLBACKS[courseSlug] : undefined;
-  const hasDirectBookingContext = Boolean(
-    searchParams.get('item') ||
-    searchParams.get('type') ||
-    searchParams.get('price') ||
-    fallbackCourse
-  );
-  const selectedBookingKind = (searchParams.get('bookingKind') || '').trim();
-  const bookingSource = (searchParams.get('source') || 'direct').trim();
-  const rawType = (searchParams.get('type') || '').trim();
-  const genericType: BookingItemType = selectedBookingKind === 'course' ? 'course' : 'dive';
-  const itemType: BookingItemType = rawType === 'dive' || rawType === 'stay' || rawType === 'course'
-    ? rawType
-    : (hasDirectBookingContext ? 'course' : genericType);
-  const itemTitle = searchParams.get('item') || fallbackCourse?.item || (itemType === 'course' ? 'Course Booking' : 'Fun Dive');
-  const isDiveBooking = itemType === 'dive';
-  const isCourseBooking = itemType === 'course';
-  const isStayBooking = itemType === 'stay';
-  const rawPrice = searchParams.get('price');
-  const parsedPrice = rawPrice ? Number(rawPrice) : NaN;
-  const baseCourseCostMajor = Number.isFinite(parsedPrice)
-    ? parsedPrice
-    : (fallbackCourse?.price || (!hasDirectBookingContext && itemType === 'dive' ? 2000 : 0));
-  const parsedDeposit = Number(searchParams.get('deposit') || '0');
-  const depositFromQuery = Number.isFinite(parsedDeposit) ? parsedDeposit : 0;
-  const depositCurrency = searchParams.get('currency') || fallbackCourse?.currency || 'THB';
-  const isFunDiveBooking = isDiveBooking && /fun dive/i.test(itemTitle);
-  const isDiscoverScubaBooking = isDiveBooking && /(discover scuba|dsd)/i.test(itemTitle);
-
-  const initialDiveCount = Math.min(20, Math.max(1, Number(searchParams.get('dives') || '2') || 2));
-  const [funDiveCount, setFunDiveCount] = useState<number>(initialDiveCount);
-  const initialCourseFunDiveCount = Math.min(10, Math.max(0, Number(searchParams.get('courseFunDives') || '0') || 0));
-  const [courseFunDiveCount, setCourseFunDiveCount] = useState<number>(initialCourseFunDiveCount);
-  const [stayWithUs, setStayWithUs] = useState<boolean>(searchParams.get('stay') === 'yes');
-  const [showStayPopup, setShowStayPopup] = useState(false);
-
-  const getFunDiveRate = (dives: number) => {
-    if (dives >= 10) return 800;
-    if (dives >= 2) return 900;
-    return 1000;
-  };
-
-  const courseCostMajor = isFunDiveBooking
-    ? getFunDiveRate(funDiveCount) * funDiveCount
-    : baseCourseCostMajor;
-  const courseFunDiveCostMajor = isCourseBooking && courseFunDiveCount > 0
-    ? getFunDiveRate(courseFunDiveCount) * courseFunDiveCount
-    : 0;
-  const totalItemCostMajor = isCourseBooking ? courseCostMajor + courseFunDiveCostMajor : courseCostMajor;
-  const depositFromPrice = totalItemCostMajor > 0 ? Math.round(totalItemCostMajor * COURSE_DEPOSIT_RATE) : 0;
-  const depositMajor = depositFromPrice > 0 ? depositFromPrice : depositFromQuery;
-
-  const [selectedAddons, setSelectedAddons] = useState<Record<string, boolean>>({});
-  const availableAddons = useMemo(() => {
-    if (!isDiveBooking) return [];
-    return ADDONS.filter((addon) => !(isDiscoverScubaBooking && addon.id === 'equipment'));
-  }, [isDiveBooking, isDiscoverScubaBooking]);
-
-  const totalAddons = useMemo(() => {
-    if (!isDiveBooking) return 0;
-    return availableAddons.reduce((sum, a) => sum + (selectedAddons[a.id] ? a.amount : 0), 0);
-  }, [isDiveBooking, availableAddons, selectedAddons]);
-
-  const form = useForm<BookingFormData>({
-    resolver: zodResolver(bookingSchema),
-    defaultValues: {
-      name: '',
-      email: '',
-      phone: '',
-      preferred_date: new Date().toISOString().slice(0, 10),
-      experience_level: '',
-      message: searchParams.get('message') || '',
-      paymentChoice: itemType === 'course' || itemType === 'dive' ? 'now' : 'none',
-    },
+// You can style this form as you wish or use your UI library
+const BookingPage: React.FC = () => {
+  // Form state
+  const [form, setForm] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    message: '',
+    type: 'booking', // or 'contact'
   });
-
-  const [showPaymentLinks, setShowPaymentLinks] = useState(false);
-  const [showSkipPaymentPopup, setShowSkipPaymentPopup] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState('');
 
-  const onSubmit = async (data: BookingFormData) => {
-    console.log('Form submitted with data:', data);
-    console.log('Form validation errors:', form.formState.errors);
+  // Handle form field changes
+  function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  }
+
+  // Handle form submit
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
     setIsSubmitting(true);
+    setError('');
+    setSuccess(false);
     try {
-      const amountMajor = (isStayBooking ? 0 : depositMajor) + totalAddons;
-      // Calculate deposit, total, due for API
-      const deposit_amount = isStayBooking ? null : depositMajor;
-      const total_amount = isStayBooking ? null : (totalItemCostMajor + totalAddons);
-      const due_amount = isStayBooking ? null : ((totalItemCostMajor + totalAddons) - depositMajor);
-      const selectedAddonsList = isDiveBooking
-        ? availableAddons.filter((addon) => selectedAddons[addon.id]).map((addon) => ({
-            id: addon.id,
-            label: addon.label,
-            amount: addon.amount,
-          }))
-        : [];
-      const bookingItemTitle = isFunDiveBooking
-        ? `${itemTitle} (${funDiveCount} dives)`
-        : (isCourseBooking && courseFunDiveCount > 0
-          ? `${itemTitle} + ${courseFunDiveCount} Fun Dives`
-          : itemTitle);
-      const addonsText = isDiveBooking
-        ? (availableAddons.filter(a => selectedAddons[a.id]).map(a => a.label).join(', ') || 'None')
-        : 'N/A (course booking)';
-      const messageWithSource = `${data.message || 'No additional message'}\n\nBooking Source: ${bookingSource}`;
-
-      const apiBookingPayload = {
-        name: data.name,
-        email: data.email,
-        phone: data.phone || null,
-        item_type: itemType,
-        course_title: bookingItemTitle,
-        preferred_date: data.preferred_date || null,
-        experience_level: data.experience_level || null,
-        addons: addonsText,
-        addons_json: JSON.stringify(selectedAddonsList),
-        addons_total: totalAddons,
-        subtotal_amount: totalItemCostMajor > 0 ? totalItemCostMajor : null,
-        // Always send a value for total_payable_now
-        total_payable_now: isStayBooking ? 'Quote on request' : (amountMajor > 0 ? amountMajor : 0),
-        // New: send deposit, total, due for admin
-        deposit_amount
-        total_amount,
-        due_amount,
-        message: messageWithSource,
-        status: 'pending',
-      };
-
-      let persisted = false;
-      try {
-        const dbRes = await fetch('https://koh-tao-dive-dreams-mocha.vercel.app/api/bookings', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(apiBookingPayload),
-        });
-        persisted = dbRes.ok;
-      } catch (dbErr) {
-        console.warn('Booking persistence failed; continuing with email flow.', dbErr);
+      // POST to your API route (should send email via Resend or similar)
+      const res = await fetch('/api/simple-contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      });
+      if (res.ok) {
+        setSuccess(true);
+        setForm({ name: '', email: '', phone: '', message: '', type: form.type });
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setError(data.error || 'Failed to send. Please try again.');
       }
-
-      // Prepare Web3Forms payload
-      const payload = {
-        access_key: '4ca93aa5-cd42-4902-af87-a08e1ae7c832',
-        to: 'petergreaney@proton.me',
-        subject: `Booking Inquiry: ${bookingItemTitle}`,
-        name: data.name,
-        email: data.email,
-        phone: data.phone || 'N/A',
-        preferred_date: data.preferred_date || 'N/A',
-        experience_level: data.experience_level || 'N/A',
-        payment_choice: data.paymentChoice === 'now' ? 'Pay deposit now via PayPal' : 'Pay later (inquire only)',
-        paypal_link: data.paymentChoice === 'now' ? `${PAYPAL_LINK}/${amountMajor}THB` : null,
-        item_title: bookingItemTitle,
-        full_price: totalItemCostMajor > 0 ? `฿${totalItemCostMajor}` : (isStayBooking ? 'Quote on request' : 'N/A'),
-        dive_count: isFunDiveBooking ? funDiveCount : 'N/A',
-        course_fun_dive_count: isCourseBooking ? courseFunDiveCount : 'N/A',
-        course_fun_dive_cost: isCourseBooking && courseFunDiveCostMajor > 0 ? `฿${courseFunDiveCostMajor}` : 'N/A',
-        stay_with_us: isCourseBooking
-          ? (stayWithUs ? 'Yes - accommodation free with course' : 'No')
-          : (isDiveBooking ? (stayWithUs ? 'Yes - accommodation requested with dive booking' : 'No') : 'N/A'),
-        deposit_amount: amountMajor > 0 ? `฿${amountMajor}` : 'Quote on request',
-        addons: addonsText,
-        booking_source: bookingSource,
-        message: messageWithSource,
-      };
-
-      // Web3Forms logic removed. Use backend API for notifications only.
     } catch (err) {
-      console.error('Form submission error:', err);
-      toast.error('Submission failed. Please try again.');
+      setError('Failed to send. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  // Rezdy prefill removed.
+  }
 
   return (
-    <div className="min-h-screen bg-background py-16">
-      <div className="max-w-4xl mx-auto bg-background rounded-xl shadow-xl shadow-blue-900/20 p-8">
-        <div className="flex items-start justify-between gap-4">
-          <h1 className="text-2xl font-bold mb-2">Book: {itemTitle}</h1>
-        </div>
-        <p className="text-sm text-muted-foreground mb-6">Select options and submit your booking or inquiry.</p>
+    <div className="min-h-screen flex items-center justify-center bg-background py-16">
+      <form className="max-w-md w-full bg-white rounded-xl shadow-xl p-8 space-y-4" onSubmit={handleSubmit}>
+        <h1 className="text-2xl font-bold mb-2">Contact / Booking Form</h1>
+        <p className="text-sm text-muted-foreground mb-4">Fill out the form and we’ll get back to you soon.</p>
 
-        {!hasDirectBookingContext && (
-          <div className="mb-6 p-4 border rounded-lg bg-blue-700 border-blue-600 text-white">
-            <h3 className="font-semibold mb-3 text-white">What would you like to book?</h3>
-            <div className="flex flex-wrap gap-2">
-              <Button
-                type="button"
-                variant={isCourseBooking ? 'default' : 'outline'}
-                className={isCourseBooking ? 'bg-blue-900 hover:bg-blue-950 text-white border-blue-900' : 'bg-white/10 hover:bg-white/20 text-white border-white/40'}
-                onClick={() => navigate(`/booking?source=${encodeURIComponent(bookingSource)}&bookingKind=course`)}
-              >
-                Course
-              </Button>
-              <Button
-                type="button"
-                variant={isDiveBooking ? 'default' : 'outline'}
-                className={isDiveBooking ? 'bg-blue-500 hover:bg-blue-400 text-white border-blue-500' : 'bg-white/10 hover:bg-white/20 text-white border-white/40'}
-                onClick={() => navigate(`/booking?source=${encodeURIComponent(bookingSource)}&bookingKind=dive`)}
-              >
-                Fun Dives
-              </Button>
-            </div>
-          </div>
+        {/* Type selector: booking or contact */}
+        <div>
+          <label className="block mb-1 font-medium">Type</label>
+          <select name="type" value={form.type} onChange={handleChange} className="w-full border rounded p-2">
+            <option value="booking">Booking</option>
+            <option value="contact">Contact/Inquiry</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="block mb-1 font-medium">Name *</label>
+          <input name="name" value={form.name} onChange={handleChange} required className="w-full border rounded p-2" />
+        </div>
+        <div>
+          <label className="block mb-1 font-medium">Email *</label>
+          <input name="email" type="email" value={form.email} onChange={handleChange} required className="w-full border rounded p-2" />
+        </div>
+        <div>
+          <label className="block mb-1 font-medium">Phone</label>
+          <input name="phone" value={form.phone} onChange={handleChange} className="w-full border rounded p-2" />
+        </div>
+        <div>
+          <label className="block mb-1 font-medium">Message *</label>
+          <textarea name="message" value={form.message} onChange={handleChange} required rows={4} className="w-full border rounded p-2" />
+        </div>
+
+        <button type="submit" disabled={isSubmitting} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+          {isSubmitting ? 'Sending...' : 'Send'}
+        </button>
+
+        {success && <div className="text-green-600 font-medium mt-2">Your message has been sent!</div>}
+        {error && <div className="text-red-600 font-medium mt-2">{error}</div>}
+      </form>
+    </div>
+  );
+};
+
+export default BookingPage;
         )}
 
         {/* Special Packages Banner */}
