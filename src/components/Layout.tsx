@@ -107,7 +107,7 @@ const Footer: React.FC = () => {
               <li><Link to="/MedicalServices" className="hover:text-white transition">{isDutch ? 'Medisch' : 'Medical'}</Link></li>
               <li><Link to="/accommodation-booking" className="hover:text-white transition">Booking.com</Link></li>
               {/* Trip.com and Agoda links removed as requested */}
-              <li><a href="https://www.divinginasia.com/#contact" className="hover:text-white transition">Contact</a></li>
+              <li><a href="#contact" className="hover:text-white transition">Contact</a></li>
             </ul>
           </div>
         </div>
