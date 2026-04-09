@@ -184,11 +184,6 @@ const Navigation = ({ user, isAdmin, isAdminRoute }: { user?: any, isAdmin?: boo
     { name: 'Nudibranchs', to: '/marine-life/nudibranchs' },
   ];
 
-  const navItems = [
-    { name: t('nav.home'), href: 'https://divinginasia.com' },
-    { name: t('nav.contact'), href: '/#contact' },
-  ];
-
   if (isAdminRoute && isAdmin) {
     // Hide main menu for admins on admin pages
     return null;
@@ -542,15 +537,6 @@ const Navigation = ({ user, isAdmin, isAdminRoute }: { user?: any, isAdmin?: boo
               </div>
             </div>
 
-            {/* Contact stays as a single nav item */}
-            <a
-              href={navItems[1].href}
-              onClick={(e) => handleAnchorClick(e, navItems[1].href)}
-              className="text-gray-700 hover:text-blue-600 transition-colors duration-200 font-medium"
-            >
-              {navItems[1].name}
-            </a>
-
             {/* Account dropdown */}
             <div className="relative group">
               <button
@@ -824,11 +810,6 @@ const Navigation = ({ user, isAdmin, isAdminRoute }: { user?: any, isAdmin?: boo
                   </div>
                 )}
               </div>
-
-              {/* Contact stays as a single nav item for mobile */}
-              <a key={navItems[1].name} href={navItems[1].href} className="block px-3 py-2 text-gray-700 hover:text-blue-600" onClick={(e) => handleAnchorClick(e, navItems[1].href)}>
-                {navItems[1].name}
-              </a>
 
               {/* Mobile account accordion */}
               <div>
